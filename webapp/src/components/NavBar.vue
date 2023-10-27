@@ -42,7 +42,7 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a href="verse.bitcoin.com" target="_blank">
+        <a href="https://verse.bitcoin.com" target="_blank">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
@@ -52,15 +52,15 @@ export default {
         <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
     </div>
     <div class="navbar">
-        <a style="cursor: pointer;" href="/"><div class="logo">
-            <h2>Verse Scratch</h2>
-        </div></a>
-        <!-- <div class="links">
-            <ul>
-                <li><a href="/" >Get Ticket</a></li>
-                <li><a href="/tickets">View Tickets</a></li>
-            </ul>
-        </div> -->
+        <a style="cursor: pointer;" href="/">
+            <div class="logo">
+                <a href="https://verse.bitcoin.com" target="_blank">
+                    <div class="nav-chev"></div>
+                    <div class="nav-verse"></div>
+                </a>
+            </div>
+        </a>
+
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
             <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
@@ -69,6 +69,15 @@ export default {
 </template>
 
 <style lang="scss">
+.title-nav-desk {
+    float: left;
+    color: white;
+    position: relative;
+    left: 45px;
+    top: -6px;
+    font-size: 30px;
+    font-weight: 500;
+}
 
 .verse-nav {
     border: none;
@@ -147,6 +156,28 @@ export default {
     cursor: pointer;
 }
 
+    a {
+        .nav-chev {
+            position: absolute;
+            left: 17px;
+            top: 24px;
+            background-image: url("./../assets/icons/chev.png");
+            background-size: cover;
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-verse {
+            position: absolute;
+            left: 36px;
+            top: 18px;
+            background-image: url("./../assets/icons/logo-full.png");
+            background-size: cover;
+            width: 105px;
+            height: 32px;
+        }
+    }
+
     .navbar-mobile {
         background-color: black;
         width: 100%;
@@ -212,6 +243,7 @@ export default {
             color: white;
             padding-left: 30px;
             width: 32%;
+            position: absolute;
             margin: 0;
             float: left;
             @media(max-width: 880px) {
