@@ -60,6 +60,7 @@ export default {
                 </a>
             </div>
         </a>
+        <!-- <h3 class="title-nav-desk">Verse Scratch</h3> -->
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
@@ -70,13 +71,15 @@ export default {
 
 <style lang="scss">
 .title-nav-desk {
-    float: left;
     color: white;
-    position: relative;
-    left: 45px;
-    top: -6px;
-    font-size: 30px;
-    font-weight: 500;
+    position: absolute;
+    left: calc(50% - 200px);
+    top: 20px;
+    text-align: center;
+    width: 400px;
+    margin: 0 auto;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .verse-nav {

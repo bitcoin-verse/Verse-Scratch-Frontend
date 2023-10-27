@@ -48,8 +48,6 @@ watch(count, async (newValue)=> {
 })
 
 onMounted(() => {
-
-
     const img = new Image();
     img.src = `https://scratchverse.s3.us-west-1.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
     img.onload = () => {
@@ -89,7 +87,6 @@ onMounted(() => {
             }, false);
         })
     }
-
 })
 </script>
 
@@ -135,173 +132,170 @@ onMounted(() => {
 
 
 <style lang="scss">
-.right {
-    @media(max-width: 880px) {
-        position: fixed;
-        background-color: #1a1833;
-        padding: 20px;
-        bottom: 0;
-        left: 0;
-        z-index: 3;
-        border-top: 1px solid white;
+    .right {
+        padding-top: 130px;
+        padding-left: 50px;
+        float: left;
+        @media(max-width: 880px) {
+            position: fixed;
+            background-color: #1a1833;
+            padding: 20px;
+            bottom: 0;
+            left: 0;
+            z-index: 1;
+            border-top: 1px solid white;
+        }
+        .claim {
+            color: white;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        h2.win {
+            color: white!important;
+        }
+        h3.win {
+            color: #fac43b!important;
+            margin-bottom: 0;
+        }
     }
-    padding-top: 130px;
-    .claim {
+    .breadcrumb {
         color: white;
-        margin-top: 0;
-        margin-bottom: 0;
     }
-    padding-left: 50px;
     h2.win {
-        color: white!important;
+        margin-bottom: 0;
+        font-size: 17px;
+    
     }
     h3.win {
-        color: #fac43b!important;
-        margin-bottom: 0;
+        margin-top: 3px;
+        color: #ffc700!important;
+        font-size: 40px;
     }
-    float: left;
-}
-.breadcrumb {
-    color: white;
-}
-h2.win {
-    margin-bottom: 0;
-    font-size: 17px;
-   
-}
-h3.win {
-    margin-top: 3px;
-    color: #ffc700!important;
-    font-size: 40px;
-}
-.left {
-    @media(max-width: 880px) {
-       padding: 20px;
-       width: calc(100% - 40px);
-       margin-top: 0;
-       padding-top: 0;
-    }
-    margin-top: 50px;
-    width: 32.7%;
-    float: left;
-    padding: 40px;
-}
-.btn-holder {
-    h2 {
-        color: white;
-        text-align: left;
-    }
-    h3 {
-        color: white;
-    }
-    p {
-        color: white;
-    }
-}
-
-.btn-check {
-    background-color: #68686861;
-    color: white;
-    border: none;
-    height: 40px;
-    margin-right: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 10px;
-}
-
-.btn-redeem {
-    background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
-    color: #333;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    height: 40px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 10px;
-}
-
-.cont {
-    float: left;
-    @media(max-width: 880px) {
+    .left {
+        @media(max-width: 880px) {
+        padding: 20px;
+        width: calc(100% - 40px);
+        margin-top: 0;
         padding-top: 0;
-        padding-left: 0;
-        padding-bottom: 200px;
-        width: 100%;
-        overflow: auto;
+        }
+        margin-top: 50px;
+        width: 32.7%;
+        float: left;
+        padding: 40px;
     }
-    padding-top: 25px;
-    h2 {
+    .btn-holder {
+        h2 {
+            color: white;
+            text-align: left;
+        }
+        h3 {
+            color: white;
+        }
+        p {
+            color: white;
+        }
+    }
+
+    .btn-check {
+        background-color: #68686861;
         color: white;
-        text-align: center;
+        border: none;
+        height: 40px;
+        margin-right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 10px;
     }
-}
-.ticketholder {
-    position: relative;
-    margin: 0 auto;
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 356px;
-    height: 720px;
 
-}
-#scratchcanvas1 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 286px;
-    left: 22px;
-}
+    .btn-redeem {
+        background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
+        color: #333;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        height: 40px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
 
-#scratchcanvas2 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 286px;
-    left: 103px;
-}
+    .cont {
+        float: left;
+        @media(max-width: 880px) {
+            padding-top: 0;
+            padding-left: 0;
+            padding-bottom: 200px;
+            width: 100%;
+            overflow: auto;
+        }
+        padding-top: 25px;
+        h2 {
+            color: white;
+            text-align: center;
+        }
+    }
+    .ticketholder {
+        position: relative;
+        margin: 0 auto;
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 356px;
+        height: 720px;
 
-#scratchcanvas3 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 286px;
-    left: 184px;
-}
+    }
+    #scratchcanvas1 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 286px;
+        left: 22px;
+    }
 
-#scratchcanvas4 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 286px;
-    left: 264px;
-}
+    #scratchcanvas2 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 286px;
+        left: 103px;
+    }
 
-#scratchcanvas5 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 207px;
-    left: 22px;
-}
+    #scratchcanvas3 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 286px;
+        left: 184px;
+    }
 
-#scratchcanvas6 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 207px;
-    left: 103px;
-}
+    #scratchcanvas4 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 286px;
+        left: 264px;
+    }
 
-#scratchcanvas7 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 207px;
-    left: 184px;
-}
+    #scratchcanvas5 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 207px;
+        left: 22px;
+    }
 
-#scratchcanvas8 {
-    border-radius: 50%;
-    position: absolute;
-    bottom: 207px;
-    left: 264px;
-}
+    #scratchcanvas6 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 207px;
+        left: 103px;
+    }
 
+    #scratchcanvas7 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 207px;
+        left: 184px;
+    }
 
-
+    #scratchcanvas8 {
+        border-radius: 50%;
+        position: absolute;
+        bottom: 207px;
+        left: 264px;
+    }
 </style>
