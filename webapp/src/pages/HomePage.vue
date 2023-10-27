@@ -4,7 +4,6 @@ import { useWeb3Modal, createWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
-import axios from 'axios'
 import Web3 from 'web3'
 import { copyText } from 'vue3-clipboard'
 import GLOBALS from '../globals.js'
@@ -26,7 +25,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let reopenAfterConnection = ref(false)
     let accountActive = ref(false)
     let correctNetwork = ref(true)
-    let modalActive = ref(false) // false
+    let modalActive = ref(false)
     let ensLoaded = ref("")
     let verseBalance = ref(0);
     let verseAllowance = ref(0)
@@ -34,16 +33,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let giftAddress = ref("");
     let modalLoading = ref(false)
     let loadingMessage = ref("getting wallet data")
-    let buyStep = ref(0) // 0
-    let giftTicket = ref(false); // false
+    let buyStep = ref(0) 
+    let giftTicket = ref(false);
     let showTimer = ref(false)
-    
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
-
     let timeoutId;
-
-
     let buyModal = ref(false)
 
     async function requestNetworkChange() {
@@ -71,8 +66,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             ensLoaded.value = ""
             giftInputLoad.value = true
             if(ticketInputAddress.value.length != 42) {
-   
-                // address is invalid unless its ENS
                 try {
                     const address = await web3.eth.ens.getAddress(ticketInputAddress.value);
                     if(address.length > 0) {
@@ -90,7 +83,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     giftInputLoad.value = false
                 }
             } else {
-                // address is probably valid
                 giftInputLoad.value = false;
                 ticketInputValid.value = true
             }
@@ -100,15 +92,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     function toggleModal() {
         if(buyStep.value == 4 && modalActive.value == true) {
-            // cleanup
             loadingMessage.value = ""
             buyStep.value = 0;
             giftTicket.value = false;
             giftAddress.value == ""
             getBalance()
-            
         }
-
         modalActive.value = !modalActive.value;
     }
 
@@ -154,11 +143,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             })
             loadingMessage.value = "waiting for tx confirmation"
             await waitForTransaction({ hash })
-            let timer = 20;  // REVERT THIS TO 20
-            // Create an interval to decrement the timer every second
+            let timer = 20;  
+
             const countdown = setInterval(() => {
                 showTimer.value = true
-                timer--; // Decrement the timer
+                timer--; 
                 if(giftTicket.value == true) {
                     loadingMessage.value = `${timer} seconds!`;
                 } else {
@@ -180,7 +169,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
     async function getAllowance() {
         try {
-            // step 1, check balance
             modalLoading.value = true;
             const data = await readContract({
             address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
@@ -190,7 +178,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             })
             modalLoading.value = false;
 
-            /// step 2, check allowance 
             if(data) {
                  let dataString = data.toString()
                  verseAllowance.value= parseFloat(dataString) / Math.pow(10, 18);
@@ -205,7 +192,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
     async function getBalance() {
         try {
-            // step 1, check balance of Verse token
             modalLoading.value = true;
             const data = await readContract({
             address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
@@ -220,12 +206,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
                  if(verseBalance.value >= 3000 && buyStep.value < 2) {
-                    buyStep.value = 2;
-                    /// step 2, check allowance       
+                    buyStep.value = 2;    
                     getAllowance()
                  } else {
                     setTimeout(() => {
-
                         deBridge.widget({"v":"1","element":"debridgeWidget","title":"Verse","description":"","width":"600","height":"800","r":null,"affiliateFeePercent":"1","affiliateFeeRecipient":"0xA02351E83625c5185908835846B26719Fcd3d53F","supportedChains":"{\"inputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":\"all\",\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"},\"outputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":[\"0xc708d6f2153933daa50b2d0758955be0a93a8fec\"],\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"}}","inputChain":1,"outputChain":137,"inputCurrency":"","outputCurrency":"","address":"","showSwapTransfer":false,"amount":"10","lang":"en","mode":"deswap","isEnableBundle":false,"styles":"eyJhcHBCYWNrZ3JvdW5kIjoiIzFjMWIyMSIsImFwcEFjY2VudEJnIjoiIzFjMWIyMSIsImJvcmRlclJhZGl1cyI6OCwicHJpbWFyeSI6IiNmZmQyMDAiLCJzZWNvbmRhcnkiOiIjMjM0YzZjIiwic3VjY2VzcyI6IiNkYWNmMDIiLCJlcnJvciI6IiNmZjkyOTIiLCJpY29uQ29sb3IiOiIjNDk0OTQ5IiwiZm9udEZhbWlseSI6Ik1vbnRzZXJyYXQifQ==","theme":"dark","isHideLogo":true})                    }, 500)
                  }
             }
@@ -248,8 +232,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
         else {
             if(currentAccountAddress.value != getAccount().address) {
-                // new account detected, reload page
-                console.log("new acc")
                 location.reload()
             }
         }
@@ -267,7 +249,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             }
             getBalance();
         } else {
-            console.log("disable account")
             accountActive.value = false
             buyStep.value = 0;
         }
@@ -286,7 +267,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     function connectAndClose() {
         modal.open()
-        // reopen after user is connect
         reopenAfterConnection.value = true
         toggleModal()
     }
@@ -341,7 +321,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </div>
     <!-- modals -->
     <div class="backdrop" v-if="modalActive">
-       
         <!-- modal for loading -->
         <div class="modal" v-if="modalLoading">
             <div class="modal-head">
@@ -370,16 +349,16 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <!-- modal for connecting account -->
         <div class="modal" v-if="correctNetwork == false">
             <div>
-            <div class="modal-head">
-                <h3 class="title">Switch Network</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-body">
-                <div class="img-wallet"></div>
-                <h3 class="title">Wrong Network Selected</h3>
-                <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
-                <a class="" target="_blank" @click="requestNetworkChange()"><button class="btn verse-wide">Switch Wallet to Polygon</button></a>
-            </div>
+                <div class="modal-head">
+                    <h3 class="title">Switch Network</h3>
+                    <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
+                </div>
+                <div class="modal-body">
+                    <div class="img-wallet"></div>
+                    <h3 class="title">Wrong Network Selected</h3>
+                    <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
+                    <a class="" target="_blank" @click="requestNetworkChange()"><button class="btn verse-wide">Switch Wallet to Polygon</button></a>
+                </div>
             </div>
         </div>
 
@@ -421,13 +400,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <p class="balance-title">WALLET BALANCE</p>
                         <p class="balance">{{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE</p>
                     </div>
-    
-
                     <a class="" target="_blank" @click="openBuy"><button class="btn verse-wide half">Buy VERSE</button></a>
                     <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
                     <p class="modal-footer">Already bought VERSE? click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
-        
             </div>
         </div>
         <!-- allowance modal -->
@@ -448,10 +424,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="bulb-icn"></div>
                     <p>Alternatively you can choose to set an unlimited allowance, this way you can skip this step on your next purchase</p>
                 </div>
-                
                 <a class="" target="_blank" @click="approve()"><button class="btn verse-wide half">Approve 3000 VERSE</button></a>
                 <a class="" target="_blank" @click="approve(true)"><button class="btn verse-wide half secondary">Set Infinite Approval</button></a>
-
                 <p class="modal-footer">All tokens on the Polygon network require an approval transaction before they can be spent. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
             </div>
         </div>
@@ -536,8 +510,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <p><i class="fa fa-warning" style="margin-right: 10px; margin-left: 5px;"></i>Wallet connected to the wrong network, please switch your wallet to Polygon</p>
     </div>
     <div class="page">
-
-
         <div class="float-holder clearfix">
             <div class="card-info">
                 <h2>Space Expeditions</h2>
@@ -547,17 +519,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="bubble"><p>Jackpot 100.000 Verse</p></div>
                 <div class="bubble"><p>Provably Fair</p></div>
             </div>
-
             <p class="subtitle" style="font-weight: 300; margin-bottom: 20px; padding-left: 0;">
                 Purchase and play scratch tickets right from the comfort of your home or on-the-go. Get instant results and claim your winnings immediately!
             </p>
-
             <button class="btn-buy" @click="toggleModal()"><i class="fa-solid fa-gift"></i> Buy Ticket</button>
             <a href="/tickets"><button class="btn-view" ><i class="fa-solid fa-list"></i> View My Tickets</button></a>
-
             <p class="instant"><i class="fa fa-solid fa-bolt-lightning"></i> Instant Delivery</p>
-
-        
         </div>
 
         <div class="card-holder">
@@ -566,12 +533,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
         <Footer />
     </div>
-
 </template>
 
-
 <style lang="scss" scoped>
-
 .closeBuy {
     right: calc(50% - 300px);
     position: absolute; top: 25px; 
@@ -665,7 +629,6 @@ iframe {
     @media(max-width: 880px) {
         width: 100%;
     }
-
     &.verse {
         background-image: radial-gradient(circle farthest-corner at 10% 20%, rgb(51 249 238) 0%, rgb(19 255 179) 100.2%);
         color: #333;
@@ -756,7 +719,6 @@ iframe {
     @media(max-width: 880px) {
         min-height: calc(100vh - 170px); 
     }
-    // min-height: 100vh; // remove this after
 }
 .btn-buy {
     @media(max-width: 880px) {
@@ -861,7 +823,6 @@ iframe {
     }
 }
 
-
 .card-holder {
     @media(max-width: 880px) {
         display: none;
@@ -876,19 +837,14 @@ iframe {
     padding-left: 0px;
     background-color: transparent;
 
-
     img {
         border-radius: 8px;
         width: 100%;
-            //  box-shadow: 5px 6px 5px 1px rgba(255,255,255,0.1);
-        // -webkit-box-shadow: 5px 8px 5px 1px rgba(255,255,255,0.2);
-        // -moz-box-shadow: 5px 8px 5px 1px rgba(255,255,255,0.2);
         }
     
     h2 {
         text-align: center;
     }
-
     .info {
         color: white;
         text-align: center;
@@ -913,7 +869,6 @@ h2 {
     text-align: left;
     color: white;
 }
-
 
 .fa-check {
     color: rgb(35, 226, 35);
