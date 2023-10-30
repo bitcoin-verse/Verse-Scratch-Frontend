@@ -324,6 +324,14 @@ i.close-btn {
           margin: 0 auto;
           margin-top: 70px;
         }
+        .change-network {
+          background-image: url("./assets/icons/change-network.png");
+          width: 148px;
+          height: 120px;
+          background-size: cover;
+          margin: 0 auto;
+          margin-top: 70px;
+        }
         .img-gift {
           margin-top: 10px!important;
           background-image: url("./assets/icons/gift.png");

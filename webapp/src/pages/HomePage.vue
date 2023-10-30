@@ -354,7 +354,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
                 </div>
                 <div class="modal-body">
-                    <div class="img-wallet"></div>
+                    <div class="change-network"></div>
                     <h3 class="title">Wrong Network Selected</h3>
                     <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
                     <a class="" target="_blank" @click="requestNetworkChange()"><button class="btn verse-wide">Switch Wallet to Polygon</button></a>
