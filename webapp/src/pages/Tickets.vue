@@ -8,6 +8,7 @@ import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
 import { useRoute } from 'vue-router'
 import GLOBALS from '../globals.js'
+import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
 
 export default {
@@ -184,7 +185,7 @@ export default {
                 if(data) {
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
                     if (objToUpdate) {
-                        objToUpdate.prize = parseInt(data);
+                        objToUpdate.prize = Web3.utils.fromWei(data, 'ether');
                     }
                     return data 
                 }
@@ -321,11 +322,14 @@ export default {
     </div>
 
     <Redeem v-if="openDetail" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
+   
+
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets</h2>
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
         </div>
+        <div class="ticket-wrapper">
 
         <div class="tickets" v-if="accountActive && loading">
             <div class="spin" >
@@ -333,44 +337,106 @@ export default {
             </div>
         </div>
     
-        <div class="tickets" v-if="accountActive && !loading">
+        
+        <div class="tickets clearfix" v-if="accountActive && !loading">
             <div v-if="nfts.length == 0">
                 <h3>Couldn't find any tickets in your connected wallet. Click <a href="/" style="text-decoration: none; font-weight: 600; color: rgb(250, 196, 59);">here</a> to buy tickets </h3>
             </div>
             <div class="ticket" v-for="item, index in ticketList()">
                 <h3 class="title">Ticket {{item.id}} </h3>
 
-                <p class="status" v-if="item.claimed == false">
-                    <i v-if="item.scratched" class="fa-solid fa-crown" style="color: gold;"></i> Claimable Ticket
+                <p class="status" v-if="item.claimed == false && item.scratched == true">
+                    Claimable Ticket
+                </p>
+                <p class="status" v-if="item.claimed == false && item.scratched == false">
+                    Unscratched Ticket
                 </p>
                 <p class="status" v-if="item.claimed == true">
-                    <i class="fa-solid fa-crown" style="color: gold"></i> Claimed Ticket
+                    Claimed Ticket
                 </p>
 
                 <div v-if="item.claimed == false">
                     <img class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
-                    <img class="mobreset" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
-                
                 <div v-if="item.claimed == true">
-                    <img :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset claimed" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
-                <button v-if="item.scratched == false && item.claimed == false" class="btn-action main" @click="openDetailScreen(item.id)">Scratch Ticket</button>
-                <button v-if="item.scratched == true && item.claimed == false" @click="toggleModal(item.id)" class="btn-action main" >Claim {{item.prize}} Verse</button>
-                <button v-if="item.claimed == true" class="btn-action main dis" >{{item.prize}} Verse Claimed</button>
+                <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="toggleModal(item.id)" class="btn verse-wide" >Claim {{item.prize}} Verse</button>
+                <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >VERSE Claimed</button>
             </div>
         </div>
-    <Footer v-if="!loading" />
+        </div>
+        <Footer v-if="!loading" />
     </div>
+
 </template>
+        
 
 
-<style lang="scss">
+<style lang="scss" scoped>
+@keyframes pulse {
+  0% {
+    box-shadow: 0px -1px 10px 0px #0AADF5;
+  }
+  50% {
+    box-shadow: 0px -1px 15px 3px #0AADF5;
+  }
+  100% {
+    box-shadow: 0px -1px 10px 0px #0AADF5;
+  }
+}
+
+.claimed {
+    opacity: 0.6;
+}
+.unclaimed {
+    animation: pulse 2s infinite;
+}
+
+.desktop {
+    display: block;
+    @media(max-width: 880px) {
+        display: none;
+    }
+}
+
+.mobile {
+    display: none;
+    @media(max-width: 880px) {
+        display: block;
+    }
+}
+.ticket-wrapper {
+    @media(max-width: 880px) {
+        padding: 23px;
+    }
+    max-width: 100%;
+    padding-top: 10px;
+    overflow: auto;
+    .ticket-holder {
+    min-height: 520px;
+    background-color: grey;
+    width: 9000px;
+    overflow-x: auto;
+    padding-top: 5px;
+    .ticket-item {
+        height: 326px;
+        width: 180px;
+        margin-right: 10px;
+        float: left;
+        margin-top: 5px;
+        background-color: white;
+    }
+}
+}
 .mobreset {
     @media(max-width: 880px) {
-        height: unset!important;
+        height: 326px!important;
+        width: 180px!important;
     }
 }
 .spin {
@@ -382,9 +448,13 @@ export default {
 }
 .title {
     margin-bottom: 0;
+    font-size: 18px;
+    font-weight: 600;
 }
 .status {
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #899BB5;
     margin-top: 0;
 }
 .btn-action {
@@ -420,9 +490,12 @@ export default {
     text-align: center;
 }
 .tickhead {
+    font-weight: 600!important;
+    font-size: 24px;
     margin-bottom: 5px;
     @media(max-width: 880px) {
-        display: none;
+        text-align: left;
+        padding-left: 23px;
     }
 }
 
@@ -461,16 +534,16 @@ export default {
 
 
 div.tickets {
-    width: 100%;
     display: inline-block;
     margin-bottom: 100px;
     padding-left: 50px;
     @media(max-width: 880px) {
-        width: calc(100% - 10px);
+        width: max-content;
         display: inline-block;
         padding-left: 10px;
         padding-top: 20px;
-        margin-bottom: 200px!important;
+        margin-bottom: 50px!important;
+
     }
     h3 {
         font-weight: 400;
@@ -478,18 +551,23 @@ div.tickets {
     }
     .ticket {
         @media(max-width: 880px) {
-            width: 90%;
-            margin-left: 3%;
+            width: 180px;
         }
+        float: left;
         position: static;
         color: white;
-        display: inherit;
         width: 280px;
 
         margin-right: 10px;
+        button {
+            font-size: 14px;
+            margin-top: 5px;
+            height: 36px;
+        }
         img {
             width: 100%;
-            height: 515px!important;
+            height: 515px;
+            border-radius: 7px;
         }
     }
 }
@@ -502,11 +580,29 @@ div.tickets {
     color: white;
 }
 .page {
-    position: relative;
+    @media(max-width: 880px) {
+        width: 100%;
+        padding-top: 16px;
+        height: calc(100vh - 100px);
+        overflow-y: scroll;
+        overflow-x: scroll;
+        
+    }
+    height: max-content;
+    min-height: calc(100vh - 70px);
     width: 100%;
+    padding-top: 0px;
+
+
+    position: relative;
     height: calc(100vh - 70px);
-    padding-left: 0;
     overflow: scroll;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
 }
 
 </style>
