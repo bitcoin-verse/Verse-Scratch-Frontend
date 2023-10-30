@@ -326,7 +326,11 @@ export default {
 
     <div class="page" v-if="!openDetail">
         <div class="head">
-            <h2 class="tickhead">My Tickets</h2>
+            <h2 class="tickhead">My Tickets
+
+                <a href="/"><button class="btn verse-wide" href="">Buy Ticket</button></a>
+            </h2>
+
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
         </div>
         <div class="ticket-wrapper">
@@ -493,9 +497,22 @@ export default {
     font-weight: 600!important;
     font-size: 24px;
     margin-bottom: 5px;
+    position: relative;
     @media(max-width: 880px) {
         text-align: left;
         padding-left: 23px;
+    }
+    button {
+        position: absolute;
+        right: 25px;
+        font-size: 14px;
+        top: -20px;
+        width: 115px;
+        height: 36px;
+        @media(max-width: 880px) {
+            top: -25px;
+            right: 24px;
+        }
     }
 }
 
