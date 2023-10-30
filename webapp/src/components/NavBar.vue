@@ -93,9 +93,9 @@ export default {
     text-wrap: nowrap;
     border-radius: 100px;
     font-family: Barlow, Helvetica, sans-serif;
+    background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
     font-weight: 600;
     color: rgb(255, 255, 255);
-    background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
     font-size: 14px;
     height: 36px;
     padding: 0px 16px;
@@ -103,8 +103,10 @@ export default {
     &.mobile {
         padding-right: 21px!important;
         background: #3f526e!important;
+        background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
     }
     &.connected {
+        background: linear-gradient(180deg, #425472 0%, #313E57 100%);
         padding-right: 40px;
     }
 

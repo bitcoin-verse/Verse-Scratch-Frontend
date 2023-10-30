@@ -521,7 +521,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <p><i class="fa fa-warning" style="margin-right: 10px; margin-left: 5px;"></i>Wallet connected to the wrong network, please switch your wallet to Polygon</p>
     </div>
     <div class="page">
-        <!-- <div class="jumbo-mob"></div> -->
+        <div class="jumbo-mob">
+            <img  src="../assets/cover2.png">
+        </div>
         <div class="float-holder clearfix">
             <div class="card-info">
                 <h2>Scratch & Win</h2>
@@ -559,6 +561,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     height: 211px;
     background-size: cover;
     width: 100%;
+    img {
+        width: 76%;
+        margin-left: 12%;
+        margin-top: 20px;
+        background-size: cover;
+    }
     @media(min-width: 879px) {
         display: none;
     }
@@ -956,7 +964,7 @@ iframe {
 .page {
     @media(max-width: 880px) {
         width: 100%;
-        padding-top: 30px;
+        padding-top: 0px;
         height: calc(100vh - 100px);
         overflow-y: scroll;
         overflow-x: scroll;
