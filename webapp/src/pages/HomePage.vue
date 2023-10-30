@@ -133,16 +133,26 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             let receiver = getAccount().address
             if(_giftAddress && _giftAddress.length > 0) {
                 receiver = _giftAddress
+                const { hash } = await writeContract({
+                address: contractAddress,
+                abi: ContractABI,
+                functionName: 'giftScratchTicket',
+                chainId: 137,
+                args: [receiver]
+                })
+                loadingMessage.value = "waiting for tx confirmation"
+                await waitForTransaction({ hash })
+            } else {
+                const { hash } = await writeContract({
+                address: contractAddress,
+                abi: ContractABI,
+                functionName: 'buyScratchTicket',
+                chainId: 137,
+                args: []
+                })
+                loadingMessage.value = "waiting for tx confirmation"
+                await waitForTransaction({ hash })
             }
-            const { hash } = await writeContract({
-            address: contractAddress,
-            abi: ContractABI,
-            functionName: 'buyScratchTicket',
-            chainId: 137,
-            args: [receiver]
-            })
-            loadingMessage.value = "waiting for tx confirmation"
-            await waitForTransaction({ hash })
             let timer = 20;  
 
             const countdown = setInterval(() => {
@@ -302,6 +312,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         toggleGift,
         onTicketInputChange,
         ticketInputValid,
+        getAccount,
         showTimer,
         requestNetworkChange,
         ensLoaded,
@@ -510,25 +521,32 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <p><i class="fa fa-warning" style="margin-right: 10px; margin-left: 5px;"></i>Wallet connected to the wrong network, please switch your wallet to Polygon</p>
     </div>
     <div class="page">
+        <!-- <div class="jumbo-mob"></div> -->
         <div class="float-holder clearfix">
             <div class="card-info">
-                <h2>Space Expeditions</h2>
-                <h3 class="tit" style="margin-top: 10px; margin-bottom: 20px; ">On-Chain Scratch Tickets Powered by Verse</h3>
-                <div class="clearfix">
-                <div class="bubble"><p>Entry: 3000 Verse</p></div>
-                <div class="bubble"><p>Jackpot 100.000 Verse</p></div>
-                <div class="bubble"><p>Provably Fair</p></div>
+                <h2>Scratch & Win</h2>
+                <p class="top-meta">Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune</p>
+                <div class="topblock">
+                    <p>JACKPOT</p>
+                    <h2>100,000 VERSE</h2>
+                </div>
+                <div class="splitblock">
+                    <div class="block leftblock">
+                        <p>PRICE PER TICKET</p>
+                        <h2>3,000 VERSE</h2>
+                    </div>
+                    <div class="block rightblock">
+                        <p>TOTAL TICKETS</p>
+                        <h2>100</h2>
+                    </div>
+                </div>
+                <button class="btn verse-wide" @click="toggleModal()">Buy Ticket</button>
+                <a @click="modal.open()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
+                <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
             </div>
-            <p class="subtitle" style="font-weight: 300; margin-bottom: 20px; padding-left: 0;">
-                Purchase and play scratch tickets right from the comfort of your home or on-the-go. Get instant results and claim your winnings immediately!
-            </p>
-            <button class="btn-buy" @click="toggleModal()"><i class="fa-solid fa-gift"></i> Buy Ticket</button>
-            <a href="/tickets"><button class="btn-view" ><i class="fa-solid fa-list"></i> View My Tickets</button></a>
-            <p class="instant"><i class="fa fa-solid fa-bolt-lightning"></i> Instant Delivery</p>
-        </div>
 
         <div class="card-holder">
-            <img class="animate__animated animate__rotateInUpLeft"  src="../assets/collection_comp3.png">
+            <img class=""  src="../assets/cover2.png">
         </div>
         </div>
         <Footer />
@@ -536,6 +554,88 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 </template>
 
 <style lang="scss" scoped>
+.jumbo-mob {
+    background-image: url("../assets/bg9.png")!important;
+    height: 211px;
+    background-size: cover;
+    width: 100%;
+    @media(min-width: 879px) {
+        display: none;
+    }
+}
+.splitblock {
+    width: 100%;
+    .block {
+        width: calc(49% - 24px)!important;
+        float: left;
+        padding: 0;
+        margin-top: 8px;
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        @media(max-width: 880px) {
+            width: calc(49% - 24px)!important;
+            margin: 0;
+            margin-top: 8px;
+        }
+        &.leftblock {
+            background: #4C3777;
+            margin-right: 2%!important;
+            @media(max-width: 880px) {
+                margin-right: 2%!important;
+            }
+            h2 {
+                font-size: 20px;
+                text-shadow: 3px 3px 0px #131237;
+            }
+            p {
+                margin-top: 2px;
+                margin-bottom: 2px;
+                font-size: 12px;
+                color: #D2BDFF;
+            }
+        }
+        &.rightblock {
+            background: #6E376F;
+            h2 {
+                font-size: 20px;
+                text-shadow: 3px 3px 0px #350936;
+            }
+            p {
+                margin-top: 2px;
+                margin-bottom: 2px;
+                font-size: 12px;
+                color: #F7C0F8;
+            }
+        }
+    }
+}
+.topblock {
+    padding: 12px;
+    width: calc(100% - 24px);
+    background: #363E82;
+    border-radius: 12px;
+    p {
+        margin: 0;
+        text-align: center;
+        font-weight: 600;
+        color: #BFD9FF;
+    }
+    h2 {
+        font-weight: 800;
+        font-size: 32px;
+        text-align: center;
+        text-shadow: 3px 3px 0px #030420;
+    }
+}
+.top-meta {
+    font-weight: 500;
+    font-size: 14px;
+    color: #C5CEDB;
+    text-align: center;
+    margin-top: 0;
+
+}
 .closeBuy {
     right: calc(50% - 300px);
     position: absolute; top: 25px; 
@@ -587,7 +687,7 @@ iframe {
     }
 }
 .subtitle {
-    width: 75%;
+    width: 100%;
     @media(max-width: 880px) {
         width: 85%!important;
         margin-top: 0;
@@ -714,6 +814,7 @@ iframe {
     }
 }
 .float-holder{
+    margin-top: 100px;
     margin: 0 auto;
     min-height: calc(100vh - 188px);
     @media(max-width: 880px) {
@@ -798,10 +899,9 @@ iframe {
 .card-info {
     padding: 30px;
     padding-top: 80px;
-    padding-left: 150px;
     float: left;
-    padding-left: 4%;
-    width: 47%;
+    padding-left: 100px;
+    width: 27%;
     color: white;
     padding-right: 0;
     @media(max-width: 880px) {
@@ -813,6 +913,8 @@ iframe {
     h2 {
         margin: 0;
         font-size: 40px;
+        font-weight: 800;
+        text-align: center;
 
     }
     h3 {
@@ -827,12 +929,11 @@ iframe {
     @media(max-width: 880px) {
         display: none;
     }
-    left: 40%;
-    float: right;
-    width: 43%;
-    min-width: 240px;
-    margin-right: 2%;
-    margin-top: 20px;
+    margin-left: 100px;
+    float: left;
+    width: 52%;
+    // min-width: 240px;
+    margin-top: 70px;
     border-radius: 6px;
     padding-left: 0px;
     background-color: transparent;
@@ -855,8 +956,10 @@ iframe {
 .page {
     @media(max-width: 880px) {
         width: 100%;
-        padding-top: 50px;
+        padding-top: 30px;
         height: calc(100vh - 100px);
+        overflow-y: scroll;
+        overflow-x: scroll;
         
     }
     height: unset;

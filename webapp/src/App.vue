@@ -34,6 +34,62 @@ createWeb3Modal({
 </template>
 
 <style lang="scss">
+.verse-wide {
+  &:hover {
+    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+  }
+  &:active {
+    background:linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+  }
+  
+  &.fixBottomMobile {
+    @media(max-width: 880px) {
+      position: fixed;
+      left: 32px;
+      width: calc(100% - 64px);
+      bottom: 48px;
+    }
+  }
+  &.extraTop {
+    margin-top: 120px;
+  }
+  &.extraTopMobile {
+    margin-top: 120px!important;
+  }
+  &.half {
+    width: 222px;
+    margin-left: 8px;
+    margin-right: 8px;
+    @media(max-width: 880px) {
+      margin-left: 0;
+      margin-right: 0;
+      margin-top: 8px;
+      width: 100%;
+    }
+  }
+  &.secondary {
+    background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+  }
+  cursor: pointer;
+  margin-top: 24px;
+  background: linear-gradient(180deg, #0EBEF0 0%, #0085FF 100%);
+  height: 48px;
+  border: none;
+  width: 100%;
+  border-radius: 100px;
+  color: white;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 21.6px;
+  font-family: 'Barlow', sans-serif;
+
+  &.disabled {
+    color: #313E57;
+    background: none;
+    background-color: #1A2231;
+  }
+}
+
 .global-wrap {
   position: relative;
   display: flex;
@@ -250,61 +306,7 @@ i.close-btn {
           }
         }
 
-        .verse-wide {
-          &:hover {
-            background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
-          }
-          &:active {
-            background:linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
-          }
-          
-          &.fixBottomMobile {
-            @media(max-width: 880px) {
-              position: fixed;
-              left: 32px;
-              width: calc(100% - 64px);
-              bottom: 48px;
-            }
-          }
-          &.extraTop {
-            margin-top: 120px;
-          }
-          &.extraTopMobile {
-            margin-top: 120px!important;
-          }
-          &.half {
-            width: 222px;
-            margin-left: 8px;
-            margin-right: 8px;
-            @media(max-width: 880px) {
-              margin-left: 0;
-              margin-right: 0;
-              margin-top: 8px;
-              width: 100%;
-            }
-          }
-          &.secondary {
-            background: linear-gradient(180deg, #425472 0%, #313E57 100%);
-          }
-          cursor: pointer;
-          margin-top: 24px;
-          background: linear-gradient(180deg, #0EBEF0 0%, #0085FF 100%);
-          height: 48px;
-          border: none;
-          width: 100%;
-          border-radius: 100px;
-          color: white;
-          font-weight: 600;
-          font-size: 17px;
-          line-height: 21.6px;
-          font-family: 'Barlow', sans-serif;
 
-          &.disabled {
-            color: #313E57;
-            background: none;
-            background-color: #1A2231;
-          }
-        }
         height: 540px;
         padding: 40px 32px 24px 32px;
         text-align: center;
@@ -467,15 +469,16 @@ h3 {
 body {
   position: fixed;
   width: 100%;
-  background-image: url("./assets/bg3.png");
   background-size: 100%;
   margin: 0;
   font-family: 'Barlow', sans-serif;
-  background-color: #171c2b;
-  @media(max-width: 1250px) {
-    background-size: 130%!important;
-    background-repeat: no-repeat;
-    background-color: #1a1833;
+  // background-image: url("./assets/bg-19.png")!important;
+  background-repeat: no-repeat;
+  background: #030C14;
+  background-size: cover;
+  @media(max-width: 880px) {
+    background: #030C14;
+    background-image: none!important;
   }
 }
 
