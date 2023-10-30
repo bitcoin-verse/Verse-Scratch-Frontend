@@ -43,35 +43,35 @@ export default {
             giftModal.value = true
             giftAccount.value = route.query.address
             const duration = 3 * 1000,
-        animationEnd = Date.now() + duration,
-        defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            animationEnd = Date.now() + duration,
+            defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-        function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
+            function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
         }
 
         const interval = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
+            const timeLeft = animationEnd - Date.now();
 
-        if (timeLeft <= 0) {
-            return clearInterval(interval);
-        }
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
 
-        const particleCount = 50 * (timeLeft / duration);
+            const particleCount = 50 * (timeLeft / duration);
 
-        confetti(
-            Object.assign({}, defaults, {
-            particleCount,
-            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-            })
-        );
-        confetti(
-            Object.assign({}, defaults, {
-            particleCount,
-            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-            })
-        );
-        }, 250);
+            confetti(
+                Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                })
+            );
+            confetti(
+                Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                })
+            );
+            }, 250);
         }
 
         watchAccount(async () => {
@@ -88,22 +88,20 @@ export default {
         async function redeem(nftId) {
             modalLoading.value = true
             const obj = nfts.value.find(obj => obj.id == nftId);
-            console.log(obj)
 
             try {
-            const { hash } = await writeContract({
-            address: contractAddress,
-            abi: ContractABI,
-            functionName: 'claimPrize',
-            chainId: 137,
-            args: [obj.id]
-            })
-            await waitForTransaction({ hash })
-            modalLoading.value = false
-            const objToUpdate = nfts.value.find(obj => obj.id == nftId);
-            objToUpdate.claimed = true
-            step.value = 1;
-
+                const { hash } = await writeContract({
+                    address: contractAddress,
+                    abi: ContractABI,
+                    functionName: 'claimPrize',
+                    chainId: 137,
+                    args: [obj.id]
+                })
+                await waitForTransaction({ hash })
+                modalLoading.value = false
+                const objToUpdate = nfts.value.find(obj => obj.id == nftId);
+                objToUpdate.claimed = true
+                step.value = 1;
             } catch (e) {
                 modalLoading.value = false;
                 console.log(e)
@@ -133,7 +131,6 @@ export default {
             giftModal.value = false
         }
 
-
         async function getClaimed(id) {
             try {
                 const data = await readContract({
@@ -153,10 +150,8 @@ export default {
                 }
             } catch (e) {
                 console.log(e)
-            }
-               
+            }               
         }
-
 
         async function getEdition(id) {
             try {
@@ -176,16 +171,15 @@ export default {
             } catch (e) {
                 console.log(e)
             }
-               
         }
 
         async function getPrizeAmount(id) {
             try {
                 const data = await readContract({
-                address: GLOBALS.NFT_ADDRESS,
-                abi: ERC721,
-                functionName: 'prizes',
-                args: [id]
+                    address: GLOBALS.NFT_ADDRESS,
+                    abi: ERC721,
+                    functionName: 'prizes',
+                    args: [id]
                 })
                 if(data) {
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
@@ -217,8 +211,6 @@ export default {
                 })
                 if(data) {
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
-                    // let edition = parseInt(data.split("&edition=")[1])
-                    // objToUpdate.edition = edition
                     if(data.includes("/true")) {
                         if (objToUpdate) {
                             objToUpdate.claimed = true;
@@ -237,45 +229,39 @@ export default {
             return nfts.value.toReversed()
         }
 
-
         function closeDetailScreen() {
             openDetail.value = false;
         }
         async function getTicketIds() {
             try {
-            // step 1, check balance
-            loading.value = true;
-            const data = await readContract({
-            address: nftContract,
-            abi: ERC721ABI,
-            functionName: 'ownedByAddress',
-            args: [getAccount().address]
-            })
-
-
-            /// step 2, check allowance 
+                loading.value = true;
+                const data = await readContract({
+                    address: nftContract,
+                    abi: ERC721ABI,
+                    functionName: 'ownedByAddress',
+                    args: [getAccount().address]
+                })
       
-            if(data) {
-                let promiseArray = []
-                 let arr = []
-                 data.forEach(dat => {
-                    let scratched = false
-                    if(localStorage.getItem(dat.toString() + '/' + nftContract.toString()) == 'true') {
-                        scratched = true
-                    }
-                    arr.push({id: parseInt(dat.toString()), scratched, claimed: false })
-                    promiseArray.push(getRedemptionStatus(dat.toString()))
-                })
-                nfts.value = arr
-
-                nfts.value.forEach(nft => {
-                    promiseArray.push(promiseArray.push(getClaimed(nft.id)))
-                    promiseArray.push(promiseArray.push(getEdition(nft.id)))
-                    promiseArray.push(promiseArray.push(getPrizeAmount(nft.id)))
-                })
-                await Promise.all(promiseArray)
-                 loading.value = false;
-            }
+                if(data) {
+                    let promiseArray = []
+                    let arr = []
+                    data.forEach(dat => {
+                        let scratched = false
+                        if(localStorage.getItem(dat.toString() + '/' + nftContract.toString()) == 'true') {
+                            scratched = true
+                        }
+                        arr.push({id: parseInt(dat.toString()), scratched, claimed: false })
+                        promiseArray.push(getRedemptionStatus(dat.toString()))
+                    })
+                    nfts.value = arr
+                    nfts.value.forEach(nft => {
+                        promiseArray.push(promiseArray.push(getClaimed(nft.id)))
+                        promiseArray.push(promiseArray.push(getEdition(nft.id)))
+                        promiseArray.push(promiseArray.push(getPrizeAmount(nft.id)))
+                    })
+                    await Promise.all(promiseArray)
+                    loading.value = false;
+                }
             } catch (e) {
                 console.log(e)
                 loading.value = false;
@@ -311,77 +297,77 @@ export default {
         
         <!-- claim-->
         <div class="modal" v-if="claimActive">
-            <p class="iholder"><i @click="toggleModal()" class="fa fa-times"></i></p>
-            <div v-if="modalLoading">
-                <p style="text-align: center">claiming prize..</p>
-                <div style="text-align: center;">
-                    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+            <div class="modal-head">
+                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
+            </div>
+            <div class="modal-body short">
+                <div v-if="modalLoading">
+                    <p class='title' style="text-align: center">claiming prize</p>
+                    <div class="img-spinner" style="margin-top: 25px"></div>
+                </div>
+                <div v-if="!modalLoading && step == 0">
+                    <h3 class="title" style="margin-top: 50px">Congrats on your win!</h3>
+                    <p class="subtext">Funds will immediately be in your wallet after the transaction has been completed.</p>
+                    <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim {{claimNFT.prize }} Verse</button></a>
+                </div>
+                <div v-if="!modalLoading && step == 1">
+                    <h3 class="title" style="margin-top: 50px">Successfully Claimed Win</h3>
+                    <p class="subtext">Thanks for playing!</p>
+                    <a href="/"><button class="btn verse-wide">Buy new Ticket</button></a>
+                    <a href="/"><button class="btn verse-wide secondary" style="margin-top: 8px">Gift a Ticket</button></a>
                 </div>
             </div>
-            <div v-if="!modalLoading && step == 0">
-                <h3>Congrats on your win!</h3>
-                <p>Funds will immediately be in your wallet after the transaction has been completed.</p>
-                <a @click="redeem(claimNFT.id)"><button class="btn btn-modal verse">Claim {{claimNFT.prize }} Verse</button></a>
-            </div>
-            <div v-if="!modalLoading && step == 1">
-                <h3>Successfully Claimed Win</h3>
-                <p>Thanks for playing!</p>
-                <a href="/"><button class="btn btn-modal verse">Buy new Ticket</button></a>
-                <a href="/"><button class="btn btn-modal x">Gift a Ticket</button></a>
-            </div>
         </div>
     </div>
 
-<Redeem v-if="openDetail" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
-<div class="page" v-if="!openDetail">
-    <div class="head">
-        <h2 class="tickhead">My Tickets</h2>
-        <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
-    </div>
+    <Redeem v-if="openDetail" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
+    <div class="page" v-if="!openDetail">
+        <div class="head">
+            <h2 class="tickhead">My Tickets</h2>
+            <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
+        </div>
 
-    <div class="tickets" v-if="accountActive && loading">
-        <div class="spin" >
-            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-         </div>
-    </div>
+        <div class="tickets" v-if="accountActive && loading">
+            <div class="spin" >
+                <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+            </div>
+        </div>
     
-    <div class="tickets" v-if="accountActive && !loading">
-        <div v-if="nfts.length == 0">
-            <h3>Couldn't find any tickets in your connected wallet. Click <a href="/" style="text-decoration: none; font-weight: 600; color: rgb(250, 196, 59);">here</a> to buy tickets </h3>
-        </div>
-        <div class="ticket" v-for="item, index in ticketList()">
-            <h3 class="title">Ticket {{item.id}} </h3>
-
-            <p class="status" v-if="item.claimed == false">
-                <i v-if="item.scratched" class="fa-solid fa-crown" style="color: gold;"></i> Claimable Ticket
-            </p>
-            <p class="status" v-if="item.claimed == true">
-                <i class="fa-solid fa-crown" style="color: gold"></i> Claimed Ticket
-            </p>
-
-            <div v-if="item.claimed == false">
-                <img style="height: 490px" class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
-                <img style="height: 490px" class="mobreset" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+        <div class="tickets" v-if="accountActive && !loading">
+            <div v-if="nfts.length == 0">
+                <h3>Couldn't find any tickets in your connected wallet. Click <a href="/" style="text-decoration: none; font-weight: 600; color: rgb(250, 196, 59);">here</a> to buy tickets </h3>
             </div>
+            <div class="ticket" v-for="item, index in ticketList()">
+                <h3 class="title">Ticket {{item.id}} </h3>
 
-            
-            <div v-if="item.claimed == true">
-                <img :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                <p class="status" v-if="item.claimed == false">
+                    <i v-if="item.scratched" class="fa-solid fa-crown" style="color: gold;"></i> Claimable Ticket
+                </p>
+                <p class="status" v-if="item.claimed == true">
+                    <i class="fa-solid fa-crown" style="color: gold"></i> Claimed Ticket
+                </p>
+
+                <div v-if="item.claimed == false">
+                    <img class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
+                    <img class="mobreset" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                </div>
+
+                
+                <div v-if="item.claimed == true">
+                    <img :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                </div>
+
+                <button v-if="item.scratched == false && item.claimed == false" class="btn-action main" @click="openDetailScreen(item.id)">Scratch Ticket</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="toggleModal(item.id)" class="btn-action main" >Claim {{item.prize}} Verse</button>
+                <button v-if="item.claimed == true" class="btn-action main dis" >{{item.prize}} Verse Claimed</button>
             </div>
-
-            <button v-if="item.scratched == false && item.claimed == false" class="btn-action main" @click="openDetailScreen(item.id)">Scratch Ticket</button>
-            <button v-if="item.scratched == true && item.claimed == false" @click="toggleModal(item.id)" class="btn-action main" >Claim {{item.prize}} Verse</button>
-            <button v-if="item.claimed == true" class="btn-action main dis" >{{item.prize}} Verse Claimed</button>
         </div>
-    </div>
     <Footer v-if="!loading" />
-</div>
+    </div>
 </template>
 
 
-
 <style lang="scss">
-
 .mobreset {
     @media(max-width: 880px) {
         height: unset!important;
@@ -434,6 +420,7 @@ export default {
     text-align: center;
 }
 .tickhead {
+    margin-bottom: 5px;
     @media(max-width: 880px) {
         display: none;
     }
@@ -474,10 +461,10 @@ export default {
 
 
 div.tickets {
-    width: calc(100% - 100px);
+    width: 100%;
     display: inline-block;
     margin-bottom: 100px;
-    padding-left: 100px;
+    padding-left: 50px;
     @media(max-width: 880px) {
         width: calc(100% - 10px);
         display: inline-block;
@@ -497,11 +484,12 @@ div.tickets {
         position: static;
         color: white;
         display: inherit;
-        width: 260px;
+        width: 280px;
 
         margin-right: 10px;
         img {
             width: 100%;
+            height: 515px!important;
         }
     }
 }
@@ -510,7 +498,7 @@ div.tickets {
        text-align : center;
        padding-left: 0;
     }
-    padding-left: 100px;
+    padding-left: 50px;
     color: white;
 }
 .page {

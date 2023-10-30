@@ -3,7 +3,7 @@
 import { RouterView } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
 import NavBar from './components/NavBar.vue'
-import Stars from './components/Stars.vue'
+
 
 import { defaultWagmiConfig, createWeb3Modal } from '@web3modal/wagmi/vue'
 const projectId = 'b30bc40c0cdef6000cd5066be1febf74'
@@ -318,6 +318,14 @@ i.close-btn {
         }
         .img-success {
           background-image: url("./assets/icons/success.png");
+          width: 148px;
+          height: 120px;
+          background-size: cover;
+          margin: 0 auto;
+          margin-top: 70px;
+        }
+        .change-network {
+          background-image: url("./assets/icons/change-network.png");
           width: 148px;
           height: 120px;
           background-size: cover;
