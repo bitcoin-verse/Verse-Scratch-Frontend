@@ -50,10 +50,12 @@ createWeb3Modal({
     }
   }
   &.extraTop {
-    margin-top: 120px;
+    margin-top: 100px;
   }
   &.extraTopMobile {
-    margin-top: 120px!important;
+    @media(max-width: 880px) {
+      margin-top: 45px!important;
+    }
   }
   &.half {
     width: 222px;
