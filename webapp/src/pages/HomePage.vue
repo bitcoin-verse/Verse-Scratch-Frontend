@@ -1,6 +1,6 @@
 <script>
 import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
-import { useWeb3Modal, createWeb3Modal } from '@web3modal/wagmi/vue'
+import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
@@ -10,8 +10,7 @@ import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
 
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
-
-  const contractAddress = GLOBALS.CONTRACT_ADDRESS
+const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
   export default {
     components: {
@@ -39,21 +38,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
     let timeoutId;
-    let buyModal = ref(false)
 
     async function requestNetworkChange() {
         await switchNetwork({ chainId: 137 })
-    }
-
-    function closeBuy() {
-        buyModal.value = false;
-    }
-
-    function openBuy() {
-        modalActive.value = false;
-        buyModal.value = true;
-        setTimeout(() => {
-            deBridge.widget({"v":"1","element":"debridgeWidget","title":"Verse","description":"Get Verse on Polygon","width":"200%","height":"630","r":null,"affiliateFeePercent":"1","affiliateFeeRecipient":"0xA02351E83625c5185908835846B26719Fcd3d53F","supportedChains":"{\"inputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":\"all\",\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"},\"outputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":[\"0xc708d6f2153933daa50b2d0758955be0a93a8fec\"],\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"}}","inputChain":1,"outputChain":137,"inputCurrency":"","outputCurrency":"","address":"","showSwapTransfer":false,"amount":"10","lang":"en","mode":"deswap","isEnableBundle":false,"styles":"eyJhcHBCYWNrZ3JvdW5kIjoiIzFjMWIyMSIsImFwcEFjY2VudEJnIjoiIzFjMWIyMSIsImJvcmRlclJhZGl1cyI6OCwicHJpbWFyeSI6IiNmZmQyMDAiLCJzZWNvbmRhcnkiOiIjMjM0YzZjIiwic3VjY2VzcyI6IiNkYWNmMDIiLCJlcnJvciI6IiNmZmJkMDAiLCJpY29uQ29sb3IiOiIjNDk0OTQ5IiwiZm9udEZhbWlseSI6Ik1vbnRzZXJyYXQifQ==","theme":"dark","isHideLogo":true})        }, 100)
     }
 
     async function onTicketInputChange() {
@@ -220,10 +207,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                  if(verseBalance.value >= 3000 && buyStep.value < 2) {
                     buyStep.value = 2;    
                     getAllowance()
-                 } else {
-                    setTimeout(() => {
-                        deBridge.widget({"v":"1","element":"debridgeWidget","title":"Verse","description":"","width":"600","height":"800","r":null,"affiliateFeePercent":"1","affiliateFeeRecipient":"0xA02351E83625c5185908835846B26719Fcd3d53F","supportedChains":"{\"inputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":\"all\",\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"},\"outputChains\":{\"1\":\"all\",\"10\":\"all\",\"56\":\"all\",\"137\":[\"0xc708d6f2153933daa50b2d0758955be0a93a8fec\"],\"8453\":\"all\",\"42161\":\"all\",\"43114\":\"all\",\"59144\":\"all\",\"7565164\":\"all\"}}","inputChain":1,"outputChain":137,"inputCurrency":"","outputCurrency":"","address":"","showSwapTransfer":false,"amount":"10","lang":"en","mode":"deswap","isEnableBundle":false,"styles":"eyJhcHBCYWNrZ3JvdW5kIjoiIzFjMWIyMSIsImFwcEFjY2VudEJnIjoiIzFjMWIyMSIsImJvcmRlclJhZGl1cyI6OCwicHJpbWFyeSI6IiNmZmQyMDAiLCJzZWNvbmRhcnkiOiIjMjM0YzZjIiwic3VjY2VzcyI6IiNkYWNmMDIiLCJlcnJvciI6IiNmZjkyOTIiLCJpY29uQ29sb3IiOiIjNDk0OTQ5IiwiZm9udEZhbWlseSI6Ik1vbnRzZXJyYXQifQ==","theme":"dark","isHideLogo":true})                    }, 500)
-                 }
+                 } 
             }
             } catch (e) {
                 console.log(e)
@@ -296,9 +280,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         accountActive,
         correctNetwork,
         approve,
-        openBuy,
-        closeBuy,
-        buyModal,
         modalActive,
         toggleModal,
         modalLoading,
@@ -325,13 +306,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 </script>
 
 <template>
-    <div class="backdrop" v-if="buyModal">
-        <p class="closeBuy"><i @click="closeBuy()" class="close-btn" style="cursor: pointer;"></i></p>
-        <div class="modal" style="top: 70px; padding-top: 5px;">
-            <h3 style="position: absolute; top: 31px;">Buy Verse</h3>
-            <div id="debridgeWidget" style="width: 50%;"></div>
-        </div>
-    </div>
     <!-- modals -->
     <div class="backdrop" v-if="modalActive">
         <!-- modal for loading -->
@@ -413,7 +387,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <p class="balance-title">WALLET BALANCE</p>
                         <p class="balance">{{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE</p>
                     </div>
-                    <a class="" target="_blank" @click="openBuy"><button class="btn verse-wide half">Buy VERSE</button></a>
+                    <a class="" target="_blank" href="https://verse.bitcoin.com/"><button class="btn verse-wide half">Buy VERSE</button></a>
                     <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
                     <p class="modal-footer">Already bought VERSE? click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
@@ -498,9 +472,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="img-success"></div>
                     <div v-if="giftTicket">
                         <h3 class="title">Ticket Bought & Gifted!</h3>
-                        <p class="subtext">We have sent the ticket to your specified wallet! Share this link with the recipient to let them know:
-
-                        </p>
+                        <p class="subtext">We have sent the ticket to your specified wallet! Share this link with the recipient to let them know:</p>
 
                         <input class="ticketlink" type="text" :value="`https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress}`">
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
@@ -512,7 +484,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div v-if="!giftTicket">
                         <h3 class="title">Ticket Bought!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket and test your luck!</p>
-                        <!-- change this text for gifted tickets -->
                         <a class="" href="/tickets"><button class="btn verse-wide">View your tickets!</button></a>
                     </div>
                 </div>
@@ -644,25 +615,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     color: #C5CEDB;
     text-align: center;
     margin-top: 0;
-
 }
-.closeBuy {
-    right: calc(50% - 300px);
-    position: absolute; top: 25px; 
-    color: white;
-    @media(max-width: 880px) {
-        left: unset;
-        right: 15px;
-    }
 
-
-    @media(max-height: 600px) {
-        top: 15px!important;
-    }
-}
-iframe {
-    width: 205%!important;
-}
 .btn-copy {
     height: 24px;
     position: absolute;
@@ -691,24 +645,7 @@ iframe {
     margin-top: 20px;
     border-radius: 12px;
 }
-.tit {
-    @media(max-width: 880px) {
-        max-width: 85%!important;
-    }
-}
-.subtitle {
-    width: 100%;
-    @media(max-width: 880px) {
-        width: 85%!important;
-        margin-top: 0;
-    }
-}
-.p-gift {
-    margin-bottom: 2px;
-    font-size: 14px;
-    margin-top: 20px;
-    font-weight: 500;
-}
+
 .giftInput {
     outline: none;
     width: calc(100% - 18px);
@@ -724,32 +661,6 @@ iframe {
     border: 1px solid #0085FF;
     padding-left: 16px;
     font-size: 16px;
-}
-.btn-modal {
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 5px;
-    background-color: white;
-    color: black;
-    border: none;
-    margin-right: 5px;
-    font-weight: 500;
-    font-size: 15px;
-    font-weight: 600;
-    @media(max-width: 880px) {
-        width: 100%;
-    }
-    &.verse {
-        background-image: radial-gradient(circle farthest-corner at 10% 20%, rgb(51 249 238) 0%, rgb(19 255 179) 100.2%);
-        color: #333;
-        background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
-
-        font-weight: 600;
-    }
-    &.uniswap {
-        background-color: white!important;
-        color: #1c1b22;
-    }
 }
 
 .wrongNetworkWarning {
@@ -781,15 +692,7 @@ iframe {
         }
     }
 }
-.instant {
-    @media(max-width: 880px) {
-        display: none;
-    }
-    width: 200px;
-    text-align: center;
-    font-size: 12px;
-    color: #E7E7E7;
-}
+
 .clearfix {
     overflow: auto;
     max-width: 1600px;
@@ -797,30 +700,6 @@ iframe {
     @media(max-width: 880px) {
         width: 100%!important;
         position: unset;
-    }
-}
-.bubble {
-
-    @media(max-width: 880px) {
-        width: 41%!important;
-        margin-right: 2%!important;
-    }
-    margin-bottom: 20px;
-    width: 150px; 
-    height: 18px;
-    padding: 10px;
-    text-align: center;
-    background-color: #f2f0fe0f;;
-    border-radius: 10px;
-    float: left;
-    margin-right: 10px;
-    p {
-        @media(max-width: 880px) {
-            font-size: 11px;
-        }
-        color: white;
-        font-size: 13px;
-        margin: 0;
     }
 }
 .float-holder{
@@ -831,45 +710,6 @@ iframe {
         min-height: calc(100vh - 170px); 
     }
 }
-.btn-buy {
-    @media(max-width: 880px) {
-        width: 100%;
-    }
-    margin-right: 10px;
-    width: 200px;
-    margin-top: 10px;
-    height: 50px;
-    background-color: #ffc700;
-    color: #333;
-    border-radius: 5px;
-    font-weight: 600;
-    font-size: 17px;
-    border: none;
-    cursor: pointer;
-    background-image: radial-gradient(circle farthest-corner at 10% 20%, rgb(51 249 238) 0%, rgb(19 255 179) 100.2%);
-    background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
-
-
-}
-
-.btn-view {
-    @media(max-width: 880px) {
-        width: 100%;
-    }
-    margin-right: 10px;
-    width: 200px;
-    margin-top: 20px;
-    height: 50px;
-    font-weight: 600;
-    border-radius: 5px;
-    font-size: 17px;
-    border: none;
-    background-color: transparent;
-    border: 1px solid white;
-    color: white;
-    cursor: pointer;
-}
-
 .blocks {
     height: 210px;
     width: 750px;
@@ -942,7 +782,6 @@ iframe {
     margin-left: 100px;
     float: left;
     width: 52%;
-    // min-width: 240px;
     margin-top: 70px;
     border-radius: 6px;
     padding-left: 0px;
@@ -977,15 +816,4 @@ iframe {
     width: 100%;
     padding-top: 50px;
 }
-
-h2 {
-    text-align: left;
-    color: white;
-}
-
-.fa-check {
-    color: rgb(35, 226, 35);
-}
-
-
 </style>

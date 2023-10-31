@@ -1,15 +1,14 @@
 <script setup>
-import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
+import { waitForTransaction, writeContract} from '@wagmi/core'
 import { ref, onMounted, watch } from 'vue';
 import GLOBALS from '../globals.js'
-import { ERR_CONTRACT_RESOLVER_MISSING } from 'web3';
 import ContractABI from '../abi/contract.json'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 
+let nftAddress = GLOBALS.NFT_ADDRESS
 let count = ref(0);
 let imageLoaded = ref(false)
-let nftAddress = GLOBALS.NFT_ADDRESS
 let modalTutorial = ref(true)
 let showTutorial = ref(true)
 let winModal = ref(false)
@@ -55,10 +54,9 @@ const redeem = async () => {
 
 
 watch(count, async (newValue)=> {
-    if (newValue == 8) { // change back to == 8
+    if (newValue == 8) { 
         
         localStorage.setItem(props.detailNFT.id.toString() + '/' + nftAddress.toString(), true)
-
 
         const finalizeTicket = () => {
             winModal.value = true
@@ -247,7 +245,6 @@ onMounted(() => {
     z-index: 5!important;
 }
 
-
 .modal {
     z-index: 6!important;
     width: 340px;
@@ -280,7 +277,6 @@ onMounted(() => {
                 padding: 0;
             }
         }
-
         .verse-wide {
             font-size: 14px!important;
             height: 36px;
@@ -350,7 +346,6 @@ onMounted(() => {
     margin: -5%;
     z-index: 0;
 }
-
 .blur {
     filter: blur(8px);
     z-index: 1;
@@ -369,89 +364,88 @@ onMounted(() => {
     top: 0;
     overflow: scroll;
 }
-
-    .cont {
-        width: 350px;
-        margin-left: calc(50% - 175px);
-        @media(max-width: 880px) {
-            padding-top: 0;
-            padding-left: 0;
-            padding-bottom: 200px;
-            margin-left: 0;
-            width: 100%;
-            overflow: auto;
-        }
-        padding-top: 20px;
-        h2 {
-            color: white;
-            text-align: center;
-        }
+.cont {
+    width: 350px;
+    margin-left: calc(50% - 175px);
+    @media(max-width: 880px) {
+        padding-top: 0;
+        padding-left: 0;
+        padding-bottom: 200px;
+        margin-left: 0;
+        width: 100%;
+        overflow: auto;
     }
-    .ticketholder {
-        position: absolute;
-        margin: 0 auto;
-        background-size: contain;
-        background-repeat: no-repeat;
-        width: 356px;
-        height: 720px;
-        @media(max-width: 880px) {
-            margin-left: calc(50% - 178px);
-        }
-
+    padding-top: 20px;
+    h2 {
+        color: white;
+        text-align: center;
     }
-    #scratchcanvas1 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 286px;
-        left: 22px;
+}
+.ticketholder {
+    position: absolute;
+    margin: 0 auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 356px;
+    height: 720px;
+    @media(max-width: 880px) {
+        margin-left: calc(50% - 178px);
     }
 
-    #scratchcanvas2 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 286px;
-        left: 103px;
-    }
+}
+#scratchcanvas1 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 286px;
+    left: 22px;
+}
 
-    #scratchcanvas3 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 286px;
-        left: 184px;
-    }
+#scratchcanvas2 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 286px;
+    left: 103px;
+}
 
-    #scratchcanvas4 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 286px;
-        left: 264px;
-    }
+#scratchcanvas3 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 286px;
+    left: 184px;
+}
 
-    #scratchcanvas5 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 207px;
-        left: 22px;
-    }
+#scratchcanvas4 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 286px;
+    left: 264px;
+}
 
-    #scratchcanvas6 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 207px;
-        left: 103px;
-    }
+#scratchcanvas5 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 207px;
+    left: 22px;
+}
 
-    #scratchcanvas7 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 207px;
-        left: 184px;
-    }
+#scratchcanvas6 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 207px;
+    left: 103px;
+}
 
-    #scratchcanvas8 {
-        border-radius: 50%;
-        position: absolute;
-        bottom: 207px;
-        left: 264px;
-    }
+#scratchcanvas7 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 207px;
+    left: 184px;
+}
+
+#scratchcanvas8 {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 207px;
+    left: 264px;
+}
 </style>
