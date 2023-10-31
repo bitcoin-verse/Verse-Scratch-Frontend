@@ -173,7 +173,7 @@ export default {
                     console.log(parseInt(data))
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
                     if (objToUpdate) {
-                        objToUpdate.edition = parseInt(data) + 1; // TODO fix for now, needs fix on smart contract level
+                        objToUpdate.edition = parseInt(data);
                     }
                     return data 
                 }
