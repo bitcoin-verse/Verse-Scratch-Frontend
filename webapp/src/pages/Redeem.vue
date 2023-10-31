@@ -59,39 +59,46 @@ watch(count, async (newValue)=> {
         
         localStorage.setItem(props.detailNFT.id.toString() + '/' + nftAddress.toString(), true)
 
-        winModal.value = true
 
-        const duration = 3 * 1000,
-        animationEnd = Date.now() + duration,
-        defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        const finalizeTicket = () => {
+            winModal.value = true
 
-        function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-        }
+            const duration = 3 * 1000,
+            animationEnd = Date.now() + duration,
+            defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-        const interval = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
+            function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+            }
 
-        if (timeLeft <= 0) {
-            return clearInterval(interval);
-        }
+            const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
 
-        const particleCount = 50 * (timeLeft / duration);
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
 
-        confetti(
-                Object.assign({}, defaults, {
-                particleCount,
-                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                })
-            );
+            const particleCount = 50 * (timeLeft / duration);
+
             confetti(
-                Object.assign({}, defaults, {
-                particleCount,
-                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                })
-            );
-            
-        }, 200)
+                    Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    })
+                );
+                confetti(
+                    Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    })
+                );
+                
+            }, 200)
+        }
+
+        setTimeout(() => {
+            finalizeTicket()
+        }, 2000)
     }
 
 })
