@@ -215,6 +215,7 @@ i.close-btn {
         position: relative;
         @media(max-width: 880px) {
           padding: 24px;
+          padding-bottom: 60px;
         }
 
         &.short {
@@ -246,7 +247,7 @@ i.close-btn {
         }
         .modal-footer {
           @media(max-width: 880px) {
-            position: fixed;
+            position: absolute;
             padding-left: 24px;
             padding-right: 24px;
             width: calc(100% - 48px);
@@ -278,7 +279,7 @@ i.close-btn {
           margin-top: 2px;
           border-radius: 12px;
           @media(max-width: 880px) {
-            height: 44px;
+            height: unset;
             margin-bottom: 16px;
           }
 
@@ -292,7 +293,7 @@ i.close-btn {
             background-size: cover;
           }
           p {
-            position: absolute;
+            position: relative;
             width: calc(100% - 60px);
             left: 40px;
             text-align: left;
