@@ -188,10 +188,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             })
             modalLoading.value = false;
 
+            console.log(contractAddress)
+
             if(data) {
                  let dataString = data.toString()
-                 verseAllowance.value= parseFloat(dataString) / Math.pow(10, 18);
-                 if(verseBalance.value >= 3000 && buyStep.value < 3) {
+                 verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
+                 if(verseAllowance.value >= 3000 && buyStep.value < 3) {
                     buyStep.value = 3;
                 }
             }
