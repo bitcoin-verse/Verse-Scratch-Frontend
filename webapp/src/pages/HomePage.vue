@@ -24,7 +24,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let reopenAfterConnection = ref(false)
     let accountActive = ref(false)
     let correctNetwork = ref(true)
-    let modalActive = ref(false)
+    let modalActive = ref(false) 
     let ensLoaded = ref("")
     let verseBalance = ref(0);
     let verseAllowance = ref(0)
@@ -33,7 +33,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let modalLoading = ref(false)
     let loadingMessage = ref("getting wallet data")
     let buyStep = ref(0) 
-    let giftTicket = ref(false);
+    let giftTicket = ref(false); 
     let showTimer = ref(false)
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
@@ -475,12 +475,15 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                         <h3 class="title">Ticket Bought & Gifted!</h3>
                         <p class="subtext">We have sent the ticket to your specified wallet! Share this link with the recipient to let them know:</p>
 
-                        <input class="ticketlink" type="text" :value="`https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress}`">
+                        <div class="ticketfield">
+                            <input class="ticketlink" type="text" :value="`https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress}`">
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
+                        </div>
+
                         <!-- change this text for gifted tickets -->
-                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile">Buy Another Ticket</button></a>
-                        <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop">View your tickets</button></a>
+                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy Another Ticket</button></a>
+                        <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop"  style="margin-right: 0">View your tickets</button></a>
                     </div>
                     <div v-if="!giftTicket">
                         <h3 class="title">Ticket Bought!</h3>
@@ -624,13 +627,17 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
     width: 55px;
     border: none;
-    right: 40px;
-    top: 368px;
+    right: 10px;
+    top: 32px;
     font-size: 12px;
     color: white;
     background: linear-gradient(180deg, #0EBEF0 0%, #0085FF 100%);
     padding: 0px, 12px, 0px, 12px;
     border-radius: 100px;
+}
+
+.ticketfield {
+    position: relative;
 }
 .ticketlink {
     height: 46px; 
