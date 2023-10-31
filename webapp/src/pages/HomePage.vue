@@ -175,11 +175,11 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             })
             modalLoading.value = false;
 
-            console.log(contractAddress)
-
             if(data) {
                  let dataString = data.toString()
+                 console.log(dataString)
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
+                 console.log(verseAllowance.value)
                  if(verseAllowance.value >= 3000 && buyStep.value < 3) {
                     buyStep.value = 3;
                 }
@@ -202,6 +202,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
 
             if(data) {
+                
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
                  if(verseBalance.value >= 3000 && buyStep.value < 2) {

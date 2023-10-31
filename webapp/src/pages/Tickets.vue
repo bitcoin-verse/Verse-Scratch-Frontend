@@ -161,6 +161,7 @@ export default {
         }
 
         async function getEdition(id) {
+            
             try {
                 const data = await readContract({
                 address: GLOBALS.NFT_ADDRESS,
@@ -168,10 +169,11 @@ export default {
                 functionName: 'editions',
                 args: [id]
                 })
-                if(data) {
+                if(data.toString().length > 0) {
+                    console.log(parseInt(data))
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
                     if (objToUpdate) {
-                        objToUpdate.edition = parseInt(data);
+                        objToUpdate.edition = parseInt(data) + 1; // TODO fix for now, needs fix on smart contract level
                     }
                     return data 
                 }
@@ -261,6 +263,7 @@ export default {
                         promiseArray.push(getRedemptionStatus(dat.toString()))
                     })
                     nfts.value = arr
+                    console.log(nfts.value)
                     nfts.value.forEach(nft => {
                         promiseArray.push(promiseArray.push(getClaimed(nft.id)))
                         promiseArray.push(promiseArray.push(getEdition(nft.id)))
