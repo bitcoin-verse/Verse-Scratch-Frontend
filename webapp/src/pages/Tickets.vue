@@ -26,7 +26,9 @@ export default {
         let accountActive = ref(false)
         let loading = ref(false)
         let modal = useWeb3Modal()
+        let claimNow = ref(false)
 
+        let winModal = ref(false)
         let giftModal = ref(false)
         let giftAccount = ref("")
         let claimNFT = ref(0)
@@ -108,6 +110,10 @@ export default {
                 console.log(e)
             }
 
+        }
+
+        function toggleModal() {
+            openDetail.value = !openDetail.value
         }
 
         function setScratched(id) {
@@ -196,10 +202,10 @@ export default {
         }
 
 
-        function toggleModal(id) {
-            step.value = 0;
-            if(id) claimNFT.value = nfts.value.find(obj => obj.id === id);
-            claimActive.value = !claimActive.value
+        function openClaimDetail(id) {
+            detailNFT.value = nfts.value.find(obj => obj.id === id);
+            claimNow.value = true
+            openDetail.value = true
         }
 
         async function getRedemptionStatus(id) {
@@ -270,7 +276,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, nftContract, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, nftContract, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -297,7 +303,21 @@ export default {
         </div>
         
         <!-- claim-->
-        <div class="modal" v-if="claimActive">
+        <!-- <div class="backdrop" v-if="claimActive">
+            <div class="modal" v-if="winModal">
+                <div class="modal-body">
+                    <div>
+                        <div class="img-purchase"></div>
+                        <div>
+                            <h3 class="title">You have won<br/>{{ claimNFT.prize}} VERSE</h3>
+                            <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
+                            <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim Now</button></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <!-- <div class="modal" v-if="claimActive">
             <div class="modal-head">
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
             </div>
@@ -318,10 +338,10 @@ export default {
                     <a href="/"><button class="btn verse-wide secondary" style="margin-top: 8px">Gift a Ticket</button></a>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
-    <Redeem v-if="openDetail" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
+    <Redeem v-if="openDetail" :claim="claimNow" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
    
 
     <div class="page" v-if="!openDetail">
@@ -369,7 +389,7 @@ export default {
                 </div>
 
                 <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
-                <button v-if="item.scratched == true && item.claimed == false" @click="toggleModal(item.id)" class="btn verse-wide" >Claim {{item.prize}} Verse</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id)" class="btn verse-wide" >Claim {{item.prize}} Verse</button>
                 <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >VERSE Claimed</button>
             </div>
         </div>

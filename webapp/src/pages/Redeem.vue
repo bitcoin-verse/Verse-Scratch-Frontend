@@ -1,17 +1,66 @@
 <script setup>
-
+import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
 import { ref, onMounted, watch } from 'vue';
 import GLOBALS from '../globals.js'
-import Footer from '../components/Footer.vue'
+import { ERR_CONTRACT_RESOLVER_MISSING } from 'web3';
+import ContractABI from '../abi/contract.json'
 
-const props = defineProps(['closeDetailScreen', 'detailNFT', 'setScratched', 'toggleModal'])
+const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 
-let count = ref(8);
+let count = ref(0);
 let imageLoaded = ref(false)
 let nftAddress = GLOBALS.NFT_ADDRESS
+let modalTutorial = ref(true)
+let showTutorial = ref(true)
+let winModal = ref(false)
+let modalLoading = ref(false)
+let modalLoadingText = ref("")
+let modalFinish = ref(false)
+
+if(props.claim == true) {
+    winModal.value = true
+}
+
+const disableTutorial = () => {
+    modalTutorial.value = false
+}
+
+const toggleShow = () => {
+    showTutorial.value = !showTutorial.value
+    localStorage.setItem('showTutorial', showTutorial.value)
+}
+
+const redeem = async () => {
+    winModal.value = false
+    modalLoading.value = true;
+    modalLoadingText.value = "Please confirm the claim in your connected wallet"
+    try {
+        const { hash } = await writeContract({
+            address: nftAddress,
+            abi: ContractABI,
+            functionName: 'claimPrize',
+            chainId: 137,
+            args: [props.detailNFT.id]
+        })
+        modalLoadingText.value = "Waiting for transaction to confirm"
+        await waitForTransaction({ hash })
+        modalLoading.value = false
+        modalFinish.value = true
+    } catch (e) {
+        winModal.value = true
+        modalLoading.value = false;
+        console.log(e)
+    }
+}
+
 
 watch(count, async (newValue)=> {
-    if (newValue == 0) {
+    if (newValue == 8) { // change back to == 8
+        
+        localStorage.setItem(props.detailNFT.id.toString() + '/' + nftAddress.toString(), true)
+
+        winModal.value = true
+
         const duration = 3 * 1000,
         animationEnd = Date.now() + duration,
         defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -48,10 +97,15 @@ watch(count, async (newValue)=> {
 })
 
 onMounted(() => {
+    if(Boolean(localStorage.getItem('showTutorial')) == true) {
+        modalTutorial.value = false
+    }
     const img = new Image();
     img.src = `https://scratchverse.s3.us-west-1.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
     img.onload = () => {
-        setupScratch()
+        if(props.claim == false) {
+            setupScratch()
+        }
         imageLoaded.value = true;       
     };
 
@@ -79,9 +133,9 @@ onMounted(() => {
             item.addEventListener('success', function (e) {
                 if(scratched[idx] == false) {
                     scratched[idx] = true
-                    count.value--;
+                    count.value++;
                 }
-                if(count.value == 0) {
+                if(count.value == 8) {
                     props.setScratched(props.detailNFT.id);
                 }
             }, false);
@@ -91,17 +145,70 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="page">
-        <div class="left">
-            <div class="btn-holder">
-                <a style="cursor: pointer" @click="closeDetailScreen()"><h5 class="breadcrumb"><i class="fa-solid fa-arrow-left"></i> Return to Ticket Overview</h5></a>
-                <h2><span style="color: #fac43b">Scratch 3 matching numbers to win</span></h2>
-                <h3>Fields left to scratch: {{ count }}</h3>
-                <p style="color: white; font-weight: 500;">Scratch the tickets by dragging your mouse over the scratch fields. You can redeem your winnings after the fields have been scratched. 
-                </p>
+    <div class="backdrop" v-if="modalTutorial || winModal || modalLoading || modalFinish">
+        <div class="modal" v-if="modalTutorial">
+            <div class="modal-body">
+                <div>
+                    <div class="img-purchase"></div>
+                    <div>
+                        <h3 class="title">3 is the magic number</h3>
+                        <p class="subtext short" style="margin-bottom: 0;">Reveal the numbers by dragging your mouse over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
+                        <div class="gift-toggle-holder">
+                            <h3 class="title">Don't show again</h3>
+                            <label class="switch">
+                            <input type="checkbox" v-on:change="toggleShow">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <a @click="disableTutorial()"><button class="btn verse-wide">Start Scratching</button></a>
+                    </div>
+                </div>
             </div>
         </div>
+        <div class="modal" v-if="winModal">
+            <div class="modal-body">
+                <div>
+                    <div class="img-purchase"></div>
+                    <div>
+                        <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
+                        <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
+                        <a @click="redeem()"><button class="btn verse-wide">Claim Now</button></a>
+                        <a href="/tickets"><button class="btn verse-wide secondary">View My Tickets</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" v-if="modalFinish">
+            <div class="modal-body">
+                <div>
+                    <div class="img-purchase"></div>
+                    <div>
+                        <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
+                        <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and  congrats on your win!</p>
+                        <a href="/tickets"><button class="btn verse-wide">View My Tickets</button></a>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" v-if="modalLoading">
+            <div class="modal-body">
+                <div>
+                    <div>
+                        <div class="img-spinner" style="margin-top: 25px"></div>
+                        <h3 class="title-loading">{{ modalLoadingText }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="background"></div>
+    <div class="page">
         <div class="cont" id="conthandler">
+            <div class="progress">
+                <h3>FIELDS SCRATCHED {{ count }} / 8</h3>
+            </div>
+            <a @click="closeDetailScreen()"><div class="close-scratch"></div></a>
             <div v-if="!imageLoaded" style="padding: 100px;">
                 <div style="text-align: center;">
                     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
@@ -118,129 +225,171 @@ onMounted(() => {
                 <canvas id="scratchcanvas8" width="69" height="69"></canvas>
             </div>
         </div>
-
-        <div class="right" v-if="count == 0">
-            <h2 class="win">You won a prize!</h2>
-            <h3 class="win"> {{ detailNFT.prize }} Verse</h3>
-            <p class="claim">Congratulations! You can claim your prize instantly</p>
-            <button class="btn btn-redeem" style="cursor: pointer" v-if="detailNFT.claimed == false" @click="toggleModal(detailNFT.id)" >Claim Now</button>
-            <button href="/tickets" class="btn btn-redeem" style="cursor: pointer" v-if="detailNFT.claimed == true" @click="closeDetailScreen()">Back to overview</button>
-        </div>
-        <Footer />
     </div>
 </template>
 
 
-<style lang="scss">
-    .right {
-        padding-top: 130px;
-        padding-left: 50px;
-        float: left;
-        @media(max-width: 880px) {
-            position: fixed;
-            background-color: #1a1833;
-            padding: 20px;
-            bottom: 0;
-            left: 0;
-            z-index: 1;
-            border-top: 1px solid white;
-        }
-        .claim {
-            color: white;
-            margin-top: 0;
+<style lang="scss" scoped>
+.title-loading {
+    font-size: 18px;
+    color: white;
+    font-weight: 600;
+    margin-top: 16px!important;
+}
+.backdrop {
+    z-index: 5!important;
+}
+
+
+.modal {
+    z-index: 6!important;
+    width: 340px;
+    top: 25vh;
+    left: calc(50% - 170px);
+    height: unset!important;
+    @media(max-width: 880px) {
+        left: 37px;
+        top: 22vh;
+        border-radius: 24px;
+        width: calc(100% - 74px);
+        height: unset;
+        min-height: unset
+    }
+    .modal-body {
+        height: unset;
+        padding: 24px;
+
+        .title {
             margin-bottom: 0;
         }
-        h2.win {
-            color: white!important;
+        .subtext.short {
+            width: 290px;
+            margin-left: calc(50% - 175px);
+            margin-top: 8px;
+            color: #C5CEDB;
+            @media(max-width: 880px) {
+                width: 90%;
+                margin-left: 5%;
+                padding: 0;
+            }
         }
-        h3.win {
-            color: #fac43b!important;
-            margin-bottom: 0;
-        }
-    }
-    .breadcrumb {
-        color: white;
-    }
-    h2.win {
-        margin-bottom: 0;
-        font-size: 17px;
-    
-    }
-    h3.win {
-        margin-top: 3px;
-        color: #ffc700!important;
-        font-size: 40px;
-    }
-    .left {
-        @media(max-width: 880px) {
-        padding: 20px;
-        width: calc(100% - 40px);
-        margin-top: 0;
-        padding-top: 0;
-        }
-        margin-top: 50px;
-        width: 32.7%;
-        float: left;
-        padding: 40px;
-    }
-    .btn-holder {
-        h2 {
-            color: white;
-            text-align: left;
-        }
-        h3 {
-            color: white;
-        }
-        p {
-            color: white;
-        }
-    }
 
-    .btn-check {
-        background-color: #68686861;
-        color: white;
-        border: none;
-        height: 40px;
-        margin-right: 20px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
+        .verse-wide {
+            font-size: 14px!important;
+            height: 36px;
+            margin-top: 16px;
+            &.secondary {
+                margin-top: 8px;
+            }
+        }
 
-    .btn-redeem {
-        background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
-        color: #333;
-        font-size: 15px;
+        .gift-toggle-holder {
+            height: 40px;
+            margin-top: 16px;
+            .switch {
+                top: 8px;
+                right: 8px;
+            }
+            h3.title {
+                margin-top: 10px;
+                font-size: 14px!important;
+                left: 16px;
+            }
+        }
+    }
+}
+.close-scratch {
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    background-image: url("../assets/icons/icn-close-circle.png");
+    background-size: cover;
+    position: absolute;
+    top: 21px;
+    right: 16px;
+}
+.progress {
+    @media(max-width: 880px) {
+        margin-top: 20px;
+        margin-bottom: 21px;
+    }
+    background-color: #030C14;
+    border-radius: 24px;
+    text-align: center;
+    padding: 9px;
+    width: 204px;
+    margin-left: calc(50% - 110px);
+    margin-bottom: 60px;
+    user-select: none; 
+    h3 {
+        color: #C5CEDB;
+        font-size: 14px;
         font-weight: 600;
-        border: none;
-        height: 40px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        margin-top: 10px;
+        margin: 0;
     }
+}
+.background {
+    background-image: url("../assets/scratch-header.png");
+    background-color: #030C14;
+    left: 0;
+    top: 0;
+    background-size: 100%;
+    position: fixed;
+    background-repeat: no-repeat;
+    width: 110%;
+    height: calc(100vh + 10%);
+    filter: blur(5px);
+    overflow: hidden;
+    margin: -5%;
+    z-index: 0;
+}
+
+.blur {
+    filter: blur(8px);
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    left: 0;
+    top: 0;
+}
+.page { 
+    z-index: 2;
+    left: 0;
+    width: 100%;
+    min-height: 100vh!important;
+    position: absolute!important;
+    top: 0;
+    overflow: scroll;
+}
 
     .cont {
-        float: left;
+        width: 350px;
+        margin-left: calc(50% - 175px);
         @media(max-width: 880px) {
             padding-top: 0;
             padding-left: 0;
             padding-bottom: 200px;
+            margin-left: 0;
             width: 100%;
             overflow: auto;
         }
-        padding-top: 25px;
+        padding-top: 20px;
         h2 {
             color: white;
             text-align: center;
         }
     }
     .ticketholder {
-        position: relative;
+        position: absolute;
         margin: 0 auto;
         background-size: contain;
         background-repeat: no-repeat;
         width: 356px;
         height: 720px;
+        @media(max-width: 880px) {
+            margin-left: calc(50% - 178px);
+        }
 
     }
     #scratchcanvas1 {

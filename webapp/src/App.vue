@@ -1,6 +1,6 @@
 <script setup>
 
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
 import NavBar from './components/NavBar.vue'
 
@@ -9,6 +9,8 @@ import { defaultWagmiConfig, createWeb3Modal } from '@web3modal/wagmi/vue'
 const projectId = 'b30bc40c0cdef6000cd5066be1febf74'
 const chains = [polygon]
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, appName: 'Verse Labs',  })
+
+const route=useRoute();
 
 createWeb3Modal({ 
     tokens: {
