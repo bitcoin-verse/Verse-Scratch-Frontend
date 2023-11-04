@@ -177,9 +177,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
             if(data) {
                  let dataString = data.toString()
-                 console.log(dataString)
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
-                 console.log(verseAllowance.value)
                  if(verseAllowance.value >= 3000 && buyStep.value < 3) {
                     buyStep.value = 3;
                 }
@@ -538,13 +536,14 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     height: 211px;
     background-size: cover;
     width: 100%;
+    justify-content: center;
+    display: flex;
     img {
-        width: 76%;
-        margin-left: 12%;
+        max-width: 100%;
         margin-top: 20px;
         background-size: cover;
     }
-    @media(min-width: 879px) {
+    @media(min-width: 881px) {
         display: none;
     }
 }
@@ -787,7 +786,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     @media(max-width: 880px) {
         display: none;
     }
-    margin-left: 100px;
+    margin-left: 5%;
     float: left;
     width: 52%;
     margin-top: 70px;
@@ -814,10 +813,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     @media(max-width: 880px) {
         width: 100%;
         padding-top: 0px;
-        height: calc(100vh - 100px);
+        height: calc(100vh - 60px);
         overflow-y: scroll;
         overflow-x: scroll;
-        
+    }
+
+    @media(max-width: 980px) {
+        padding-top: 0;
     }
     height: unset;
     min-height: calc(100vh - 100px);
