@@ -28,6 +28,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let ensLoaded = ref("")
     let verseBalance = ref(0);
     let verseAllowance = ref(0)
+    let singleTransactionApproval = ref(false)
     let giftInputLoad = ref(false)
     let giftAddress = ref("");
     let modalLoading = ref(false)
@@ -88,11 +89,16 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         modalActive.value = !modalActive.value;
     }
 
-    async function approve(infiniteApproval) {
-        let approvalAmount = 3000000000000000000000
-        if(infiniteApproval) {
-            approvalAmount = 30000000000000000000000000000
-        } 
+    function toggleSingleApproval() {
+        singleTransactionApproval.value = !singleTransactionApproval.value
+    }
+
+    async function approve() {
+        let approvalAmount = 30000000000000000000000000000
+        if(singleTransactionApproval.value == true) {
+            approvalAmount = 3000000000000000000000
+        }
+        
         loadingMessage.value = "waiting for wallet approval.."
         modalLoading.value = true;
         const { hash } = await writeContract({
@@ -298,7 +304,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         showTimer,
         requestNetworkChange,
         ensLoaded,
-        giftInputLoad
+        giftInputLoad,
+        singleTransactionApproval,
+        toggleSingleApproval
     }
   }
 }
@@ -380,7 +388,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="modal-body">
                     <div class="img-verse"></div>
                     <h3 class="title">Not Enough Verse</h3>
-                    <p class="subtext short">You need <span>3000 VERSE</span> on Polygon in order to purchase a lottery ticket</p>
+                    <p class="subtext short">You need <span>3000 VERSE</span> on Polygon in order to purchase a ticket</p>
 
                     <div class="wallet-balance">
                         <p class="balance-title">WALLET BALANCE</p>
@@ -388,7 +396,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     </div>
                     <a class="" target="_blank" href="https://verse.bitcoin.com/"><button class="btn verse-wide half">Buy VERSE</button></a>
                     <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
-                    <p class="modal-footer">Already bought VERSE? click <a @click="getBalance()">here</a> to refresh your balance</p>
+                    <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
             </div>
         </div>
@@ -404,14 +412,21 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-approve"></div>
                 <h3 class="title">Approve the use of VERSE</h3>
-                <p class="subtext">You need to approve the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
+                <p class="subtext">You need to enable the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
                     
-                <div class="helper">
+                <!-- <div class="helper">
                     <div class="bulb-icn"></div>
                     <p>Alternatively you can choose to set an unlimited allowance, this way you can skip this step on your next purchase</p>
-                </div>
-                <a class="" target="_blank" @click="approve()"><button class="btn verse-wide half">Approve 3000 VERSE</button></a>
-                <a class="" target="_blank" @click="approve(true)"><button class="btn verse-wide half secondary">Set Infinite Approval</button></a>
+                </div> -->
+                <!-- <a class="" target="_blank" @click="approve()"><button class="btn verse-wide half">Approve 3000 VERSE</button></a> -->
+                <div class="gift-toggle-holder">
+                            <h3 class="title">Allow for one transaction only</h3>
+                            <label class="switch">
+                            <input type="checkbox" v-on:change="toggleSingleApproval">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                <a class="" target="_blank" @click="approve()"><button class="btn verse-wide">Allow the use of VERSE</button></a>
                 <p class="modal-footer">All tokens on the Polygon network require an approval transaction before they can be spent. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
             </div>
         </div>
