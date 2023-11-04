@@ -13,7 +13,7 @@
 
   </style>
 
-  <rect width="300" height="100" fill="#030C14" />
+  <rect width="300" height="100" fill="none" />
 
   <circle
       class="rotate"

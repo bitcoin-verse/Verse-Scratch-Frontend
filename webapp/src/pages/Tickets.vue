@@ -79,10 +79,8 @@ export default {
 
         watchAccount(async () => {
             if(getAccount().address &&  getAccount().address.length != undefined) {
-
                 accountActive.value = true;
                 getTicketIds()
-
             } else {
                 accountActive.value = false
             }
@@ -119,11 +117,9 @@ export default {
         function setScratched(id) {
             localStorage.setItem(id.toString() + '/' + nftContract.toString(), true)
             const objToUpdate = nfts.value.find(obj => obj.id === id);
-
             if (objToUpdate) {
                 objToUpdate.scratched = true;
             }
-
         }
 
         function openDetailScreen(id) {
@@ -170,7 +166,6 @@ export default {
                 args: [id]
                 })
                 if(data.toString().length > 0) {
-                    console.log(parseInt(data))
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
                     if (objToUpdate) {
                         objToUpdate.edition = parseInt(data);
@@ -263,7 +258,6 @@ export default {
                         promiseArray.push(getRedemptionStatus(dat.toString()))
                     })
                     nfts.value = arr
-                    console.log(nfts.value)
                     nfts.value.forEach(nft => {
                         promiseArray.push(promiseArray.push(getClaimed(nft.id)))
                         promiseArray.push(promiseArray.push(getEdition(nft.id)))
@@ -298,50 +292,11 @@ export default {
                 <p class="subtext">Somebody has sent a scratch ticket to you. Your ticket has a chance to win <span>100.000 Verse!</span>
                 <br><br>No transaction needed to scratch. Connect your account (<span> {{ giftAccount.slice(0, 7) }}..</span>) to redeem the ticket.
                 </p>
-                
                 <a @click="closeGiftModal(true)" v-if="accountActive == false"><button class="btn verse-wide fixBottomMobile">Connect and Redeem</button></a>
                 <a @click="closeGiftModal(false)" v-if="accountActive == true"><button class="btn verse-wide fixBottomMobile">Redeem</button></a>
                 <img url="/gift.png">
             </div>
         </div>
-        
-        <!-- claim-->
-        <!-- <div class="backdrop" v-if="claimActive">
-            <div class="modal" v-if="winModal">
-                <div class="modal-body">
-                    <div>
-                        <div class="img-purchase"></div>
-                        <div>
-                            <h3 class="title">You have won<br/>{{ claimNFT.prize}} VERSE</h3>
-                            <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
-                            <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim Now</button></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="modal" v-if="claimActive">
-            <div class="modal-head">
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-body short">
-                <div v-if="modalLoading">
-                    <p class='title' style="text-align: center">claiming prize</p>
-                    <div class="img-spinner" style="margin-top: 25px"></div>
-                </div>
-                <div v-if="!modalLoading && step == 0">
-                    <h3 class="title" style="margin-top: 50px">Congrats on your win!</h3>
-                    <p class="subtext">Funds will immediately be in your wallet after the transaction has been completed.</p>
-                    <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim {{claimNFT.prize }} Verse</button></a>
-                </div>
-                <div v-if="!modalLoading && step == 1">
-                    <h3 class="title" style="margin-top: 50px">Successfully Claimed Win</h3>
-                    <p class="subtext">Thanks for playing!</p>
-                    <a href="/"><button class="btn verse-wide">Buy new Ticket</button></a>
-                    <a href="/"><button class="btn verse-wide secondary" style="margin-top: 8px">Gift a Ticket</button></a>
-                </div>
-            </div>
-        </div> -->
     </div>
 
     <Redeem v-if="openDetail" :claim="claimNow" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
@@ -350,24 +305,20 @@ export default {
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets
-
                 <a href="/"><button class="btn verse-wide" href="">Buy Ticket</button></a>
             </h2>
 
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
         </div>
         <div class="ticket-wrapper">
-
-        <div class="tickets" v-if="accountActive && loading">
-            <div class="spin" >
-                <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-            </div>
-        </div>
     
+        <div class="spin" v-if="accountActive && loading">
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>
         
         <div class="tickets clearfix" v-if="accountActive && !loading">
-            <div v-if="nfts.length == 0">
-                <h3>Couldn't find any tickets in your connected wallet. Click <a href="/" style="text-decoration: none; font-weight: 600; color: rgb(250, 196, 59);">here</a> to buy tickets </h3>
+            <div v-if="nfts.length == 0" class="warn-no-tickets">
+                <h5>No tickets found in connected wallet</h5>
             </div>
             <div class="ticket" v-for="item, index in ticketList()">
                 <h3 class="title">Ticket {{item.id}} </h3>
@@ -399,7 +350,6 @@ export default {
         </div>
         <Footer v-if="!loading" />
     </div>
-
 </template>
         
 
@@ -417,6 +367,15 @@ export default {
   }
 }
 
+.warn-no-tickets {
+    text-align: center;
+    width: 100%;
+    h5 {
+        color: white;
+        font-size: 16px;
+        font-weight: 300;
+    }
+}
 .claimed {
     opacity: 0.6;
 }
@@ -430,7 +389,6 @@ export default {
         display: none;
     }
 }
-
 .mobile {
     display: none;
     @media(max-width: 880px) {
@@ -505,7 +463,6 @@ export default {
         background-image: radial-gradient(circle farthest-corner at 10% 20%, rgb(51 249 238) 0%, rgb(19 255 179) 100.2%);
         background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
     }
-
     &.dis {
         background-color: #353535;
         background-image: none;
@@ -539,7 +496,6 @@ export default {
         }
     }
 }
-
 .btn-modal {
     cursor: pointer;
     margin-top: 10px;
@@ -572,8 +528,6 @@ export default {
         color: #1c1b22;
     }
 }
-
-
 div.tickets {
     display: inline-block;
     margin-bottom: 100px;
