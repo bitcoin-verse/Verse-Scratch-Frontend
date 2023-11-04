@@ -304,44 +304,6 @@ export default {
                 <img url="/gift.png">
             </div>
         </div>
-        
-        <!-- claim-->
-        <!-- <div class="backdrop" v-if="claimActive">
-            <div class="modal" v-if="winModal">
-                <div class="modal-body">
-                    <div>
-                        <div class="img-purchase"></div>
-                        <div>
-                            <h3 class="title">You have won<br/>{{ claimNFT.prize}} VERSE</h3>
-                            <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
-                            <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim Now</button></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="modal" v-if="claimActive">
-            <div class="modal-head">
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-body short">
-                <div v-if="modalLoading">
-                    <p class='title' style="text-align: center">claiming prize</p>
-                    <div class="img-spinner" style="margin-top: 25px"></div>
-                </div>
-                <div v-if="!modalLoading && step == 0">
-                    <h3 class="title" style="margin-top: 50px">Congrats on your win!</h3>
-                    <p class="subtext">Funds will immediately be in your wallet after the transaction has been completed.</p>
-                    <a @click="redeem(claimNFT.id)"><button class="btn verse-wide">Claim {{claimNFT.prize }} Verse</button></a>
-                </div>
-                <div v-if="!modalLoading && step == 1">
-                    <h3 class="title" style="margin-top: 50px">Successfully Claimed Win</h3>
-                    <p class="subtext">Thanks for playing!</p>
-                    <a href="/"><button class="btn verse-wide">Buy new Ticket</button></a>
-                    <a href="/"><button class="btn verse-wide secondary" style="margin-top: 8px">Gift a Ticket</button></a>
-                </div>
-            </div>
-        </div> -->
     </div>
 
     <Redeem v-if="openDetail" :claim="claimNow" :toggleModal="toggleModal" :closeDetailScreen="closeDetailScreen" :detailNFT="detailNFT" :setScratched="setScratched"/>
@@ -357,17 +319,14 @@ export default {
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
         </div>
         <div class="ticket-wrapper">
-
-        <div class="tickets" v-if="accountActive && loading">
-            <div class="spin" >
-                <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-            </div>
-        </div>
     
+        <div class="spin" v-if="accountActive && loading">
+                <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>
         
         <div class="tickets clearfix" v-if="accountActive && !loading">
-            <div v-if="nfts.length == 0">
-                <h3>Couldn't find any tickets in your connected wallet. Click <a href="/" style="text-decoration: none; font-weight: 600; color: rgb(250, 196, 59);">here</a> to buy tickets </h3>
+            <div v-if="nfts.length == 0" class="warn-no-tickets">
+                <h5>No tickets found in connected wallet</h5>
             </div>
             <div class="ticket" v-for="item, index in ticketList()">
                 <h3 class="title">Ticket {{item.id}} </h3>
@@ -417,6 +376,15 @@ export default {
   }
 }
 
+.warn-no-tickets {
+    text-align: center;
+    width: 100%;
+    h5 {
+        color: white;
+        font-size: 16px;
+        font-weight: 300;
+    }
+}
 .claimed {
     opacity: 0.6;
 }

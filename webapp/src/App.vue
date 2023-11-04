@@ -33,6 +33,7 @@ createWeb3Modal({
 </template>
 
 <style lang="scss">
+
 .verse-wide {
   &:hover {
     background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
