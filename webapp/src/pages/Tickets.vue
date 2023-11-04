@@ -79,10 +79,8 @@ export default {
 
         watchAccount(async () => {
             if(getAccount().address &&  getAccount().address.length != undefined) {
-
                 accountActive.value = true;
                 getTicketIds()
-
             } else {
                 accountActive.value = false
             }
@@ -119,11 +117,9 @@ export default {
         function setScratched(id) {
             localStorage.setItem(id.toString() + '/' + nftContract.toString(), true)
             const objToUpdate = nfts.value.find(obj => obj.id === id);
-
             if (objToUpdate) {
                 objToUpdate.scratched = true;
             }
-
         }
 
         function openDetailScreen(id) {
@@ -170,7 +166,6 @@ export default {
                 args: [id]
                 })
                 if(data.toString().length > 0) {
-                    console.log(parseInt(data))
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
                     if (objToUpdate) {
                         objToUpdate.edition = parseInt(data);
@@ -263,7 +258,6 @@ export default {
                         promiseArray.push(getRedemptionStatus(dat.toString()))
                     })
                     nfts.value = arr
-                    console.log(nfts.value)
                     nfts.value.forEach(nft => {
                         promiseArray.push(promiseArray.push(getClaimed(nft.id)))
                         promiseArray.push(promiseArray.push(getEdition(nft.id)))
@@ -298,7 +292,6 @@ export default {
                 <p class="subtext">Somebody has sent a scratch ticket to you. Your ticket has a chance to win <span>100.000 Verse!</span>
                 <br><br>No transaction needed to scratch. Connect your account (<span> {{ giftAccount.slice(0, 7) }}..</span>) to redeem the ticket.
                 </p>
-                
                 <a @click="closeGiftModal(true)" v-if="accountActive == false"><button class="btn verse-wide fixBottomMobile">Connect and Redeem</button></a>
                 <a @click="closeGiftModal(false)" v-if="accountActive == true"><button class="btn verse-wide fixBottomMobile">Redeem</button></a>
                 <img url="/gift.png">
@@ -312,7 +305,6 @@ export default {
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets
-
                 <a href="/"><button class="btn verse-wide" href="">Buy Ticket</button></a>
             </h2>
 
@@ -321,7 +313,7 @@ export default {
         <div class="ticket-wrapper">
     
         <div class="spin" v-if="accountActive && loading">
-                <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
         </div>
         
         <div class="tickets clearfix" v-if="accountActive && !loading">
@@ -358,7 +350,6 @@ export default {
         </div>
         <Footer v-if="!loading" />
     </div>
-
 </template>
         
 
@@ -398,7 +389,6 @@ export default {
         display: none;
     }
 }
-
 .mobile {
     display: none;
     @media(max-width: 880px) {
@@ -473,7 +463,6 @@ export default {
         background-image: radial-gradient(circle farthest-corner at 10% 20%, rgb(51 249 238) 0%, rgb(19 255 179) 100.2%);
         background: radial-gradient(circle farthest-corner at 10% 20%, rgb(249, 232, 51) 0%, rgb(250, 196, 59) 100.2%);
     }
-
     &.dis {
         background-color: #353535;
         background-image: none;
@@ -507,7 +496,6 @@ export default {
         }
     }
 }
-
 .btn-modal {
     cursor: pointer;
     margin-top: 10px;
@@ -540,8 +528,6 @@ export default {
         color: #1c1b22;
     }
 }
-
-
 div.tickets {
     display: inline-block;
     margin-bottom: 100px;

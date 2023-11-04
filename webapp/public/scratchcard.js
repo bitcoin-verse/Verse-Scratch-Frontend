@@ -89,7 +89,6 @@ ScratchCard.prototype.mouseUp = function () {
 };
 
 ScratchCard.prototype.touchDown = function (e) {
-  console.log("TOUCHDOWN")
   // Touch is a bit more complicated than mouse usage since mobiel browsers have default
   // functionalities. Also the touch position is not a real position but an array.
   e.preventDefault();
@@ -101,7 +100,6 @@ ScratchCard.prototype.touchDown = function (e) {
 };
 
 ScratchCard.prototype.touchMove = function (e) {
-  console.log("TOUCHMOVE")
   e.preventDefault();
   // To avoid some weird cases we have to check if a touchstart event occured beforehand
   if (this.pressed) {
@@ -113,7 +111,6 @@ ScratchCard.prototype.touchMove = function (e) {
 };
 
 ScratchCard.prototype.touchUp = function () {
-  console.log("TOUCHUP")
   // Reset the control variable
   this.pressed = false;
 };

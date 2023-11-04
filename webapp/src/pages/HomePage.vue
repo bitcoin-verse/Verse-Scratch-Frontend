@@ -237,7 +237,6 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             }
         }
 
-
         if(getAccount().address &&  getAccount().address.length != undefined) {
             accountActive.value = true;
             if(buyStep.value < 1) {
@@ -263,7 +262,6 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         setTimeout(() => {
             copyDone.value = false
         }, 1400)
-
     }
 
     function connectAndClose() {
@@ -329,18 +327,17 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>  
             <div class="modal-body">
                 <div class="img-spinner"></div>
-
                 <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
                 <h3 v-if="showTimer" class="title">Payment Successful</h3>
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
-                
                 <div v-if="showTimer" class="attention-footer">
                     <p>expected arrival in <strong>{{loadingMessage}}</strong></p>
                 </div>
             </div>
         </div>
-        <!-- modal for connecting account -->
+
+        <!-- modal for switching network -->
         <div class="modal" v-if="correctNetwork == false">
             <div>
                 <div class="modal-head">
@@ -375,7 +372,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>
             </div>
         </div>
-        <!-- // modal for purchasing verse -->
+        <!-- modal for purchasing verse -->
         <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
             <div>
                 <div class="modal-head">
@@ -400,6 +397,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 </div>
             </div>
         </div>
+
         <!-- allowance modal -->
         <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
             <div class="modal-head">
@@ -413,12 +411,6 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="img-approve"></div>
                 <h3 class="title">Approve the use of VERSE</h3>
                 <p class="subtext">You need to enable the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
-                    
-                <!-- <div class="helper">
-                    <div class="bulb-icn"></div>
-                    <p>Alternatively you can choose to set an unlimited allowance, this way you can skip this step on your next purchase</p>
-                </div> -->
-                <!-- <a class="" target="_blank" @click="approve()"><button class="btn verse-wide half">Approve 3000 VERSE</button></a> -->
                 <div class="gift-toggle-holder">
                             <h3 class="title">Allow for one transaction only</h3>
                             <label class="switch">
@@ -430,7 +422,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <p class="modal-footer">All tokens on the Polygon network require an approval transaction before they can be spent. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
             </div>
         </div>
-        <!-- purchase modal -->
+        <!-- purchase modal post approval -->
         <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
@@ -472,6 +464,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 </div>
             </div>
         </div>
+
         <!-- normal finish -->
         <div class="modal" v-if="buyStep == 4 && !modalLoading && correctNetwork">
             <div class="modal-head">
@@ -484,6 +477,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div>
                     <div class="img-success"></div>
+                    <!-- gifted ticket delivery -->
                     <div v-if="giftTicket">
                         <h3 class="title">Ticket Purchased & Gifted!</h3>
                         <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
@@ -493,11 +487,10 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
                         </div>
-
-                        <!-- change this text for gifted tickets -->
                         <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy Another Ticket</button></a>
                         <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop"  style="margin-right: 0">View your tickets</button></a>
                     </div>
+                    <!-- normal ticket delivery -->
                     <div v-if="!giftTicket">
                         <h3 class="title">Ticket Bought!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket and test your luck!</p>
