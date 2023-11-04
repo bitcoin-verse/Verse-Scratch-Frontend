@@ -571,6 +571,12 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             h2 {
                 font-size: 20px;
                 text-shadow: 3px 3px 0px #131237;
+                @media(max-width: 1100px) {
+                 font-size: 17px;
+                }
+                @media(max-width: 930px) {
+                 font-size: 15px;
+                }
             }
             p {
                 margin-top: 2px;
@@ -584,6 +590,12 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             h2 {
                 font-size: 20px;
                 text-shadow: 3px 3px 0px #350936;
+                @media(max-width: 1100px) {
+                 font-size: 17px;
+                }
+                @media(max-width: 930px) {
+                 font-size: 15px;
+                }
             }
             p {
                 margin-top: 2px;
@@ -785,6 +797,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 .card-holder {
     @media(max-width: 880px) {
         display: none;
+    }
+    @media(max-width: 1000px) {
+        margin-top: 115px!important;
     }
     margin-left: 5%;
     float: left;
