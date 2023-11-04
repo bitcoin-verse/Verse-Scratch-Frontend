@@ -99,7 +99,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             approvalAmount = 3000000000000000000000
         }
         
-        loadingMessage.value = "waiting for wallet approval.."
+        loadingMessage.value = "Please confirm the approval in your connected wallet"
         modalLoading.value = true;
         const { hash } = await writeContract({
         address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
@@ -109,7 +109,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         args: [contractAddress, approvalAmount]
         })
 
-        loadingMessage.value = "waiting for transaction to finish.."
+        loadingMessage.value = "Processing the confirmation, please wait a moment"
         await waitForTransaction({ hash })
         getAllowance()
     }    
@@ -121,7 +121,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             } else {
                 giftTicket.value = false;
             }
-            loadingMessage.value = "waiting for wallet approval.."
+            loadingMessage.value = "Please confirm the purchase in your wallet"
             modalLoading.value = true
             let receiver = getAccount().address
             if(_giftAddress && _giftAddress.length > 0) {
@@ -133,7 +133,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 chainId: 137,
                 args: [receiver]
                 })
-                loadingMessage.value = "waiting for tx confirmation"
+                loadingMessage.value = "waiting for blockchain confirmation"
                 await waitForTransaction({ hash })
             } else {
                 const { hash } = await writeContract({
@@ -143,7 +143,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 chainId: 137,
                 args: []
                 })
-                loadingMessage.value = "waiting for tx confirmation"
+                loadingMessage.value = "waiting for blockchain confirmation"
                 await waitForTransaction({ hash })
             }
             let timer = 20;  
@@ -442,7 +442,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
-                <p class="subtext">It seems you have <span>3000 VERSE</span> in your wallet and contract approval has been set!</p>
+                <p class="subtext">You have at least <span>3000 VERSE</span> in your wallet, and you've given approval for its use. All that remains is to purchase your ticket.</p>
                 <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
                     <h3 class="title">Send ticket as gift?</h3>
                     <label class="switch">
@@ -451,7 +451,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     </label>
                 </div>
                 <div class="gift-toggle-holder-bottom" v-if="giftTicket">
-                    <p>Please provide us with the Polygon wallet address of the person who you want to gift the ticket to.</p>
+                    <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
                     <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
                     <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
                     <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
@@ -485,8 +485,8 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div>
                     <div class="img-success"></div>
                     <div v-if="giftTicket">
-                        <h3 class="title">Ticket Bought & Gifted!</h3>
-                        <p class="subtext">We have sent the ticket to your specified wallet! Share this link with the recipient to let them know:</p>
+                        <h3 class="title">Ticket Purchased & Gifted!</h3>
+                        <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
 
                         <div class="ticketfield">
                             <input class="ticketlink" type="text" :value="`https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress}`">
