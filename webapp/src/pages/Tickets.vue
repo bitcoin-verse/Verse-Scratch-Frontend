@@ -440,6 +440,7 @@ export default {
 .ticket-wrapper {
     @media(max-width: 880px) {
         padding: 23px;
+        min-height: calc(100vh - 60px);
     }
     max-width: 100%;
     padding-top: 10px;

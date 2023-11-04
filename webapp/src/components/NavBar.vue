@@ -24,7 +24,7 @@ export default {
         };
 
         watchAccount(async (account) => {
-        connectedProvider.value = account.connector.name.toLowerCase()
+        
 
          
         if(account.isConnected == true) {
@@ -32,6 +32,7 @@ export default {
         } else {
             accountActive.value = false
         }
+        connectedProvider.value = account.connector.name.toLowerCase()
     })
 
         return { account, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
@@ -136,7 +137,7 @@ export default {
 }
 .btn-connect {
     @media(max-width: 880px) {
-        width: 100%;
+    width: 100%;
     position: fixed;
     bottom: 0;
     font-weight: 600;

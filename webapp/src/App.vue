@@ -471,6 +471,7 @@ h3 {
 body {
   position: fixed;
   width: 100%;
+  min-height: 100vh;
   background-size: 100%;
   margin: 0;
   font-family: 'Barlow', sans-serif;
