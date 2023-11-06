@@ -26,10 +26,12 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
+        working-directory: webapp
         run: npm install
 
       # Build package
       - name: Build
+        working-directory: webapp
         run: npm run build
         env:
           CI: false
@@ -43,5 +45,5 @@ jobs:
           projectName: scratcher-verse-bitcoin-com
           directory: dist
           branch: master
-          workingDirectory: /
+          workingDirectory: webapp
           wranglerVersion: '3'
