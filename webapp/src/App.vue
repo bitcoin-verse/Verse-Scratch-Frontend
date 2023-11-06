@@ -102,7 +102,7 @@ createWeb3Modal({
   @media(min-width: 768px) {
     width: 100%;
     align-items: center;
-    z-index: 1;
+    z-index: 0;
     max-width: 80rem;
     margin: 0px auto;
     gap: 1rem;
