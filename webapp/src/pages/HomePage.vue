@@ -9,6 +9,7 @@ import { copyText } from 'vue3-clipboard'
 import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
+import NavBar from '../components/NavBar.vue'
 
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
 const contractAddress = GLOBALS.CONTRACT_ADDRESS
