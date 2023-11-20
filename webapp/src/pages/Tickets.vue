@@ -579,7 +579,8 @@ div.tickets {
     @media(max-width: 880px) {
         width: 100%;
         padding-top: 16px;
-        height: calc(100vh - 100px);
+        height: calc(100vh - 150px);
+        height: calc(100dvh - 150px);
         overflow-y: scroll;
         overflow-x: scroll;
         margin-top: 0;
@@ -588,12 +589,14 @@ div.tickets {
     margin-top: 80px;
     height: max-content;
     min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px);
     width: 100%;
     padding-top: 0px;
 
 
     position: relative;
     height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
     overflow: scroll;
 }
 
