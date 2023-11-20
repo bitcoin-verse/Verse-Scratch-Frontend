@@ -547,7 +547,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <a @click="modal.open()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
-                <p class="terms-link">*Verifiably Random Dapp using Chainlink VRF. Self custodial gaming powered by Defi Smart Contracts. <a>Learn More</a></p>
+                <p class="terms-link">*Verifiably Random Dapp using Chainlink VRF. Self custodial gaming powered by Defi Smart Contracts. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
             </div>
 
         <div class="card-holder">
