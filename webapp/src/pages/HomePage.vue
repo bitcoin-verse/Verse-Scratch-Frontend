@@ -818,7 +818,7 @@ p.usd {
     @media(max-width: 880px) {
         width: calc(100% - 30px)!important;
         padding: 15px;
-        padding-bottom: 200px;
+        padding-bottom: 50px;
     }
 
     h2 {
