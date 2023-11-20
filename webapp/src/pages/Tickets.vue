@@ -14,7 +14,7 @@ import Footer from '../components/Footer.vue'
 export default {
     components: {
         Redeem,
-        Footer
+        Footer,
     },  
     setup() {
         const route = useRoute()
@@ -398,8 +398,8 @@ export default {
 .ticket-wrapper {
     @media(max-width: 880px) {
         padding: 23px;
-        min-height: calc(100vh - 130px);
-        min-height: calc(100dvh - 130px);
+        min-height: calc(100vh - 60px);
+        min-height: calc(100dvh - 60px);
     }
     max-width: 100%;
     padding-top: 10px;
@@ -580,20 +580,23 @@ div.tickets {
         width: 100%;
         padding-top: 16px;
         height: calc(100vh - 100px);
+        height: calc(100dvh - 100px);
         overflow-y: scroll;
         overflow-x: scroll;
         margin-top: 0;
-        
     }
-    margin-top: 80px;
+
+    margin-top: 70px;
     height: max-content;
     min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px);
     width: 100%;
     padding-top: 0px;
 
 
     position: relative;
     height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
     overflow: scroll;
 }
 

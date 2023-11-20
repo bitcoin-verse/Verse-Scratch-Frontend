@@ -242,9 +242,10 @@ export default {
         @media(max-width: 879px) {
             display: none;
         }
+        position: fixed;
+        top: 0;
         display: block;
         width: 100%;
-        position: absolute;
         left: 0;
         height: 70px;
         background: rgba(3, 12, 20, 1);
