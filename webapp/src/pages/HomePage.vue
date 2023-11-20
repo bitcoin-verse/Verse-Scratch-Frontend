@@ -561,6 +561,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 .terms-link {
     font-size: 12px;
     margin-top: 16px;
+    text-align: center;
     color: #899BB5;
     a {
         color: #0085FF;
@@ -610,7 +611,7 @@ p.usd {
             }
             h2 {
                 font-size: 17px;
-                text-shadow: 3px 3px 0px #131237;
+                text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
                 @media(max-width: 1100px) {
                  font-size: 17px;
                 }
@@ -629,7 +630,7 @@ p.usd {
             background: #6E376F;
             h2 {
                 font-size: 17px;
-                text-shadow: 3px 3px 0px #350936;
+                text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
                 @media(max-width: 1100px) {
                  font-size: 17px;
                 }
@@ -661,7 +662,7 @@ p.usd {
         font-weight: 800;
         font-size: 32px;
         text-align: center;
-        text-shadow: 3px 3px 0px #030420;
+        text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
     }
 }
 .top-meta {
