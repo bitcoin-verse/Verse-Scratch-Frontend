@@ -471,6 +471,7 @@ h3 {
 
 body {
   width: 100%;
+  --webkit-overflow-scrolling: touch;
   min-height: 100vh;
   background-size: 100%;
   margin: 0;
