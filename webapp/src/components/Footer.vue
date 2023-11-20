@@ -20,7 +20,7 @@
     position: fixed;
     bottom: 0;
     @media(max-width: 880px) {
-        position: relative;
+        position: static;
     }
     left: 0;
     display: flex;
