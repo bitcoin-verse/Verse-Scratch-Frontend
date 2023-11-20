@@ -581,8 +581,10 @@ div.tickets {
         height: calc(100vh - 100px);
         overflow-y: scroll;
         overflow-x: scroll;
+        margin-top: 0;
         
     }
+    margin-top: 80px;
     height: max-content;
     min-height: calc(100vh - 70px);
     width: 100%;

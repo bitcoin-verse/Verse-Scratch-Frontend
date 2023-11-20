@@ -763,11 +763,12 @@ p.usd {
     }
 }
 .float-holder{
-    margin-top: 100px;
+    margin-top: 40px!important;
     margin: 0 auto;
     min-height: calc(100vh - 188px);
     @media(max-width: 880px) {
         min-height: calc(100vh - 170px); 
+        margin-top: 0!important;
     }
 }
 .blocks {

@@ -475,12 +475,12 @@ body {
   background-size: 100%;
   margin: 0;
   font-family: 'Barlow', sans-serif;
-  background-image: url("./assets/bg-19.png")!important;
-  background-repeat: no-repeat;
-  background: #030C14;
-  background-size: cover;
+  background-image: url("./assets/bg11.png")!important;
+  background-repeat: no-repeat!important;
+  background: rgba(3, 12, 20, 1);
+  background-size: contain;
   @media(max-width: 880px) {
-    background: #030C14;
+    background: rgba(3, 12, 20, 1);
     background-image: none!important;
   }
 }
