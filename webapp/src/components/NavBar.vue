@@ -244,7 +244,6 @@ export default {
         }
         display: block;
         width: 100%;
-        position: absolute;
         left: 0;
         height: 70px;
         background: rgba(3, 12, 20, 1);

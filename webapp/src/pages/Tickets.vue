@@ -10,11 +10,13 @@ import { useRoute } from 'vue-router'
 import GLOBALS from '../globals.js'
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
+import NavBar from '../components/NavBar.vue'
 
 export default {
     components: {
         Redeem,
-        Footer
+        Footer,
+        NavBar
     },  
     setup() {
         const route = useRoute()
@@ -303,6 +305,7 @@ export default {
    
 
     <div class="page" v-if="!openDetail">
+        <NavBar />
         <div class="head">
             <h2 class="tickhead">My Tickets
                 <a href="/"><button class="btn verse-wide" href="">Buy Ticket</button></a>
@@ -398,8 +401,7 @@ export default {
 .ticket-wrapper {
     @media(max-width: 880px) {
         padding: 23px;
-        min-height: calc(100vh - 130px);
-        min-height: calc(100dvh - 130px);
+        min-height: calc(100vh - 60px);
     }
     max-width: 100%;
     padding-top: 10px;
@@ -579,24 +581,19 @@ div.tickets {
     @media(max-width: 880px) {
         width: 100%;
         padding-top: 16px;
-        height: calc(100vh - 150px);
-        height: calc(100dvh - 150px);
+        height: calc(100vh - 100px);
         overflow-y: scroll;
         overflow-x: scroll;
-        margin-top: 0;
         
     }
-    margin-top: 80px;
     height: max-content;
     min-height: calc(100vh - 70px);
-    min-height: calc(100dvh - 70px);
     width: 100%;
     padding-top: 0px;
 
 
     position: relative;
     height: calc(100vh - 70px);
-    height: calc(100dvh - 70px);
     overflow: scroll;
 }
 
