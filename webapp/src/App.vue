@@ -152,6 +152,7 @@ i.close-btn {
     left: 0;
     width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
     background-color: #030c14a6;
     z-index: 2;
 
@@ -162,6 +163,7 @@ i.close-btn {
             top: 0;
             width: 100%;
             min-height: 100vh;
+            min-height: 100dvh;
             left: 0;
             border-radius: 0;
             padding: 0;
