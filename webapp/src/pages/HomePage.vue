@@ -767,8 +767,10 @@ p.usd {
     margin-top: 40px!important;
     margin: 0 auto;
     min-height: calc(100vh - 188px);
+    min-height: calc(100dvh - 188px);
     @media(max-width: 880px) {
         min-height: calc(100vh - 170px); 
+        min-height: calc(100dvh - 170px); 
         margin-top: 0!important;
     }
 }
@@ -872,6 +874,7 @@ p.usd {
         width: 100%;
         padding-top: 0px;
         height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
         overflow-y: scroll;
         overflow-x: scroll;
     }
@@ -881,6 +884,7 @@ p.usd {
     }
     height: unset;
     min-height: calc(100vh - 100px);
+    min-height: calc(100dvh - 100px);
     width: 100%;
     padding-top: 50px;
 }

@@ -242,6 +242,8 @@ export default {
         @media(max-width: 879px) {
             display: none;
         }
+        position: fixed;
+        top: 0;
         display: block;
         width: 100%;
         left: 0;
