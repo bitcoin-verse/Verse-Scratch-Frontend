@@ -61,7 +61,7 @@ export default {
                 </a>
             </div>
         </a>
-        <!-- <h3 class="title-nav-desk">Verse Scratch</h3> -->
+        <h3 class="title-nav-desk">Scratch & Win</h3>
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
@@ -78,8 +78,9 @@ export default {
     top: 20px;
     text-align: center;
     width: 400px;
+    font-family: Barlow, Helvetica, sans-serif;
     margin: 0 auto;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
 }
 
@@ -244,7 +245,10 @@ export default {
         }
         display: block;
         width: 100%;
+        position: absolute;
+        left: 0;
         height: 70px;
+        background: rgba(3, 12, 20, 1);
         div.logo {
             color: white;
             padding-left: 30px;
