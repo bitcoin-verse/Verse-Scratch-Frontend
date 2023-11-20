@@ -94,10 +94,8 @@ createWeb3Modal({
 
 .global-wrap {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 }
+
 .flex-wrap {
   @media(min-width: 768px) {
     width: 100%;
@@ -483,6 +481,7 @@ body {
   @media(max-width: 880px) {
     background: rgba(3, 12, 20, 1);
     background-image: none!important;
+    min-height: unset;
   }
 }
 

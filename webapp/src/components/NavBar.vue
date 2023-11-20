@@ -189,7 +189,6 @@ export default {
         background-color: black;
         width: 100%;
         height: 56px;
-        position: relative;
         background: linear-gradient(0deg, #0F1823, #0F1823),linear-gradient(0deg, #1A2231, #1A2231);
 
 
