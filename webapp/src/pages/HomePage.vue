@@ -8,6 +8,7 @@ import Web3 from 'web3'
 import { copyText } from 'vue3-clipboard'
 import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
+import axios from "axios"
 
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
 const contractAddress = GLOBALS.CONTRACT_ADDRESS
@@ -39,7 +40,19 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
     let timeoutId;
+    let priceUsd = ref(0);
 
+    async function getVersePrice() {
+        try {
+            let res = await axios.get("https://markets.api.bitcoin.com/coin/data?c=VERSE")
+            if(res.data.priceUsd) {
+                priceUsd.value = res.data.priceUsd
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    getVersePrice()
     async function requestNetworkChange() {
         await switchNetwork({ chainId: 137 })
     }
@@ -279,6 +292,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         connectAndClose,
         account,
         buyStep,
+        priceUsd,
         modal,
         accountActive,
         correctNetwork,
@@ -500,9 +514,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>
         </div>
     </div>
-    <div class="wrongNetworkWarning" v-if="correctNetwork == false">
+    <!-- <div class="wrongNetworkWarning" v-if="correctNetwork == false">
         <p><i class="fa fa-warning" style="margin-right: 10px; margin-left: 5px;"></i>Wallet connected to the wrong network, please switch your wallet to Polygon</p>
-    </div>
+    </div> -->
     <div class="page">
         <div class="jumbo-mob">
             <img  src="../assets/cover2.png">
@@ -513,21 +527,26 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <p class="top-meta">Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune</p>
                 <div class="topblock">
                     <p>JACKPOT</p>
-                    <h2>100,000 VERSE</h2>
+                    <h2>1,000,000 VERSE</h2>
+                    <p v-if="priceUsd" class="usd">{{ (priceUsd * 1000000).toFixed() }} USD</p>
                 </div>
                 <div class="splitblock">
                     <div class="block leftblock">
                         <p>PRICE PER TICKET</p>
                         <h2>3,000 VERSE</h2>
+                        <p v-if="priceUsd" class="usd">{{ (priceUsd * 3000).toFixed() }} USD</p>
                     </div>
                     <div class="block rightblock">
-                        <p>TOTAL TICKETS</p>
-                        <h2>100</h2>
+                        <p>OTHER PRIZES</p>
+                        <h2>100 - 100k VERSE</h2>
+                        <p v-if="priceUsd" class="usd">{{ (priceUsd * 100).toFixed(2) }} - {{ (priceUsd * 100000).toFixed() }}  USD</p>
                     </div>
                 </div>
                 <button class="btn verse-wide" @click="toggleModal()">Buy Ticket</button>
                 <a @click="modal.open()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
+
+                <p class="terms-link">*Verifiably Random Dapp using Chainlink VRF. Self custodial gaming powered by Defi Smart Contracts. <a>Learn More</a></p>
             </div>
 
         <div class="card-holder">
@@ -539,6 +558,19 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 </template>
 
 <style lang="scss" scoped>
+.terms-link {
+    font-size: 12px;
+    margin-top: 16px;
+    color: #899BB5;
+    a {
+        color: #0085FF;
+        cursor: pointer;
+    }
+}
+p.usd {
+    color: white!important;
+    font-size: 12px;
+}
 .jumbo-mob {
     background-image: url("../assets/bg9.png")!important;
     height: 211px;
@@ -577,7 +609,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 margin-right: 2%!important;
             }
             h2 {
-                font-size: 20px;
+                font-size: 17px;
                 text-shadow: 3px 3px 0px #131237;
                 @media(max-width: 1100px) {
                  font-size: 17px;
@@ -596,7 +628,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         &.rightblock {
             background: #6E376F;
             h2 {
-                font-size: 20px;
+                font-size: 17px;
                 text-shadow: 3px 3px 0px #350936;
                 @media(max-width: 1100px) {
                  font-size: 17px;
@@ -608,7 +640,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             p {
                 margin-top: 2px;
                 margin-bottom: 2px;
-                font-size: 12px;
+                font-size: 11px;
                 color: #F7C0F8;
             }
         }
@@ -775,7 +807,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 }
 .card-info {
     padding: 30px;
-    padding-top: 80px;
+    padding-top: 60px;
     float: left;
     padding-left: 100px;
     width: 27%;
