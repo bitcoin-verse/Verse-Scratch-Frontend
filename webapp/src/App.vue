@@ -162,6 +162,7 @@ i.close-btn {
             top: 0;
             width: 100%;
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             left: 0;
             border-radius: 0;
             padding: 0;
