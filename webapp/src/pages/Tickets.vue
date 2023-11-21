@@ -586,7 +586,7 @@ div.tickets {
         margin-top: 0;
     }
 
-    margin-top: 70px;
+    margin-top: 80px;
     height: max-content;
     min-height: calc(100vh - 70px);
     min-height: calc(100dvh - 70px);
