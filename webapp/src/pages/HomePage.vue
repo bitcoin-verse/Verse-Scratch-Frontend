@@ -113,20 +113,24 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         if(singleTransactionApproval.value == true) {
             approvalAmount = 3000000000000000000000
         }
-        
+
         loadingMessage.value = "Please confirm the approval in your connected wallet"
         modalLoading.value = true;
-        const { hash } = await writeContract({
-        address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
-        abi: ERC20ABI,
-        functionName: 'approve',
-        chainId: 137,
-        args: [contractAddress, approvalAmount]
-        })
+        try {
+            const { hash } = await writeContract({
+                address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
+                abi: ERC20ABI,
+                functionName: 'approve',
+                chainId: 137,
+                args: [contractAddress, approvalAmount]
+            })
 
-        loadingMessage.value = "Processing the confirmation, please wait a moment"
-        await waitForTransaction({ hash })
-        getAllowance()
+             loadingMessage.value = "Processing the confirmation, please wait a moment"
+             await waitForTransaction({ hash })
+             getAllowance()
+        } catch (e) {
+            modalLoading.value = false
+        }
     }    
 
     async function purchaseTicket(_giftAddress) {
@@ -140,26 +144,37 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             modalLoading.value = true
             let receiver = getAccount().address
             if(_giftAddress && _giftAddress.length > 0) {
-                receiver = _giftAddress
-                const { hash } = await writeContract({
-                address: contractAddress,
-                abi: ContractABI,
-                functionName: 'giftScratchTicket',
-                chainId: 137,
-                args: [receiver]
-                })
-                loadingMessage.value = "waiting for blockchain confirmation"
-                await waitForTransaction({ hash })
+                try {
+                    receiver = _giftAddress
+                    const { hash } = await writeContract({
+                    address: contractAddress,
+                    abi: ContractABI,
+                    functionName: 'giftScratchTicket',
+                    chainId: 137,
+                    args: [receiver]
+                    })
+                    loadingMessage.value = "waiting for blockchain confirmation"
+                    await waitForTransaction({ hash })
+                } catch (e) {
+                    modalLoading.value = false
+                    return
+                }
+                
             } else {
-                const { hash } = await writeContract({
-                address: contractAddress,
-                abi: ContractABI,
-                functionName: 'buyScratchTicket',
-                chainId: 137,
-                args: []
-                })
-                loadingMessage.value = "waiting for blockchain confirmation"
-                await waitForTransaction({ hash })
+                try {
+                    const { hash } = await writeContract({
+                    address: contractAddress,
+                    abi: ContractABI,
+                    functionName: 'buyScratchTicket',
+                    chainId: 137,
+                    args: []
+                    })
+                    loadingMessage.value = "waiting for blockchain confirmation"
+                    await waitForTransaction({ hash })
+                } catch (e) {
+                    modalLoading.value = false
+                    return 
+                }   
             }
             let timer = 20;  
 
