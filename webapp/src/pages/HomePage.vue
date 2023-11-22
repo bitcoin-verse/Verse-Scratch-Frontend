@@ -11,6 +11,7 @@ import Footer from '../components/Footer.vue'
 import axios from "axios"
 import NavBar from '../components/NavBar.vue'
 
+import { logAmplitudeEvent } from "../helpers/analytics"
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
 const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
@@ -281,7 +282,17 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     function connectAndClose() {
         modal.open()
         reopenAfterConnection.value = true
+        logAmplitudeEvent({
+            name: 'connect wallet clicked'
+        })
         toggleModal()
+    }
+
+    function openModal() {
+        modal.open()
+        logAmplitudeEvent({
+                name: 'connect wallet clicked'
+        })
     }
 
     function toggleGift()  {
@@ -292,6 +303,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         getBalance,
         connectAndClose,
         account,
+        openModal,
         buyStep,
         priceUsd,
         modal,
@@ -544,7 +556,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     </div>
                 </div>
                 <button class="btn verse-wide" @click="toggleModal()">Buy Ticket</button>
-                <a @click="modal.open()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
+                <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
                 <p class="terms-link">*Verifiably Random Dapp using Chainlink VRF. Self custodial gaming powered by Defi Smart Contracts. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
@@ -574,7 +586,7 @@ p.usd {
     font-size: 12px;
 }
 .jumbo-mob {
-    background-image: url("../assets/bg9.png")!important;
+    background-image: url("../assets/bg11.png")!important;
     height: 211px;
     background-size: cover;
     width: 100%;
