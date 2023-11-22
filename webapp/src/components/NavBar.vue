@@ -73,7 +73,7 @@ export default {
                 </a>
             </div>
         </a>
-        <h3 class="title-nav-desk">Scratch & Win</h3>
+        <h3 class="title-nav-desk">Verse Scratcher</h3>
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>

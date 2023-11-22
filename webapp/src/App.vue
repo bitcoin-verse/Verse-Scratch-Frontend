@@ -13,7 +13,7 @@ import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 
-const projectId = 'b30bc40c0cdef6000cd5066be1febf74'
+const projectId = '5d9e3863443e82e9222f3e3f5e075798'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, polygon],

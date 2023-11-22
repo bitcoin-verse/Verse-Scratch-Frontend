@@ -536,7 +536,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         </div>
         <div class="float-holder clearfix">
             <div class="card-info">
-                <h2>Scratch & Win</h2>
+                <h2>SCRATCH & WIN</h2>
                 <p class="top-meta">Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune</p>
                 <div class="topblock">
                     <p>JACKPOT</p>
