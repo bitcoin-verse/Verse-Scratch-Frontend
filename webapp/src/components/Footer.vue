@@ -4,15 +4,37 @@
             <div class="footer-links">
                 <a href="https://www.bitcoin.com" target="_blank" rel="noreferrer"><img src="../assets/icons/brand.png" alt="Bitcoin.com" class="footer-brand-link"></a>
                 <div class="short-links">
-                    <a href="https://www.bitcoin.com/legal/user-agreement/" target="_blank" rel="noreferrer" class="short-link">User Agreement</a>
-                    <a href="https://www.bitcoin.com/legal/cookies/" target="_blank" rel="noreferrer" class="short-link">Cookie Policy</a>
-                    <a href="https://support.bitcoin.com/en/collections/3413550-verse-dex" target="_blank" rel="noreferrer" class="short-link">Need Help?</a>
+                    <a @click="logclick('user-agreement')" href="https://www.bitcoin.com/legal/user-agreement/" target="_blank" rel="noreferrer" class="short-link">User Agreement</a>
+                    <a @click="logclick('cookies')" href="https://www.bitcoin.com/legal/cookies/" target="_blank" rel="noreferrer" class="short-link">Cookie Policy</a>
+                    <a @click="logclick('help')" href="https://support.bitcoin.com/en/collections/3413550-verse-dex" target="_blank" rel="noreferrer" class="short-link">Need Help?</a>
                 </div>
             </div>
             <div class="company">© 2023 Saint Bitts LLC Bitcoin.com. All rights reserved.</div>
         </div>
     </div>
 </template>
+
+<script>
+import { logAmplitudeEvent } from "../helpers/analytics";
+import { getNetwork } from '@wagmi/core'
+export default {
+    setup() {
+
+        function logclick(cta) {
+            let { chain } = getNetwork()
+            logAmplitudeEvent({
+                name: 'navigation clicked',
+                menu: 'footer',
+                cta: cta,
+                blockchain: chain.id
+            })
+        }
+        return {
+            logclick
+        }
+    }
+}
+</script>
 
 
 <style lang="scss" scoped>

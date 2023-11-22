@@ -1,7 +1,10 @@
 <script>
-import { getAccount, watchAccount, disconnect } from '@wagmi/core'
+import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
+import { logAmplitudeEvent } from "../helpers/analytics";
+import { ethers } from "ethers";
+
 
 export default {
     setup() {
@@ -10,9 +13,12 @@ export default {
         let accountActive = ref(false)
         let connectedProvider = ref("")
 
-        function openWalletModal(refresh) {
+        function openWalletModal(refresh) {            
             if(refresh) disconnect()
             modal.open()
+            logAmplitudeEvent({
+                name: 'connect wallet clicked'
+            })
         }
 
         const truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
@@ -29,6 +35,12 @@ export default {
          
         if(account.isConnected == true) {
             accountActive.value = true;
+            let { chain  } = getNetwork()
+            
+            logAmplitudeEvent({
+                name: 'connect wallet result',
+                blockchain: chain.id
+            })
         } else {
             accountActive.value = false
         }

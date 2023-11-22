@@ -1,13 +1,87 @@
 <script setup>
 
 import { RouterView } from 'vue-router'
-import { polygon } from '@wagmi/core/chains'
+import { mainnet, polygon } from '@wagmi/core/chains'
+import { configureChains, createConfig } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
 import { defaultWagmiConfig, createWeb3Modal } from '@web3modal/wagmi/vue'
+import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
+
+import { WalletConnectConnector } from "@wagmi/connectors/walletConnect";
+import { InjectedConnector } from "@wagmi/connectors/injected";
+import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
+
+import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 
 const projectId = 'b30bc40c0cdef6000cd5066be1febf74'
-const chains = [polygon]
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, appName: 'Verse Labs',  })
+
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [mainnet, polygon],
+  [
+    jsonRpcProvider({
+      rpc: (chain) => {
+        switch (chain.id) {
+          case 137:
+            return {
+              http: "https://polygon-rpc.com",
+            };
+          case 1:
+          default:
+            return {
+              http: "https://wispy-solitary-darkness.quiknode.pro",
+              webSocket: "wss://wispy-solitary-darkness.quiknode.pro",
+            };
+        }
+      },
+    }),
+  ],
+)
+
+const metadata = {
+  name: "VERSE Scratcher",
+  description: "VERSE Scratcher",
+  url: "https://scratcher.verse.bitcoin.com",
+  icons: ["https://verse.bitcoin.com/images/favicon.png"],
+};
+
+const search = new URLSearchParams(window.location.search);
+const isWallet = search.get("origin") === "wallet";
+
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors: [
+    new WalletConnectConnector({
+      chains,
+      options: {
+        projectId,
+        showQrModal: false,
+        metadata,
+      },
+    }),
+    ...(isWallet
+      ? []
+      : [
+          new InjectedConnector({
+            chains,
+            options: { shimDisconnect: true },
+          }),
+          new CoinbaseWalletConnector({
+            chains,
+            options: { appName: metadata.name },
+          }),
+        ]),
+  ],
+  publicClient,
+  webSocketPublicClient,
+});
+
+
+// const wagmiConfig = defaultWagmiConfig({ chains, projectId, appName: 'Verse Labs',  })
+
+initAmplitude()
+logAmplitudeEvent({
+  name: 'verse scratcher visited'
+})
 
 createWeb3Modal({ 
     tokens: {

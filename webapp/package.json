@@ -9,11 +9,14 @@
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     },
     "dependencies": {
+        "@amplitude/analytics-browser": "^2.3.5",
         "@openzeppelin/merkle-tree": "^1.0.5",
         "@wagmi/core": "^1.4.2",
         "@web3modal/wagmi": "^3.0.0-beta.2",
         "axios": "^1.5.0",
         "ethers": "^6.7.1",
+        "i": "^0.3.7",
+        "npm": "^10.2.4",
         "viem": "^1.10.14",
         "vue": "^3.3.4",
         "vue-router": "^4.2.4",
