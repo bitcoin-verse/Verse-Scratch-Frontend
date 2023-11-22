@@ -106,7 +106,7 @@ onMounted(() => {
         modalTutorial.value = false
     }
     const img = new Image();
-    img.src = `https://scratchverse.s3.us-west-1.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
+    img.src = `https://verse-scratcher-images.s3.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
     img.onload = () => {
         if(props.claim == false) {
             setupScratch()
@@ -219,7 +219,7 @@ onMounted(() => {
                     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
-            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://scratchverse.s3.us-west-1.amazonaws.com/${detailNFT.id}/${nftAddress}.jpg)` } ">
+            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://verse-scratcher-images.s3.amazonaws.com/${detailNFT.id}/${nftAddress}.jpg)` } ">
                 <canvas id="scratchcanvas1" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas2" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas3" width="69" height="69"></canvas>
