@@ -44,8 +44,14 @@ const metadata = {
   icons: ["https://verse.bitcoin.com/images/favicon.png"],
 };
 
-const search = new URLSearchParams(window.location.search);
-const isWallet = search.get("origin") === "wallet";
+let isWallet = false
+
+if(!sessionStorage.getItem('isWallet')) {
+  const search = new URLSearchParams(window.location.search);
+  isWallet = search.get("origin") === "wallet";
+  sessionStorage.setItem('isWallet', isWallet);
+}
+
 
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -91,6 +97,7 @@ createWeb3Modal({
         },
     
     },
+    featuredWalletIds: ["107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c"],
     includeWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c','c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', '19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927'], wagmiConfig, projectId, chains})
 
 </script>

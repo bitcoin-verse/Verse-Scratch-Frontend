@@ -3,15 +3,16 @@ import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
-import { ethers } from "ethers";
-
 
 export default {
     setup() {
         let account = getAccount()
         let modal = useWeb3Modal()
+        let isWallet = ref(false)
         let accountActive = ref(false)
         let connectedProvider = ref("")
+
+        sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
         function openWalletModal(refresh) {            
             if(refresh) disconnect()
@@ -29,10 +30,7 @@ export default {
             return `${match[1]}…${match[2]}`;
         };
 
-        watchAccount(async (account) => {
-        
-
-         
+        watchAccount(async (account) => { 
         if(account.isConnected == true) {
             accountActive.value = true;
             let { chain  } = getNetwork()
@@ -47,7 +45,7 @@ export default {
         connectedProvider.value = account.connector.name.toLowerCase()
     })
 
-        return { account, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { account, isWallet, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
     }
     
 }
@@ -55,7 +53,11 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a href="https://verse.bitcoin.com" target="_blank">
+        <a v-if="!isWallet" href="https://verse.bitcoin.com" target="_blank">
+            <div class="nav-chev"></div>
+            <div class="nav-verse"></div>
+        </a>
+        <a v-if="isWallet" href="https://verse.bitcoin.com">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
@@ -67,7 +69,11 @@ export default {
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
             <div class="logo">
-                <a href="https://verse.bitcoin.com" target="_blank">
+                <a v-if="!isWallet" href="https://verse.bitcoin.com" target="_blank">
+                    <div class="nav-chev"></div>
+                    <div class="nav-verse"></div>
+                </a>
+                <a v-if="isWallet" href="https://verse.bitcoin.com">
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
