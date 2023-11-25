@@ -172,8 +172,10 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     loadingMessage.value = "waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
-                    modalLoading.value = false
-                    return 
+                    // console.log(e)
+                    // console.log("caught in error")
+                    // modalLoading.value = false
+                    // return 
                 }   
             }
             let timer = 20;  
