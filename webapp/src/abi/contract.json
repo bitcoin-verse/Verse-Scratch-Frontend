@@ -15,6 +15,182 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "_receiver",
+				"type": "address"
+			}
+		],
+		"name": "giftScratchTicket",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_linkAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "loadSubscription",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "pauseContract",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "randomWords",
+				"type": "uint256[]"
+			}
+		],
+		"name": "rawFulfillRandomWords",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "baseURI_",
+				"type": "string"
+			}
+		],
+		"name": "setBaseURI",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "string",
 				"name": "_name",
 				"type": "string"
@@ -48,6 +224,11 @@
 				"internalType": "bytes32",
 				"name": "_gasKeyHash",
 				"type": "bytes32"
+			},
+			{
+				"internalType": "uint64",
+				"name": "_subscriptionId",
+				"type": "uint64"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -87,11 +268,11 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_newTicketCost",
+				"name": "_newBaseCost",
 				"type": "uint256"
 			}
 		],
-		"name": "changeTicketCost",
+		"name": "changeBaseCost",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -111,12 +292,22 @@
 	},
 	{
 		"inputs": [],
+		"name": "ContractNotPaused",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ContractPaused",
+		"type": "error"
+	},
+	{
+		"inputs": [],
 		"name": "InvalidCost",
 		"type": "error"
 	},
 	{
 		"inputs": [],
-		"name": "InvalidTicketId",
+		"name": "InvalidId",
 		"type": "error"
 	},
 	{
@@ -213,38 +404,12 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "ticketReceiver",
+				"name": "requestAddress",
 				"type": "address"
 			}
 		],
 		"name": "DrawRequest",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_receiver",
-				"type": "address"
-			}
-		],
-		"name": "giftScratchTicket",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_linkAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "loadSubscription",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	},
 	{
 		"anonymous": false,
@@ -256,10 +421,16 @@
 				"type": "uint256"
 			},
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "uint256",
 				"name": "edition",
 				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
 			},
 			{
 				"indexed": false,
@@ -295,6 +466,25 @@
 		"inputs": [
 			{
 				"indexed": true,
+				"internalType": "address",
+				"name": "caller",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blocktime",
+				"type": "uint256"
+			}
+		],
+		"name": "Paused",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
 				"internalType": "uint256",
 				"name": "ticketId",
 				"type": "uint256"
@@ -316,31 +506,6 @@
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "randomWords",
-				"type": "uint256[]"
-			}
-		],
-		"name": "rawFulfillRandomWords",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -357,88 +522,19 @@
 			},
 			{
 				"indexed": true,
-				"internalType": "uint256",
-				"name": "result",
-				"type": "uint256"
+				"internalType": "uint256[]",
+				"name": "resultValue",
+				"type": "uint256[]"
 			}
 		],
 		"name": "RequestFulfilled",
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "safeTransferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes",
-				"name": "data",
-				"type": "bytes"
-			}
-		],
-		"name": "safeTransferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			},
-			{
-				"internalType": "bool",
-				"name": "approved",
-				"type": "bool"
-			}
-		],
-		"name": "setApprovalForAll",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "uint256",
 				"name": "ticketId",
 				"type": "uint256"
@@ -473,43 +569,44 @@
 		"type": "event"
 	},
 	{
+		"inputs": [],
+		"name": "unpauseContract",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": true,
 				"internalType": "address",
-				"name": "from",
+				"name": "caller",
 				"type": "address"
 			},
 			{
-				"internalType": "address",
-				"name": "to",
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blocktime",
+				"type": "uint256"
+			}
+		],
+		"name": "Unpaused",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "_token",
 				"type": "address"
 			},
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "_amount",
 				"type": "uint256"
 			}
 		],
-		"name": "transferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "withdrawTokens",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -525,7 +622,7 @@
 				"type": "address"
 			},
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -543,6 +640,19 @@
 			}
 		],
 		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "baseCost",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -599,19 +709,6 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "drawCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -620,25 +717,6 @@
 			}
 		],
 		"name": "drawIdToRequestId",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "editions",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -706,6 +784,38 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "isMinted",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "latestDrawId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "latestTicketId",
 		"outputs": [
@@ -758,19 +868,6 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "NUM_WORDS",
-		"outputs": [
-			{
-				"internalType": "uint32",
-				"name": "",
-				"type": "uint32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -816,6 +913,19 @@
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -946,19 +1056,6 @@
 				"internalType": "string",
 				"name": "",
 				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "ticketCost",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
