@@ -46,8 +46,8 @@ const redeem = async () => {
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
-        winModal.value = true
-        modalLoading.value = false;
+        // winModal.value = true
+        // modalLoading.value = false;
         console.log(e)
     }
 }

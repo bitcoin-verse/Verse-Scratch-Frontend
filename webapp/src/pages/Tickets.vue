@@ -104,7 +104,7 @@ export default {
                 objToUpdate.claimed = true
                 step.value = 1;
             } catch (e) {
-                modalLoading.value = false;
+                // modalLoading.value = false;
                 console.log(e)
             }
 
