@@ -287,7 +287,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     })
 
     function copyText() {
-        let text = `https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress.value}`
+        let text = `https://scratcher.verse.bitcoin.com/tickets?gift=1&address=${giftAddress.value}`
         navigator.clipboard.writeText(text);
         copyDone.value = true;
 
@@ -482,7 +482,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
                     <h3 class="title">Send ticket as gift?</h3>
                     <label class="switch">
-                    <input type="checkbox" v-on:change="toggleGift">
+                    <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -527,7 +527,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                         <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
 
                         <div class="ticketfield">
-                            <input class="ticketlink" type="text" :value="`https://main--chipper-hotteok-85cbb2.netlify.app/tickets?gift=1&address=${giftAddress}`">
+                            <input class="ticketlink" type="text" :value="`https://scratcher.verse.bitcoin.com/tickets?gift=1&address=${giftAddress}`">
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
                         </div>
