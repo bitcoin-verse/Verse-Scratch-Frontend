@@ -178,7 +178,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     // return 
                 }   
             }
-            let timer = 20;  
+            let timer = 25;  
 
             const countdown = setInterval(() => {
                 showTimer.value = true
