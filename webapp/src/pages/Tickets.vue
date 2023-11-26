@@ -289,7 +289,7 @@ export default {
             <div class="modal-body short">
                 <div class="img-gift"></div>
                 <h3 class="title">Gift Ticket Received!</h3>
-                <p class="subtext">Somebody has sent a scratch ticket to you. Your ticket has a chance to win <span>100.000 Verse!</span>
+                <p class="subtext">Somebody has sent a scratch ticket to you. Your ticket has a chance to win <span>1.000.000 Verse!</span>
                 <br><br>No transaction needed to scratch. Connect your account (<span> {{ giftAccount.slice(0, 7) }}..</span>) to redeem the ticket.
                 </p>
                 <a @click="closeGiftModal(true)" v-if="accountActive == false"><button class="btn verse-wide fixBottomMobile">Connect and Redeem</button></a>
