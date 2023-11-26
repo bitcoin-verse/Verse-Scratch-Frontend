@@ -335,11 +335,11 @@ export default {
 
                 <div v-if="item.claimed == false">
                     <img class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
-                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
                 <div v-if="item.claimed == true">
-                    <img class="mobreset claimed" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset claimed" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
                 <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
