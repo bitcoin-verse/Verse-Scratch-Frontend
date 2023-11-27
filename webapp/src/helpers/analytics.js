@@ -53,32 +53,6 @@ const getDeviceSize = () => {
   return size;
 };
 
-// type Event =
-//   | { name: "connect wallet clicked"; blockchain?: string }
-//   | {
-//       name: "connect wallet option selected";
-//       blockchain?: string;
-//       connectOption: string;
-//     }
-//   | {
-//       name: "connect wallet result";
-//       blockchain?: string;
-//       connectOption?: string;
-//       success: boolean;
-//     }
-//   | {
-//       name: "verse clicker cta tapped";
-//       cta: string;
-//       to: string;
-//     }
-//   | {
-//       name: "verse clicker burn";
-//       blockchain?: string;
-//       result: number;
-//       txId: string;
-//       "blockchain address": string;
-//     };
-
 export const logAmplitudeEvent = (event) => {
   try {
     const { name, ...options } = event;
@@ -90,8 +64,8 @@ export const logAmplitudeEvent = (event) => {
       ...options,
     };
 
-    console.log(name)
-    console.log(eventOptions)
+    console.log("amplitude log:", name)
+    console.log("event:", eventOptions)
     amplitude.logEvent(name, eventOptions);
   } catch (error) {
     console.log("Error logging event", error);
