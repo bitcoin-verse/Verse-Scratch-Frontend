@@ -50,7 +50,7 @@ const redeem = async () => {
             winModal.value = true
             modalLoading.value = false;
         }
-        console.log(e)
+
     }
 }
 

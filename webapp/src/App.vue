@@ -227,7 +227,7 @@ i.close-btn {
   }
 }
 .backdrop {
-    overflow: scroll;
+    overflow: auto;
     position: fixed; 
     top: 0;
     left: 0;
