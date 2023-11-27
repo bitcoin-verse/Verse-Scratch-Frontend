@@ -305,7 +305,7 @@ export default {
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets
-                <a href="/"><button class="btn verse-wide" href="">Buy Ticket</button></a>
+                <a href="/?purchase-intent=true"><button class="btn verse-wide" href="">Buy Ticket</button></a>
             </h2>
 
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
@@ -335,11 +335,11 @@ export default {
 
                 <div v-if="item.claimed == false">
                     <img class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
-                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
                 <div v-if="item.claimed == true">
-                    <img class="mobreset claimed" :src="`https://scratchverse.s3.us-west-1.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset claimed" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
                 </div>
 
                 <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
@@ -403,7 +403,7 @@ export default {
     }
     max-width: 100%;
     padding-top: 10px;
-    overflow: auto;
+    overflow: hidden;
     .ticket-holder {
     min-height: 520px;
     background-color: grey;
@@ -576,15 +576,20 @@ div.tickets {
     color: white;
 }
 .page {
+    &::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 0;
+        height: 0;
+        display: none!important;
+    }
     @media(max-width: 880px) {
         width: 100%;
         padding-top: 16px;
         height: calc(100vh - 100px);
         height: calc(100dvh - 100px);
-        overflow-y: scroll;
-        overflow-x: scroll;
         margin-top: 0;
     }
+
 
     margin-top: 80px;
     height: max-content;
@@ -597,7 +602,7 @@ div.tickets {
     position: relative;
     height: calc(100vh - 70px);
     height: calc(100dvh - 70px);
-    overflow: scroll;
+    overflow: auto;
 }
 
 .clearfix::after {

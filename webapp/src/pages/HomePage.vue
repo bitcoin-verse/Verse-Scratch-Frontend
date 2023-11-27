@@ -111,6 +111,16 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         modalActive.value = !modalActive.value;
     }
 
+    // handle intent to toggle modal
+    const search = new URLSearchParams(window.location.search);
+
+    if(search.get("purchase-intent") == "true") {
+        toggleModal()
+        search.delete("purchase-intent");
+        window.history.replaceState({}, '', `${window.location.pathname}`);
+    }
+
+
     function toggleSingleApproval() {
         singleTransactionApproval.value = !singleTransactionApproval.value
     }
@@ -136,7 +146,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
              await waitForTransaction({ hash })
              getAllowance()
         } catch (e) {
-            modalLoading.value = false
+            if(e.cause.code == 4001) {
+                modalLoading.value = false
+            }
         }
     }    
 
@@ -163,8 +175,10 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     loadingMessage.value = "waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
-                    modalLoading.value = false
-                    return
+                    if(e.cause.code == 4001) {
+                        modalLoading.value = false
+                        return 
+                    }
                 }
                 
             } else {
@@ -179,10 +193,10 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     loadingMessage.value = "waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
-                    // console.log(e)
-                    // console.log("caught in error")
-                    // modalLoading.value = false
-                    // return 
+                    if(e.cause.code == 4001) {
+                        modalLoading.value = false
+                        return 
+                    }
                 }   
             }
             let timer = 25;  
