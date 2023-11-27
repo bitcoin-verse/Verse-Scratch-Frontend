@@ -64,7 +64,9 @@ export default {
         <h3 class="title-nav">Verse Scratch Tickets</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
+        <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
+        <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>
+
     </div>
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
@@ -83,7 +85,8 @@ export default {
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
-            <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
+            <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
+            <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
         </div>
     </div>
 </template>
@@ -139,12 +142,21 @@ export default {
         top: 4.5px;
         background-size: cover;
 
+        &.bitcoin {
+            background-image: url("./../assets/icons/bitcoincom.png");
+            right: 4.3px;
+            top: 4.2px;
+        }
         &.walletconnect {
             background-image: url("./../assets/icons/wc-logo.png");
+            right: 4.3px;
+            top: 4.2px;
         }
 
         &.metamask {
             background-image: url("./../assets/icons/mm-logo.png");
+            right: 5.3px;
+            top: 4.5px;
         }
     }
     &:hover {
