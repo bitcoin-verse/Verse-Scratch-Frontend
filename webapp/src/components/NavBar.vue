@@ -37,7 +37,7 @@ export default {
             
             logAmplitudeEvent({
                 name: 'connect wallet result',
-                blockchain: chain.id
+                blockchain: 'MATIC',
             })
         } else {
             accountActive.value = false
