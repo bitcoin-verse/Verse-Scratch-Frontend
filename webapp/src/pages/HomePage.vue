@@ -59,6 +59,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         await switchNetwork({ chainId: 137 })
     }
 
+    async function logCtaEvent(type) {
+        logAmplitudeEvent({
+            name: "verse scratcher CTA tapped",
+            cta: type
+        })
+    }
+
     async function onTicketInputChange() {
         ticketInputValid.value = true
         if (timeoutId) {
@@ -335,6 +342,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         verseBalance,
         verseAllowance,
         loadingMessage,
+        logCtaEvent,
         purchaseTicket,
         giftTicket,
         ticketInputAddress,
@@ -435,8 +443,8 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                         <p class="balance-title">WALLET BALANCE</p>
                         <p class="balance">{{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE</p>
                     </div>
-                    <a class="" target="_blank" href="https://verse.bitcoin.com/"><button class="btn verse-wide half">Buy VERSE</button></a>
-                    <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
+                    <a class="" target="_blank" href="https://verse.bitcoin.com/" @click="logCtaEvent('buy')"><button class="btn verse-wide half">Buy VERSE</button></a>
+                    <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge" @click="logCtaEvent('bridge')"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
                     <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
             </div>
@@ -572,7 +580,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                         <p v-if="priceUsd" class="usd">{{ (priceUsd * 100).toFixed(2) }} - {{ (priceUsd * 100000).toFixed() }}  USD</p>
                     </div>
                 </div>
-                <button class="btn verse-wide" @click="toggleModal()">Buy Ticket</button>
+                <button class="btn verse-wide" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
                 <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
