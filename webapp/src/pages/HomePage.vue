@@ -111,12 +111,14 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         modalActive.value = !modalActive.value;
     }
 
- 
-        const search = new URLSearchParams(window.location.search);
+    // handle intent to toggle modal
+    const search = new URLSearchParams(window.location.search);
 
-        if(search.get("purchase-intent") == "true") {
-            toggleModal()
-        }
+    if(search.get("purchase-intent") == "true") {
+        toggleModal()
+        search.delete("purchase-intent");
+        window.history.replaceState({}, '', `${window.location.pathname}`);
+    }
 
 
     function toggleSingleApproval() {
