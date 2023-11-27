@@ -403,7 +403,7 @@ export default {
     }
     max-width: 100%;
     padding-top: 10px;
-    overflow: hidden;
+    overflow: auto;
     .ticket-holder {
     min-height: 520px;
     background-color: grey;
