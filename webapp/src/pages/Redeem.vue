@@ -159,7 +159,8 @@ onMounted(() => {
                     <div class="img-purchase"></div>
                     <div>
                         <h3 class="title">3 is the magic number</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Reveal the numbers by dragging your mouse over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
+                        <p class="subtext short desktop-text" style="margin-bottom: 0;">Reveal the numbers by dragging your mouse over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
+                        <p class="subtext short mobile-text" style="margin-bottom: 0;">Reveal the numbers by dragging your finger over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
                         <div class="gift-toggle-holder">
                             <h3 class="title">Don't show again</h3>
                             <label class="switch">
@@ -236,7 +237,22 @@ onMounted(() => {
 </template>
 
 
+
 <style lang="scss" scoped>
+
+.desktop-text {
+    display: unset;
+    @media (max-width: 880px) {
+        display: none!important;
+    }
+}
+
+.mobile-text {
+ display: none; 
+ @media (max-width: 880px) {
+    display: unset!important;
+ }
+}
 .title-loading {
     font-size: 18px;
     color: white;
