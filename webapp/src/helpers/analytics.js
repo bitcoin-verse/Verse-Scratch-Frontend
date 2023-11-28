@@ -23,8 +23,6 @@ export const initAmplitude = () => {
     }
 
     amplitude.init(AMPLITUDE_API_KEY, options);
-
-    console.log("Amplitude initialized");
   } catch (error) {
     console.log("Amplitude init error", error);
   }
@@ -64,8 +62,6 @@ export const logAmplitudeEvent = (event) => {
       ...options,
     };
 
-    console.log("amplitude log:", name)
-    console.log("event:", eventOptions)
     amplitude.logEvent(name, eventOptions);
   } catch (error) {
     console.log("Error logging event", error);

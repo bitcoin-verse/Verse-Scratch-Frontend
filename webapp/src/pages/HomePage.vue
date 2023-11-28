@@ -9,7 +9,6 @@ import { copyText } from 'vue3-clipboard'
 import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
-import NavBar from '../components/NavBar.vue'
 
 import { logAmplitudeEvent } from "../helpers/analytics"
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
@@ -571,7 +570,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     </div> -->
     <div class="page">
         <div class="jumbo-mob">
-            <img  src="../assets/cover2.png">
+            <img  src="../assets/cover.png">
         </div>
         <div class="float-holder clearfix">
             <div class="card-info">
@@ -602,7 +601,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>
 
         <div class="card-holder">
-            <img class=""  src="../assets/cover2.png">
+            <img class=""  src="../assets/cover.png">
         </div>
         </div>
         <Footer />
@@ -625,7 +624,7 @@ p.usd {
     font-size: 12px;
 }
 .jumbo-mob {
-    background-image: url("../assets/bg11.png")!important;
+    background-image: url("../assets/bg.png")!important;
     height: 211px;
     background-size: cover;
     width: 100%;

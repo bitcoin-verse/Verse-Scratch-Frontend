@@ -1,10 +1,10 @@
 <script setup>
 
 import { RouterView } from 'vue-router'
-import { mainnet, polygon } from '@wagmi/core/chains'
+import { polygon } from '@wagmi/core/chains'
 import { configureChains, createConfig } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
-import { defaultWagmiConfig, createWeb3Modal } from '@web3modal/wagmi/vue'
+import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
 
 import { WalletConnectConnector } from "@wagmi/connectors/walletConnect";
@@ -23,13 +23,13 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
         switch (chain.id) {
           case 137:
             return {
-              http: "https://polygon-rpc.com",
+              http: "https://polished-dark-patron.matic.quiknode.pro",
             };
           case 1:
           default:
             return {
-              http: "https://wispy-solitary-darkness.quiknode.pro",
-              webSocket: "wss://wispy-solitary-darkness.quiknode.pro",
+              http: "https://floral-empty-gas.matic.quiknode.pro",
+              webSocket: "wss://floral-empty-gas.matic.quiknode.pro",
             };
         }
       },
@@ -39,9 +39,9 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 
 const metadata = {
   name: "VERSE Scratcher",
-  description: "VERSE Scratcher",
+  description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
   url: "https://scratcher.verse.bitcoin.com",
-  icons: ["https://verse.bitcoin.com/images/favicon.png"],
+  icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 };
 
 let isWallet = false
@@ -79,10 +79,7 @@ const wagmiConfig = createConfig({
   ],
   publicClient,
   webSocketPublicClient,
-});
-
-
-// const wagmiConfig = defaultWagmiConfig({ chains, projectId, appName: 'Verse Labs',  })
+})
 
 initAmplitude()
 logAmplitudeEvent({
@@ -557,7 +554,7 @@ body {
   background-size: 100%;
   margin: 0;
   font-family: 'Barlow', sans-serif;
-  background-image: url("./assets/bg11.png")!important;
+  background-image: url("./assets/bg.png")!important;
   background-repeat: no-repeat!important;
   background: rgba(3, 12, 20, 1);
   background-size: contain;
