@@ -141,7 +141,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 args: [contractAddress, approvalAmount]
             })
 
-             loadingMessage.value = "Processing the confirmation, please wait a moment"
+             loadingMessage.value = "Processing the confirmation. Please wait a moment"
              await waitForTransaction({ hash })
              getAllowance()
         } catch (e) {
