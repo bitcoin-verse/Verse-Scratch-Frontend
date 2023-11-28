@@ -400,10 +400,11 @@ export default {
         padding: 23px;
         min-height: calc(100vh - 60px);
         min-height: calc(100dvh - 60px);
+        overflow: auto;
     }
     max-width: 100%;
     padding-top: 10px;
-    overflow: auto;
+    overflow: hidden;
     .ticket-holder {
     min-height: 520px;
     background-color: grey;
