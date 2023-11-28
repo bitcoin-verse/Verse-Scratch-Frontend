@@ -343,7 +343,7 @@ export default {
                 </div>
 
                 <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
-                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id)" class="btn verse-wide" >Claim {{item.prize}} Verse</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id)" class="btn verse-wide" >Claim {{item.prize}} VERSE</button>
                 <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >VERSE Claimed</button>
             </div>
         </div>
