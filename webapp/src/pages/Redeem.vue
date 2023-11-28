@@ -334,7 +334,7 @@ onMounted(() => {
     }
 }
 .background {
-    background-image: url("../assets/scratch-header.png");
+    background-image: url("../assets/header.png");
     background-color: #030C14;
     left: 0;
     top: 0;
