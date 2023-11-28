@@ -7,9 +7,6 @@ Repository contains
 - frontend client (VueJS)
 
 
-npm run design 
-designs a new prize
-
 ## Starting local application
 
 ```bash

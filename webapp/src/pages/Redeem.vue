@@ -191,7 +191,7 @@ onMounted(() => {
                     <div class="img-purchase"></div>
                     <div>
                         <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and  congrats on your win!</p>
+                        <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and congrats on your win!</p>
                         <a href="/tickets"><button class="btn verse-wide">View My Tickets</button></a>                    
                     </div>
                 </div>

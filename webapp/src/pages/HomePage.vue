@@ -204,9 +204,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 showTimer.value = true
                 timer--; 
                 if(giftTicket.value == true) {
-                    loadingMessage.value = `${timer} seconds!`;
+                    loadingMessage.value = `${timer} Seconds!`;
                 } else {
-                    loadingMessage.value = `${timer} seconds!`;
+                    loadingMessage.value = `${timer} Seconds!`;
                 }
 
                 if (timer <= 0) {
@@ -397,7 +397,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
                 <div v-if="showTimer" class="attention-footer">
-                    <p>expected arrival in <strong>{{loadingMessage}}</strong></p>
+                    <p>Expected Arrival in <strong>{{loadingMessage}}</strong></p>
                 </div>
             </div>
         </div>
@@ -557,9 +557,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     </div>
                     <!-- normal ticket delivery -->
                     <div v-if="!giftTicket">
-                        <h3 class="title">Ticket Bought!</h3>
+                        <h3 class="title">Ticket Purchased!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket and test your luck!</p>
-                        <a class="" href="/tickets"><button class="btn verse-wide">View your tickets!</button></a>
+                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket</button></a>
                     </div>
                 </div>
             </div>
@@ -597,7 +597,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
-                <p class="terms-link">*Verifiably Random Dapp using Chainlink VRF. Self custodial gaming powered by Defi Smart Contracts. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
+                <p class="terms-link">*Self custodial and verifiably random, powered by smart contracts and Chainlink VRF. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
             </div>
 
         <div class="card-holder">
@@ -612,11 +612,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
 .terms-link {
     font-size: 12px;
     margin-top: 16px;
+    font-weight: 400!important;
     text-align: center;
     color: #899BB5;
     a {
         color: #0085FF;
         cursor: pointer;
+        text-decoration: none;
     }
 }
 p.usd {
