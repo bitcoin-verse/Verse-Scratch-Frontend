@@ -694,7 +694,7 @@ p.usd {
             p {
                 margin-top: 2px;
                 margin-bottom: 2px;
-                font-size: 11px;
+                font-size: 12px;
                 color: #F7C0F8;
             }
         }
