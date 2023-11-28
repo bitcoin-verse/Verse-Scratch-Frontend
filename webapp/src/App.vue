@@ -23,7 +23,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
         switch (chain.id) {
           case 137:
             return {
-              http: "https://polished-dark-patron.matic.quiknode.pro",
+              http: "https://floral-empty-gas.matic.quiknode.pro/",
             };
           case 1:
           default:
