@@ -369,7 +369,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         ensLoaded,
         giftInputLoad,
         singleTransactionApproval,
-        toggleSingleApproval
+        toggleSingleApproval,
     }
   }
 }
