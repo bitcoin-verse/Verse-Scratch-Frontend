@@ -1,5 +1,5 @@
 <script>
-import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork, fetchEnsName } from '@wagmi/core'
+import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
