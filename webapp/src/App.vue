@@ -28,8 +28,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
           case 1:
           default:
             return {
-              http: "https://floral-empty-gas.matic.quiknode.pro",
-              webSocket: "wss://floral-empty-gas.matic.quiknode.pro",
+              http: "https://eth.llamarpc.com",
+              webSocket: "wss://eth.llamarpc.com",
             };
         }
       },
