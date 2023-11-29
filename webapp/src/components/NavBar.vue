@@ -36,7 +36,6 @@ export default {
             let { chain  } = getNetwork()
             
 
-            console.log(ens)
             logAmplitudeEvent({
                 name: 'connect wallet result',
                 blockchain: 'MATIC',
