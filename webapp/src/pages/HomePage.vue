@@ -579,13 +579,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="topblock">
                     <p>JACKPOT</p>
                     <h2>1,000,000 VERSE</h2>
-                    <p v-if="priceUsd" class="usd">${{ (priceUsd * 1000000).toFixed() }}</p>
+                    <p v-if="priceUsd" class="usd">${{ (priceUsd * 1000000).toFixed(2) }}</p>
                 </div>
                 <div class="splitblock">
                     <div class="block leftblock">
                         <p>PRICE PER TICKET</p>
                         <h2>3,000 VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 3000).toFixed() }}</p>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 3000).toFixed(2) }}</p>
                     </div>
                     <div class="block rightblock">
                         <p>OTHER PRIZES</p>
