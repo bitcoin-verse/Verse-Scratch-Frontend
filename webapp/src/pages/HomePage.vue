@@ -474,7 +474,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>  
             <div class="modal-body">
                 <div class="img-approve"></div>
-                <h3 class="title">Approve the use of VERSE</h3>
+                <h3 class="title">Allow the use of VERSE</h3>
                 <p class="subtext">You need to enable the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
                 <div class="gift-toggle-holder">
                             <h3 class="title">Allow for one transaction only</h3>
@@ -484,7 +484,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                             </label>
                         </div>
                 <a class="" target="_blank" @click="approve()"><button class="btn verse-wide">Allow the use of VERSE</button></a>
-                <p class="modal-footer">All tokens on the Polygon network require an approval transaction before they can be spent. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
+                <p class="modal-footer">The Polygon network requires that you manually approve the spending  of each token in your wallet. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
             </div>
         </div>
         <!-- purchase modal post approval -->
@@ -499,9 +499,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
-                <p class="subtext">You have at least <span>3000 VERSE</span> in your wallet, and you've given approval for its use. All that remains is to purchase your ticket.</p>
+                <p class="subtext">You have at least <span>3000 VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
                 <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
-                    <h3 class="title">Send ticket as gift?</h3>
+                    <h3 class="title">Send ticket as a gift?</h3>
                     <label class="switch">
                     <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
                         <span class="slider round"></span>
@@ -575,22 +575,22 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         <div class="float-holder clearfix">
             <div class="card-info">
                 <h2>SCRATCH & WIN</h2>
-                <p class="top-meta">Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune</p>
+                <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
                 <div class="topblock">
                     <p>JACKPOT</p>
                     <h2>1,000,000 VERSE</h2>
-                    <p v-if="priceUsd" class="usd">{{ (priceUsd * 1000000).toFixed() }} USD</p>
+                    <p v-if="priceUsd" class="usd">${{ (priceUsd * 1000000).toFixed() }}</p>
                 </div>
                 <div class="splitblock">
                     <div class="block leftblock">
                         <p>PRICE PER TICKET</p>
                         <h2>3,000 VERSE</h2>
-                        <p v-if="priceUsd" class="usd">{{ (priceUsd * 3000).toFixed() }} USD</p>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 3000).toFixed() }}</p>
                     </div>
                     <div class="block rightblock">
                         <p>OTHER PRIZES</p>
                         <h2>100 - 100k VERSE</h2>
-                        <p v-if="priceUsd" class="usd">{{ (priceUsd * 100).toFixed(2) }} - {{ (priceUsd * 100000).toFixed() }}  USD</p>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 100).toFixed(2) }} - ${{ (priceUsd * 100000).toFixed(2) }}</p>
                     </div>
                 </div>
                 <button class="btn verse-wide" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
