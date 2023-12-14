@@ -497,6 +497,7 @@ export default {
             right: 24px;
         }
     }
+    
 }
 .btn-modal {
     cursor: pointer;

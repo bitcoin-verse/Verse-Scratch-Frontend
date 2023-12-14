@@ -171,7 +171,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     chainId: 137,
                     args: [receiver]
                     })
-                    loadingMessage.value = "waiting for blockchain confirmation"
+                    loadingMessage.value = "Waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
                     if(e.cause.code == 4001) {
@@ -189,7 +189,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     chainId: 137,
                     args: []
                     })
-                    loadingMessage.value = "waiting for blockchain confirmation"
+                    loadingMessage.value = "Waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
                     if(e.cause.code == 4001) {
