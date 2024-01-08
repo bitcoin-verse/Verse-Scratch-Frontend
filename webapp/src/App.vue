@@ -7,14 +7,17 @@ import NavBar from './components/NavBar.vue'
 import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
 
+import { computed } from 'vue';
+
 import { WalletConnectConnector } from "@wagmi/connectors/walletConnect";
 import { InjectedConnector } from "@wagmi/connectors/injected";
 import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
+import { store } from './store.js'
 
 const projectId = '5d9e3863443e82e9222f3e3f5e075798'
-
+const activeProduct = computed(() => store.getProduct())
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygon],
   [
@@ -554,7 +557,7 @@ body {
   background-size: 100%;
   margin: 0;
   font-family: 'Barlow', sans-serif;
-  background-image: url("./assets/bg.png")!important;
+  background-image: v-bind('activeProduct.backgroundImage')!important;
   background-repeat: no-repeat!important;
   background: rgba(3, 12, 20, 1);
   background-size: contain;
