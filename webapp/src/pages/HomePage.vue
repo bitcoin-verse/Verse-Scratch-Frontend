@@ -1,18 +1,17 @@
 <script>
 import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
 import Web3 from 'web3'
 import { copyText } from 'vue3-clipboard'
-import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
+import { store } from '../store.js'
 
 import { logAmplitudeEvent } from "../helpers/analytics"
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
-const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
   export default {
     components: {
@@ -42,6 +41,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let ticketInputValid = ref(true)
     let timeoutId;
     let priceUsd = ref(0);
+    
+    const products = computed(() => store.getProducts());
+    const selectedProductId = computed({
+      get: () => store.productId,
+      set: (value) => store.updateProduct(value)
+    })
+    const activeProduct = computed(() => store.getProduct())
 
     async function getVersePrice() {
         try {
@@ -127,7 +133,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     async function approve() {
         let approvalAmount = 30000000000000000000000000000
         if(singleTransactionApproval.value == true) {
-            approvalAmount = 3000000000000000000000
+            approvalAmount = Web3.utils.toWei(activeProduct.value.ticketPrice, 'ether');
         }
 
         loadingMessage.value = "Please confirm the approval in your connected wallet"
@@ -138,14 +144,17 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 abi: ERC20ABI,
                 functionName: 'approve',
                 chainId: 137,
-                args: [contractAddress, approvalAmount]
+                args: [activeProduct.value.contractAddress, approvalAmount]
             })
 
              loadingMessage.value = "Processing the confirmation. Please wait a moment"
              await waitForTransaction({ hash })
              getAllowance()
         } catch (e) {
-            if(e.cause.code == 4001) {
+            console.log(e)
+            if(e && e.cause.code == 4001) {
+                modalLoading.value = false
+            } else {
                 modalLoading.value = false
             }
         }
@@ -165,7 +174,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 try {
                     receiver = _giftAddress
                     const { hash } = await writeContract({
-                    address: contractAddress,
+                    address: activeProduct.value.contractAddress,
                     abi: ContractABI,
                     functionName: 'giftScratchTicket',
                     chainId: 137,
@@ -183,7 +192,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             } else {
                 try {
                     const { hash } = await writeContract({
-                    address: contractAddress,
+                    address: activeProduct.value.contractAddress,
                     abi: ContractABI,
                     functionName: 'buyScratchTicket',
                     chainId: 137,
@@ -229,14 +238,14 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
             abi: ERC20ABI,
             functionName: 'allowance',
-            args: [getAccount().address, contractAddress]
+            args: [getAccount().address, activeProduct.value.contractAddress]
             })
             modalLoading.value = false;
 
             if(data) {
                  let dataString = data.toString()
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
-                 if(verseAllowance.value >= 3000 && buyStep.value < 3) {
+                 if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value < 3) {
                     buyStep.value = 3;
                 }
             }
@@ -256,12 +265,10 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             })
             modalLoading.value = false;
 
-
             if(data) {
-                
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
-                 if(verseBalance.value >= 3000 && buyStep.value < 2) {
+                 if(verseBalance.value >= activeProduct.value.ticketPrice && buyStep.value < 2) {
                     buyStep.value = 2;    
                     getAllowance()
                  } 
@@ -353,7 +360,9 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         giftAddress,
         copyDone,
         verseBalance,
+        products,
         verseAllowance,
+        activeProduct,
         loadingMessage,
         logCtaEvent,
         purchaseTicket,
@@ -365,6 +374,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         ticketInputValid,
         getAccount,
         showTimer,
+        selectedProductId,
         requestNetworkChange,
         ensLoaded,
         giftInputLoad,
@@ -450,7 +460,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="modal-body">
                     <div class="img-verse"></div>
                     <h3 class="title">Not Enough Verse</h3>
-                    <p class="subtext short">You need <span>3000 VERSE</span> on Polygon in order to purchase a ticket</p>
+                    <p class="subtext short">You need <span>{{activeProduct.ticketPrice}} VERSE</span> on Polygon in order to purchase a ticket</p>
 
                     <div class="wallet-balance">
                         <p class="balance-title">WALLET BALANCE</p>
@@ -475,7 +485,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-approve"></div>
                 <h3 class="title">Allow the use of VERSE</h3>
-                <p class="subtext">You need to enable the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
+                <p class="subtext">You need to enable the use of at least <span>{{activeProduct.ticketPrice}} VERSE</span>. This is used to pay for your ticket. </p>
                 <div class="gift-toggle-holder">
                             <h3 class="title">Allow for one transaction only</h3>
                             <label class="switch">
@@ -499,7 +509,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
-                <p class="subtext">You have at least <span>3000 VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
+                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
                 <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
                     <h3 class="title">Send ticket as a gift?</h3>
                     <label class="switch">
@@ -573,24 +583,34 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <img  src="../assets/cover.png">
         </div>
         <div class="float-holder clearfix">
+            <div class="collection-choose">
+                <select v-model="selectedProductId">
+                    <option v-for="product in products" :key="product.id" :value="product.id">
+                        <span v-if="product.id == selectedProductId">Current Collection:</span> {{ product.title }}
+                    </option>
+                    <!-- <option value="1">Selected Collection: Space Expedition</option>
+                    <option value="2">Legacy Collection: Christmas 1999</option>
+                    <option value="3">2024 Chinese New Year</option> -->
+                </select>
+            </div>
             <div class="card-info">
                 <h2>SCRATCH & WIN</h2>
                 <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
                 <div class="topblock">
                     <p>JACKPOT</p>
-                    <h2>1,000,000 VERSE</h2>
-                    <p v-if="priceUsd" class="usd">${{ (priceUsd * 1000000).toFixed(2) }}</p>
+                    <h2>{{ activeProduct.jackpotString }} VERSE</h2>
+                    <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.jackpot).toFixed(2) }}</p>
                 </div>
                 <div class="splitblock">
                     <div class="block leftblock">
                         <p>PRICE PER TICKET</p>
-                        <h2>3,000 VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 3000).toFixed(2) }}</p>
+                        <h2>{{ activeProduct.ticketPriceString}} VERSE</h2>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.ticketPrice).toFixed(2) }}</p>
                     </div>
                     <div class="block rightblock">
                         <p>OTHER PRIZES</p>
-                        <h2>100 - 100k VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 100).toFixed(2) }} - ${{ (priceUsd * 100000).toFixed(2) }}</p>
+                        <h2>{{activeProduct.lowestPriceString}} - {{ activeProduct.highestPriceString }} VERSE</h2>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.lowestPrice).toFixed(2) }} - ${{ (priceUsd * activeProduct.highestPrice).toFixed(2) }}</p>
                     </div>
                 </div>
                 <button class="btn verse-wide" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
@@ -626,7 +646,7 @@ p.usd {
     font-size: 12px;
 }
 .jumbo-mob {
-    background-image: url("../assets/bg.png")!important;
+    background-image: v-bind('activeProduct.backgroundImage')!important;
     height: 211px;
     background-size: cover;
     width: 100%;
@@ -657,7 +677,7 @@ p.usd {
             margin-top: 8px;
         }
         &.leftblock {
-            background: #4C3777;
+            background: v-bind('activeProduct.jackpotBoxColorTwo');
             margin-right: 2%!important;
             @media(max-width: 880px) {
                 margin-right: 2%!important;
@@ -680,7 +700,7 @@ p.usd {
             }
         }
         &.rightblock {
-            background: #6E376F;
+            background: v-bind('activeProduct.jackpotBoxColorThree');
             h2 {
                 font-size: 17px;
                 text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
@@ -700,10 +720,36 @@ p.usd {
         }
     }
 }
+
+.collection-choose {
+    border: none;
+    p {
+        color: white;
+        text-align: center;
+    }
+    select {
+        outline: none;
+        cursor: pointer;
+        margin-left: calc(50% - 175px);
+        background-color: grey;
+        color: white;
+        text-align: center;
+        height: 40px;
+        border-radius: 10px;
+        padding-left: 20px;
+        background-color: #091927;
+        width: 350px;
+        -webkit-appearance: none;
+        @media(max-width: 880px) {
+            width: calc(100% - 20px);
+            margin-left: 10px;
+        }
+    }
+}
 .topblock {
     padding: 12px;
     width: calc(100% - 24px);
-    background: #363E82;
+    background: v-bind('activeProduct.jackpotBoxColorOne');
     border-radius: 12px;
     p {
         margin: 0;
