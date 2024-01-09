@@ -1,12 +1,13 @@
 <script setup>
 import { waitForTransaction, writeContract} from '@wagmi/core'
-import { ref, onMounted, watch } from 'vue';
-import GLOBALS from '../globals.js'
+import { ref, onMounted, watch, computed } from 'vue';
 import ContractABI from '../abi/contract.json'
+import { store } from '../store.js'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
+const activeProduct = computed(() => store.getProduct())
 
-let nftAddress = GLOBALS.NFT_ADDRESS
+
 let count = ref(0);
 let imageLoaded = ref(false)
 let modalTutorial = ref(true)
@@ -29,13 +30,13 @@ const toggleShow = () => {
     localStorage.setItem('showTutorial', showTutorial.value)
 }
 
-const redeem = async () => {
+const redeem = async (address) => {
     winModal.value = false
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
     try {
         const { hash } = await writeContract({
-            address: nftAddress,
+            address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
             chainId: 137,
@@ -58,7 +59,7 @@ const redeem = async () => {
 watch(count, async (newValue)=> {
     if (newValue == 8) { 
         
-        localStorage.setItem(props.detailNFT.id.toString() + '/' + nftAddress.toString(), true)
+        localStorage.setItem(props.detailNFT.id.toString() + '/' + props.detailNFT.address.toString(), true)
 
         const finalizeTicket = () => {
             winModal.value = true
@@ -108,12 +109,15 @@ onMounted(() => {
         modalTutorial.value = false
     }
     const img = new Image();
-    img.src = `https://verse-scratcher-images.s3.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
+    console.log(props.detailNFT.address)
+    img.src = `https://${props.detailNFT.bucketUrl}.s3.amazonaws.com/${props.detailNFT.id}/${props.detailNFT.address}.jpg`
     img.onload = () => {
-        if(props.claim == false) {
+        setTimeout(() => {
+            if(props.claim == false) {
             setupScratch()
-        }
-        imageLoaded.value = true;       
+            }
+            imageLoaded.value = true;    
+        }, 500)   
     };
 
     function setupScratch() {
@@ -180,7 +184,7 @@ onMounted(() => {
                     <div>
                         <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
-                        <a @click="redeem()"><button class="btn verse-wide">Claim Now</button></a>
+                        <a @click="redeem(detailNFT.address)"><button class="btn verse-wide">Claim Now</button></a>
                         <a href="/tickets"><button class="btn verse-wide secondary">View My Tickets</button></a>
                     </div>
                 </div>
@@ -222,7 +226,7 @@ onMounted(() => {
                     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
-            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://verse-scratcher-images.s3.amazonaws.com/${detailNFT.id}/${nftAddress}.jpg)` } ">
+            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://${detailNFT.bucketUrl}.s3.amazonaws.com/${detailNFT.id}/${detailNFT.address}.jpg)` } ">
                 <canvas id="scratchcanvas1" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas2" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas3" width="69" height="69"></canvas>
@@ -350,7 +354,7 @@ onMounted(() => {
     }
 }
 .background {
-    background-image: url("../assets/header.png");
+    background-image: v-bind('activeProduct.backgroundImage')!important;
     background-color: #030C14;
     left: 0;
     top: 0;

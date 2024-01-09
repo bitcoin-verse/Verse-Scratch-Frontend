@@ -116,6 +116,9 @@ createWeb3Modal({
 <style lang="scss">
 
 .verse-wide {
+  &.home {
+    background: v-bind('activeProduct.homeButtonOverrideBackground')!important;
+  }
   &:hover {
     background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
   }

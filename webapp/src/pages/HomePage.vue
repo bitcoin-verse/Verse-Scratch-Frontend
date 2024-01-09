@@ -9,8 +9,8 @@ import { copyText } from 'vue3-clipboard'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
 import { store } from '../store.js'
-
 import { logAmplitudeEvent } from "../helpers/analytics"
+
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
 
   export default {
@@ -580,13 +580,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </div> -->
     <div class="page">
         <div class="jumbo-mob">
-            <img  src="../assets/cover.png">
+            <img  :src="activeProduct.cover">
         </div>
         <div class="float-holder clearfix">
             <div class="collection-choose">
                 <select v-model="selectedProductId">
                     <option v-for="product in products" :key="product.id" :value="product.id">
-                        <span v-if="product.id == selectedProductId">Current Collection:</span> {{ product.title }}
+                        <span v-if="product.id == selectedProductId">Edition:</span> {{ product.title }}
                     </option>
                     <!-- <option value="1">Selected Collection: Space Expedition</option>
                     <option value="2">Legacy Collection: Christmas 1999</option>
@@ -613,7 +613,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.lowestPrice).toFixed(2) }} - ${{ (priceUsd * activeProduct.highestPrice).toFixed(2) }}</p>
                     </div>
                 </div>
-                <button class="btn verse-wide" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
+                <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
                 <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
@@ -621,7 +621,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
 
         <div class="card-holder">
-            <img class=""  src="../assets/cover.png">
+            <img class=""  :src="activeProduct.cover">
         </div>
         </div>
         <Footer />
@@ -636,7 +636,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     text-align: center;
     color: #899BB5;
     a {
-        color: #0085FF;
+        color: v-bind('activeProduct.homeLinkColor');
         cursor: pointer;
         text-decoration: none;
     }
@@ -696,7 +696,7 @@ p.usd {
                 margin-top: 2px;
                 margin-bottom: 2px;
                 font-size: 12px;
-                color: #D2BDFF;
+                color: v-bind('activeProduct.jackpotBoxColorTwoTitle')
             }
         }
         &.rightblock {
@@ -715,14 +715,16 @@ p.usd {
                 margin-top: 2px;
                 margin-bottom: 2px;
                 font-size: 12px;
-                color: #F7C0F8;
+                color: v-bind('activeProduct.jackpotBoxColorThreeTitle')
             }
         }
     }
 }
 
 .collection-choose {
-    border: none;
+    @media(max-width: 880px) {
+        margin-top: 10px;
+    }
     p {
         color: white;
         text-align: center;
@@ -737,9 +739,10 @@ p.usd {
         height: 40px;
         border-radius: 10px;
         padding-left: 20px;
-        background-color: #091927;
+        background-color: #151617;
         width: 350px;
         -webkit-appearance: none;
+        border: 1px solid #333333!important;
         @media(max-width: 880px) {
             width: calc(100% - 20px);
             margin-left: 10px;
@@ -755,7 +758,7 @@ p.usd {
         margin: 0;
         text-align: center;
         font-weight: 600;
-        color: #BFD9FF;
+        color: v-bind('activeProduct.jackpotBoxColorOneTitle')
     }
     h2 {
         font-weight: 800;

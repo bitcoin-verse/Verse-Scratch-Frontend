@@ -1,15 +1,16 @@
 <script>
 import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
 import Redeem from '../pages/Redeem.vue'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
 import { useRoute } from 'vue-router'
-import GLOBALS from '../globals.js'
+// import GLOBALS from '../globals.js'
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
+import { store } from '../store.js'
 
 export default {
     components: {
@@ -17,10 +18,9 @@ export default {
         Footer,
     },  
     setup() {
+        
         const route = useRoute()
-        const contractAddress = GLOBALS.CONTRACT_ADDRESS
-        const nftContract = GLOBALS.NFT_ADDRESS
-
+        const contractAddresses = computed(() => store.getProductContractAddresses())
         let list = []
         let account = getAccount()
         let accountActive = ref(false)
@@ -30,6 +30,7 @@ export default {
 
         let winModal = ref(false)
         let giftModal = ref(false)
+        let filterClaimed = ref(localStorage.getItem("filterClaimed") === 'true' ? true : false)
         let giftAccount = ref("")
         let claimNFT = ref(0)
         let step = ref(0);
@@ -92,7 +93,7 @@ export default {
 
             try {
                 const { hash } = await writeContract({
-                    address: contractAddress,
+                    address: contractAddresses.value[0],
                     abi: ContractABI,
                     functionName: 'claimPrize',
                     chainId: 137,
@@ -110,20 +111,25 @@ export default {
 
         }
 
+        function toggleFilterClaimed() {
+            localStorage.setItem("filterClaimed", !filterClaimed.value)
+            filterClaimed.value = !filterClaimed.value
+        }
+
         function toggleModal() {
             openDetail.value = !openDetail.value
         }
 
         function setScratched(id) {
-            localStorage.setItem(id.toString() + '/' + nftContract.toString(), true)
+            localStorage.setItem(id.toString() + '/' + contractAddresses.value[0].toString(), true)
             const objToUpdate = nfts.value.find(obj => obj.id === id);
             if (objToUpdate) {
                 objToUpdate.scratched = true;
             }
         }
 
-        function openDetailScreen(id) {
-            detailNFT.value = nfts.value.find(obj => obj.id === id);
+        function openDetailScreen(id, address) {
+            detailNFT.value = nfts.value.find(obj => obj.id === id && obj.address === address);
             openDetail.value = true;
         }
 
@@ -134,10 +140,10 @@ export default {
             giftModal.value = false
         }
 
-        async function getClaimed(id) {
+        async function getClaimed(id, address) {
             try {
                 const data = await readContract({
-                address: GLOBALS.NFT_ADDRESS,
+                address: address,
                 abi: ERC721,
                 functionName: 'claimed',
                 args: [id]
@@ -156,11 +162,11 @@ export default {
             }               
         }
 
-        async function getEdition(id) {
+        async function getEdition(id, address) {
             
             try {
                 const data = await readContract({
-                address: GLOBALS.NFT_ADDRESS,
+                address: address,
                 abi: ERC721,
                 functionName: 'editions',
                 args: [id]
@@ -177,10 +183,10 @@ export default {
             }
         }
 
-        async function getPrizeAmount(id) {
+        async function getPrizeAmount(id, address) {
             try {
                 const data = await readContract({
-                    address: GLOBALS.NFT_ADDRESS,
+                    address: address,
                     abi: ERC721,
                     functionName: 'prizes',
                     args: [id]
@@ -199,16 +205,16 @@ export default {
         }
 
 
-        function openClaimDetail(id) {
-            detailNFT.value = nfts.value.find(obj => obj.id === id);
+        function openClaimDetail(id, address) {
+            detailNFT.value = nfts.value.find(obj => obj.id === id && obj.address === address);
             claimNow.value = true
             openDetail.value = true
         }
 
-        async function getRedemptionStatus(id) {
+        async function getRedemptionStatus(id, address) {
             try {
                 const data = await readContract({
-                address: nftContract,
+                address: address,
                 abi: ERC721ABI,
                 functionName: 'tokenURI',
                 args: [id]
@@ -229,9 +235,15 @@ export default {
             }
         }
 
-        function ticketList() {
-            return nfts.value.toReversed()
-        }
+        const ticketList = computed(() => {
+            if(filterClaimed.value === true) {
+                return nfts.value.filter(item => !item.claimed).toReversed()
+            } else {
+                return nfts.value.toReversed()
+            }
+        })
+
+        
 
         function closeDetailScreen() {
             openDetail.value = false;
@@ -239,29 +251,49 @@ export default {
         async function getTicketIds() {
             try {
                 loading.value = true;
-                const data = await readContract({
-                    address: nftContract,
-                    abi: ERC721ABI,
-                    functionName: 'ownedByAddress',
-                    args: [getAccount().address]
+
+                let promiseTicketArray = []
+                let contract = []
+                let bucketUrls = []
+                store.getProducts().forEach(product => {
+                    contract.push(product.contractAddress)
+                    bucketUrls.push(product.bucketUrl)
+                    promiseTicketArray.push(
+                        readContract({
+                            address: product.contractAddress,
+                            abi: ERC721ABI,
+                            functionName: 'ownedByAddress',
+                            args: [getAccount().address]
+                        }))
                 })
-      
-                if(data) {
+                const promiseResult = await Promise.all(promiseTicketArray)
+                
+                let dataConcat = []
+                promiseResult.forEach((data, idx) => {
+                    data.forEach(item => {
+                        dataConcat.push({item, address: contract[idx], bucketUrl: bucketUrls[idx]})
+                    })
+                })
+                
+                console.log("DATA")
+                console.log(dataConcat)
+
+                if(dataConcat) {
                     let promiseArray = []
                     let arr = []
-                    data.forEach(dat => {
+                    dataConcat.forEach((dat)=> {
                         let scratched = false
-                        if(localStorage.getItem(dat.toString() + '/' + nftContract.toString()) == 'true') {
+                        if(localStorage.getItem(dat.item.toString() + '/' + dat.address.toString()) == 'true') {
                             scratched = true
                         }
-                        arr.push({id: parseInt(dat.toString()), scratched, claimed: false })
-                        promiseArray.push(getRedemptionStatus(dat.toString()))
+                        arr.push({id: parseInt(dat.item.toString()), address: dat.address, bucketUrl: dat.bucketUrl, scratched, claimed: false })
+                        promiseArray.push(getRedemptionStatus(dat.item.toString(), dat.address.toString()))
                     })
                     nfts.value = arr
                     nfts.value.forEach(nft => {
-                        promiseArray.push(promiseArray.push(getClaimed(nft.id)))
-                        promiseArray.push(promiseArray.push(getEdition(nft.id)))
-                        promiseArray.push(promiseArray.push(getPrizeAmount(nft.id)))
+                        promiseArray.push(promiseArray.push(getClaimed(nft.id, nft.address)))
+                        promiseArray.push(promiseArray.push(getEdition(nft.id, nft.address)))
+                        promiseArray.push(promiseArray.push(getPrizeAmount(nft.id,nft.address)))
                     })
                     await Promise.all(promiseArray)
                     loading.value = false;
@@ -273,7 +305,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, nftContract, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -305,6 +337,13 @@ export default {
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets
+                <div class="ticket-check">
+                    <p>
+                    <label class="switch">
+                    <input type="checkbox" :checked="filterClaimed" v-on:change="toggleFilterClaimed">
+                        <span class="slider round"></span>
+                    </label>Hide Claimed Tickets</p>
+                </div>  
                 <a href="/?purchase-intent=true"><button class="btn verse-wide" href="">Buy Ticket</button></a>
             </h2>
 
@@ -320,7 +359,8 @@ export default {
             <div v-if="nfts.length == 0" class="warn-no-tickets">
                 <h5>No tickets found in connected wallet</h5>
             </div>
-            <div class="ticket" v-for="item, index in ticketList()">
+            <div class="ticket" v-for="item, index in ticketList">
+
                 <h3 class="title">Ticket {{item.id}} </h3>
 
                 <p class="status" v-if="item.claimed == false && item.scratched == true">
@@ -334,17 +374,17 @@ export default {
                 </p>
 
                 <div v-if="item.claimed == false">
-                    <img class="mobreset" v-if="item.scratched == false" :src="'/prescratch/' + item.edition + '.png'">
-                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset" v-if="item.scratched == false" :src="'/templates/' + item.address + '/' + item.edition + '.png'">
+                    <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://${item.bucketUrl}.s3.amazonaws.com/${item.id}/${item.address}.jpg`">
                 </div>
 
                 <div v-if="item.claimed == true">
-                    <img class="mobreset claimed" :src="`https://verse-scratcher-images.s3.amazonaws.com/${item.id}/${nftContract}.jpg`">
+                    <img class="mobreset claimed" :src="`https://${item.bucketUrl}.s3.amazonaws.com/${item.id}/${item.address}.jpg`">
                 </div>
 
-                <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id)">Scratch Ticket</button>
-                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id)" class="btn verse-wide" >Claim {{item.prize}} VERSE</button>
-                <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >VERSE Claimed</button>
+                <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id, item.address)">Scratch Ticket</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id, item.address)" class="btn verse-wide" >Claim {{item.prize}} VERSE</button>
+                <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >{{item.prize}} VERSE Claimed</button>
             </div>
         </div>
         </div>
@@ -397,13 +437,12 @@ export default {
 }
 .ticket-wrapper {
     @media(max-width: 880px) {
-        padding: 23px;
+        padding: 13px;
         min-height: calc(100vh - 60px);
         min-height: calc(100dvh - 60px);
         overflow: auto;
     }
     max-width: 100%;
-    padding-top: 10px;
     overflow: hidden;
     .ticket-holder {
     min-height: 520px;
@@ -469,6 +508,26 @@ export default {
         background-color: #353535;
         background-image: none;
         color: white;
+    }
+}
+
+.ticket-check {
+    p {
+        font-size: 13px;
+        font-weight: 200;
+        margin-top: 30px;
+        label.switch {
+            padding-top: -50px;
+            margin-right: 12px;
+            color: #E7E7E7;
+            top: -3px;
+            span.slider {
+                background-color: #20344b
+            }
+            input:checked + .slider {
+                background-color: #0085FF;
+            }
+        }
     }
 }
 
