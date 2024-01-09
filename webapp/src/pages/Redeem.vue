@@ -122,14 +122,14 @@ onMounted(() => {
 
     function setupScratch() {
         let scratched = [false, false, false, false, false, false, false, false];
-        var options1 = { id: 'scratchcanvas1', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options2 = { id: 'scratchcanvas2', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options3 = { id: 'scratchcanvas3', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options4 = { id: 'scratchcanvas4', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options5 = { id: 'scratchcanvas5', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options6 = { id: 'scratchcanvas6', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options7 = { id: 'scratchcanvas7', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options8 = { id: 'scratchcanvas8', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options1 = { id: 'scratchcanvas1', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options2 = { id: 'scratchcanvas2', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options3 = { id: 'scratchcanvas3', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options4 = { id: 'scratchcanvas4', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options5 = { id: 'scratchcanvas5', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options6 = { id: 'scratchcanvas6', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options7 = { id: 'scratchcanvas7', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options8 = { id: 'scratchcanvas8', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
         let one = new window.ScratchCard(options1);
         let two = new window.ScratchCard(options2);
         let three = new window.ScratchCard(options3);
