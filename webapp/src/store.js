@@ -1,9 +1,10 @@
 import { reactive } from 'vue'
-
+import { useRoute } from 'vue-router'
 
 const products = [
     {
         id: 1,
+        campaign: 'default',
         contractAddress: '0x4879372A662a09ce5Fd64CD7523B8F231Ac200f8',
         ticketPriceString: '3,000',
         bucketUrl: 'verse-scratcher-images',
@@ -12,7 +13,6 @@ const products = [
         jackpotString: '1,000,000',
         templateFolder: 'default',
         homeLinkColor: '#0085FF',
-        homeButtonOverrideBackground: 'linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%)',        
         jackpot: 1000000,
         lowestPrice: 100,
         lowestPriceString: '100',
@@ -30,13 +30,13 @@ const products = [
     },
     {
         id: 2,
+        campaign: 'lunar',
         contractAddress: '0x6f1153964310d0f9f9edc60d123460e61aad385b',
         ticketPriceString: '22,000',
         bucketUrl: 'scratchverse',
         ticketPrice: 22000, 
         title: 'Lunar New Year (Limited Edition)',
         cover: '/lunar/cover.png',
-        homeButtonOverrideBackground: 'linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%)',
         jackpotString: '8,888,888',
         templateFolder: 'lunar',
         homeLinkColor: '#a98529',
@@ -55,8 +55,22 @@ const products = [
     }
 ]
 
+const route = useRoute()
+
+const initProduct = () => {
+  const urlParams = new URLSearchParams(window.location.search);;
+  const campaign = urlParams.get('campaign');
+  let res = products.find(product => product.campaign === campaign);
+   if(res && res.id) {
+      return res.id 
+   } else {
+    // 1 is default if nothing is set
+     return parseInt(localStorage.getItem('collection')) || 1
+   }
+}
+
 export const store = reactive({
-  productId: parseInt(localStorage.getItem('collection')) || 1, // default product
+  productId: initProduct(), // default product
   updateProduct(value) {
     this.productId = value
     localStorage.setItem('collection', value)
