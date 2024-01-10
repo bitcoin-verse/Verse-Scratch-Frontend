@@ -30,7 +30,7 @@ const products = [
     },
     {
         id: 2,
-        campaign: 'lunar',
+        campaign: 'lunar-new-year',
         contractAddress: '0x6f1153964310d0f9f9edc60d123460e61aad385b',
         ticketPriceString: '22,000',
         bucketUrl: 'scratchverse',
