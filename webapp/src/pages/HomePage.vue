@@ -584,19 +584,22 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <img  :src="activeProduct.cover">
         </div>
         <div class="float-holder clearfix">
-            <div class="collection-choose">
-                <select v-model="selectedProductId">
+
+            <div class="card-info">
+                <h2>SCRATCH & WIN</h2>
+                <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
+                <div class="campaign-title">
+                    <i class="chev-down"></i>
+                    <!-- {{ activeProduct.title }} -->
+                    <select v-model="selectedProductId">
                     <option v-for="product in products" :key="product.id" :value="product.id">
-                        <span v-if="product.id == selectedProductId">Edition:</span> {{ product.title }}
+                        {{ product.title.toUpperCase() }}
                     </option>
                     <!-- <option value="1">Selected Collection: Space Expedition</option>
                     <option value="2">Legacy Collection: Christmas 1999</option>
                     <option value="3">2024 Chinese New Year</option> -->
                 </select>
-            </div>
-            <div class="card-info">
-                <h2>SCRATCH & WIN</h2>
-                <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
+                </div>
                 <div class="topblock">
                     <p>JACKPOT</p>
                     <h2>{{ activeProduct.jackpotString }} VERSE</h2>
@@ -630,6 +633,48 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 </template>
 
 <style lang="scss" scoped>
+
+i.chev-down {
+    background-image: url("../assets/icons/chev-down.png");
+    width: 24px;
+    height: 24px;
+    display: block;
+    background-size: cover;
+    position: absolute;
+    z-index: 5;
+    right: 20px;
+    pointer-events: none;
+    top: 14px;
+}
+
+.campaign-title {
+    margin-top: 16px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: v-bind('activeProduct.homeSwitchColor');
+    text-align: center;
+    position: relative;
+    font-size: 18px;
+    font-weight: 200!important;
+    padding: 5px;
+    font-family: 'Barlow', sans-serif;
+
+    select {
+        cursor: pointer;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        text-align: center;
+        width: 100%;
+        font-size: 18px;
+        line-height: 21.6px;
+        font-weight: 600;
+        padding: 12px;
+        font-family: 'Barlow', 'Helvetica', sans-serif;
+        color: white;
+        background-color: v-bind('activeProduct.homeSwitchColor');
+    }
+}
 .terms-link {
     font-size: 12px;
     margin-top: 16px;
@@ -665,23 +710,27 @@ p.usd {
 .splitblock {
     width: 100%;
     .block {
-        width: calc(49% - 24px)!important;
+        width: calc(49.5% - 24px)!important;
         float: left;
         padding: 0;
-        margin-top: 8px;
-        border-radius: 12px;
+        margin-top: 3px;
         padding: 12px;
         text-align: center;
         @media(max-width: 880px) {
-            width: calc(49% - 24px)!important;
+            width: calc(50% - 26px)!important;
             margin: 0;
-            margin-top: 8px;
+            margin-top: 3px;
+            min-height: unset!important;
+        }
+        @media(max-width: 1185px) {
+            min-height: 80px;
         }
         &.leftblock {
+            border-bottom-left-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorTwo');
-            margin-right: 2%!important;
+            margin-right: 1%!important;
             @media(max-width: 880px) {
-                margin-right: 2%!important;
+                margin-right: 3px!important;
             }
             h2 {
                 font-size: 17px;
@@ -701,6 +750,7 @@ p.usd {
             }
         }
         &.rightblock {
+            border-bottom-right-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorThree');
             h2 {
                 font-size: 17px;
@@ -722,39 +772,11 @@ p.usd {
     }
 }
 
-.collection-choose {
-    @media(max-width: 880px) {
-        margin-top: 0px;
-    }
-    p {
-        color: white;
-        text-align: center;
-    }
-    select {
-        outline: none;
-        cursor: pointer;
-        margin-left: calc(50% - 175px);
-        background-color: grey;
-        color: white;
-        text-align: center;
-        height: 40px;
-        border-radius: 10px;
-        padding-left: 20px;
-        background-color: #151617;
-        width: 350px;
-        -webkit-appearance: none;
-        border: 1px solid #333333!important;
-        @media(max-width: 880px) {
-            width: calc(100% - 20px);
-            margin-left: 10px;
-        }
-    }
-}
 .topblock {
     padding: 12px;
     width: calc(100% - 24px);
     background: v-bind('activeProduct.jackpotBoxColorOne');
-    border-radius: 12px;
+    border-radius: 0;
     p {
         margin: 0;
         text-align: center;
@@ -769,6 +791,8 @@ p.usd {
     }
 }
 .top-meta {
+    padding-left: 40px;
+    padding-right: 40px;
     font-weight: 500;
     font-size: 14px;
     color: #C5CEDB;
@@ -946,12 +970,12 @@ p.usd {
         display: none;
     }
     @media(max-width: 1000px) {
-        margin-top: 115px!important;
+        margin-top: 125px!important;
     }
     margin-left: 5%;
     float: left;
     width: 52%;
-    margin-top: 70px;
+    margin-top: 105px;
     border-radius: 6px;
     padding-left: 0px;
     background-color: transparent;
