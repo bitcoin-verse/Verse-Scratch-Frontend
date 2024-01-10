@@ -60,6 +60,9 @@ const route = useRoute()
 const initProduct = () => {
   const urlParams = new URLSearchParams(window.location.search);;
   const campaign = urlParams.get('campaign');
+  urlParams.delete("campaign");
+  window.history.replaceState({}, '', `${window.location.pathname}`);
+  
   let res = products.find(product => product.campaign === campaign);
    if(res && res.id) {
       return res.id 
