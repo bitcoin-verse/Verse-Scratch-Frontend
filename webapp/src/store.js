@@ -1,6 +1,7 @@
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 
+const DEFAULT_PRODUCT = 1;
 const products = [
     {
         id: 1,
@@ -26,7 +27,11 @@ const products = [
         jackpotBoxColorTwoTitle: '#F7C0F8',
         jackpotBoxColorThree: '#6E376F',
         jackpotBoxColorThreeTitle: '#F7C0F8',
-
+        meta: {
+          title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+          description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+          socialImage: "https://scratcher.verse.bitcoin.com/meta.png"
+        }
     },
     {
         id: 2,
@@ -52,23 +57,44 @@ const products = [
         jackpotBoxColorTwoTitle: '#fac43b',
         jackpotBoxColorThree: '#232323',
         jackpotBoxColorThreeTitle: '#fac43b',
+        meta: {
+          title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+          description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+          socialImage: "https://scratcher.verse.bitcoin.com/meta_lunar.png"
+        }
     }
 ]
 
 const route = useRoute()
+
+const updateMetaData = (product) => {
+  const descEl = document.querySelector('head meta[name="description"]');
+  const titleEl = document.querySelector('head title');
+  const ogImage = document.querySelector('head meta[property="og:image"]');    
+
+  titleEl.textContent = product.meta.title
+  descEl.setAttribute('content', product.meta.description)
+  ogImage.setAttribute('content', product.meta.socialImage)
+}
 
 const initProduct = () => {
   const urlParams = new URLSearchParams(window.location.search);;
   const campaign = urlParams.get('campaign');
   urlParams.delete("campaign");
   window.history.replaceState({}, '', `${window.location.pathname}`);
-  
-  let res = products.find(product => product.campaign === campaign);
-   if(res && res.id) {
-      return res.id 
+
+
+  let product = products.find(product => product.campaign === campaign);
+
+   if(product && product.id) {
+      updateMetaData(product)
+      return product.id 
    } else {
-    // 1 is default if nothing is set
-     return parseInt(localStorage.getItem('collection')) || 1
+    let activeProduct = localStorage.getItem('collection') || DEFAULT_PRODUCT
+    let product = products.find(product => product.id === parseInt(activeProduct));
+
+    updateMetaData(product)
+     return parseInt(product.id)
    }
 }
 

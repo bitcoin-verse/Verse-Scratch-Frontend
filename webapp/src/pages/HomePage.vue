@@ -11,6 +11,7 @@ import axios from "axios"
 import { store } from '../store.js'
 import { logAmplitudeEvent } from "../helpers/analytics"
 
+
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
 
   export default {
@@ -41,7 +42,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let ticketInputValid = ref(true)
     let timeoutId;
     let priceUsd = ref(0);
-    
+
     const products = computed(() => store.getProducts());
     const selectedProductId = computed({
       get: () => store.productId,
@@ -723,7 +724,7 @@ p.usd {
 
 .collection-choose {
     @media(max-width: 880px) {
-        margin-top: 10px;
+        margin-top: 0px;
     }
     p {
         color: white;
