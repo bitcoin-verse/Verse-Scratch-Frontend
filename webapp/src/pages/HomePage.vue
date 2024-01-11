@@ -197,14 +197,18 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     loadingMessage.value = "Waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
-                    if(e.cause.code == -32000) {
-                        modalLoading.value = false
-                        return 
-                    }
-                    if(e.cause.code == 4001) {
-                        modalLoading.value = false
-                        return 
-                    }
+                    // need to ensure this works because sometimes tx falls through even on confirm
+                    modalLoading.value = false
+                    return 
+                    // if(e.cause.code == -32000) {
+                    //     modalLoading.value = false
+                    //     return 
+                    // }
+                    // // metamask cancel
+                    // if(e.cause.code == 4001) {
+                    //     modalLoading.value = false
+                    //     return 
+                    // }
                 }   
             }
             let timer = 25;  
