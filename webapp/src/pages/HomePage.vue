@@ -152,12 +152,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
              await waitForTransaction({ hash })
              getAllowance()
         } catch (e) {
-            console.log(e)
-            if(e && e.cause.code == 4001) {
-                modalLoading.value = false
-            } else {
-                modalLoading.value = false
-            }
+            modalLoading.value = false
         }
     }    
 
@@ -202,6 +197,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     loadingMessage.value = "Waiting for blockchain confirmation"
                     await waitForTransaction({ hash })
                 } catch (e) {
+                    if(e.cause.code == -32000) {
+                        modalLoading.value = false
+                        return 
+                    }
                     if(e.cause.code == 4001) {
                         modalLoading.value = false
                         return 
