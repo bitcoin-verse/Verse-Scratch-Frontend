@@ -1,5 +1,6 @@
 name: Deploy master to CF (dev.scratcher.verse.bitcoin.com)
 on:
+  workflow_dispatch:
   repository_dispatch:
     types: [ manual-deployment ]
   push:
