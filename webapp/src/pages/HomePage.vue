@@ -46,7 +46,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     const products = computed(() => store.getProducts());
     const selectedProductId = computed({
       get: () => store.productId,
-      set: (value) => store.updateProduct(value)
+      set: (value) => {
+        store.updateProduct(value)
+        getAllowance()
+      }
     })
     const activeProduct = computed(() => store.getProduct())
 
