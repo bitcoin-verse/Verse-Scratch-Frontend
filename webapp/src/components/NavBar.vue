@@ -291,6 +291,7 @@ export default {
         @media(max-width: 879px) {
             display: none;
         }
+        z-index: 2;
         position: fixed;
         top: 0;
         display: block;

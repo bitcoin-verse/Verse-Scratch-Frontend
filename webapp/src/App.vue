@@ -106,14 +106,12 @@ createWeb3Modal({
 
 
 <template>  
-  <body>
     <div class="global-wrap">
       <div class="flex-wrap">
         <NavBar />
         <RouterView />
       </div>
     </div>
-  </body>
 </template>
 
 <style lang="scss">
@@ -180,8 +178,15 @@ createWeb3Modal({
 }
 
 .global-wrap {
+  background-image: v-bind('activeProduct.backgroundImage')!important;
+  background-size: cover;
   position: relative;
+  
+  @media(max-width: 880px) {
+    background-image: none!important;
+  }
 }
+
 
 .flex-wrap {
   @media(min-width: 768px) {
@@ -557,21 +562,29 @@ h3 {
 }
 
 body {
-  position: fixed;
+  position: unset;
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
+  padding: 0;
   background-size: 100%;
   margin: 0;
+  overflow: auto;
   font-family: 'Barlow', sans-serif;
-  background-image: v-bind('activeProduct.backgroundImage')!important;
-  background-repeat: no-repeat!important;
   background: rgba(3, 12, 20, 1);
-  background-size: contain;
+  background-repeat: no-repeat!important;
+  background-size: cover;
   @media(max-width: 880px) {
     background: rgba(3, 12, 20, 1);
     background-image: none!important;
     min-height: unset;
   }
+
+  // &::-webkit-scrollbar {
+  //       -webkit-appearance: none;
+  //       width: 0;
+  //       height: 0;
+  //       display: none!important;
+  //   }
 }
 
 #app {

@@ -20,7 +20,8 @@ const products = [
         highestPrice: 100000,
         highestPriceString: '100k',
         cover: '/spaceexpeditions/cover.png',
-        backgroundImage: `url('/bg.png')`,
+        backgroundImage: window.location.pathname === '/' ? `url('/lunar/background.png')` : `url('/darker.png')`,
+        bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
         homeSwitchColor: '#028DFD',
         jackpotBoxColorOne: '#1F2D52',
         jackpotBoxColorOneTitle: '#028DFD',
@@ -51,7 +52,8 @@ const products = [
         lowestPriceString: '888',
         highestPrice: 800000,
         highestPriceString: '800k',
-        backgroundImage: `url('/lunar/background.png')`,
+        backgroundImage: window.location.pathname === '/' ? `url('/lunar/background.png')` : `url('/darker.png')`,
+        bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
         homeSwitchColor: '#B89A4D',
         jackpotBoxColorOne: '#232323',
         jackpotBoxColorOneTitle: '#fac43b',
@@ -66,8 +68,6 @@ const products = [
         }
     }
 ]
-
-const route = useRoute()
 
 const updateMetaData = (product) => {
   const descEl = document.querySelector('head meta[name="description"]');

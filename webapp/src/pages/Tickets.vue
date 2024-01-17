@@ -395,6 +395,7 @@ export default {
 
 
 <style lang="scss" scoped>
+
 @keyframes pulse {
   0% {
     box-shadow: 0px -1px 10px 0px #0AADF5;
@@ -449,7 +450,7 @@ export default {
     background-color: grey;
     width: 9000px;
     overflow-x: auto;
-    padding-top: 5px;
+    margin-top: 5px;
     .ticket-item {
         height: 326px;
         width: 180px;
@@ -635,8 +636,12 @@ div.tickets {
     }
     padding-left: 50px;
     color: white;
+    
 }
 .page {
+    margin-top: 70px!important;
+    z-index: 0;
+    overflow: hidden;
     &::-webkit-scrollbar {
         -webkit-appearance: none;
         width: 0;
@@ -644,6 +649,7 @@ div.tickets {
         display: none!important;
     }
     @media(max-width: 880px) {
+        margin-top: 20px!important;
         width: 100%;
         padding-top: 16px;
         height: calc(100vh - 100px);
@@ -651,18 +657,14 @@ div.tickets {
         margin-top: 0;
     }
 
+    min-height: calc(100vh - 80px);
 
-    margin-top: 80px;
+    margin-top: 0px;
     height: max-content;
-    min-height: calc(100vh - 70px);
-    min-height: calc(100dvh - 70px);
     width: 100%;
-    padding-top: 0px;
 
 
-    position: relative;
-    height: calc(100vh - 70px);
-    height: calc(100dvh - 70px);
+    position: unset;
     overflow: auto;
 }
 

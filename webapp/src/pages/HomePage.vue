@@ -634,6 +634,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <img class=""  :src="activeProduct.cover">
         </div>
         </div>
+
+        <div>
+            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+        </div>
         <Footer />
     </div>
 </template>

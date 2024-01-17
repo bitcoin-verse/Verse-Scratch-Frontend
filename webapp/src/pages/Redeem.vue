@@ -354,8 +354,8 @@ onMounted(() => {
     }
 }
 .background {
-    background-image: v-bind('activeProduct.backgroundImage')!important;
-    background-color: #030C14;
+    // background-image: v-bind('activeProduct.backgroundImage')!important;
+    background: linear-gradient(180deg, #152334 0%, #030C14 100%);
     left: 0;
     top: 0;
     background-size: 100%;
@@ -378,13 +378,17 @@ onMounted(() => {
     top: 0;
 }
 .page { 
-    z-index: 2;
+    margin-top: 70px;
+    z-index: 1;
     left: 0;
     width: 100%;
-    min-height: 100vh!important;
+    min-height: calc(100vh - 70px)!important;
     position: absolute!important;
     top: 0;
     overflow: auto;
+    @media(max-width: 880px) {
+        margin-top: 20px;
+    }
 }
 .cont {
     width: 350px;
