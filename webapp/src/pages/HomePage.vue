@@ -52,6 +52,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       }
     })
     const activeProduct = computed(() => store.getProduct())
+    const randomOtherProduct = computed(() => store.getRandomOtherProduct())
 
     async function getVersePrice() {
         try {
@@ -125,6 +126,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     if(search.get("purchase-intent") == "true") {
         toggleModal()
+        console.log("OPEN INTENT")
         search.delete("purchase-intent");
         window.history.replaceState({}, '', `${window.location.pathname}`);
     }
@@ -378,6 +380,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         copyText,
         toggleGift,
         onTicketInputChange,
+        randomOtherProduct,
         ticketInputValid,
         getAccount,
         showTimer,
@@ -635,19 +638,198 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
         </div>
 
-        <div>
-            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
-            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
-            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
-            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
-            <h2>OTHER SCRATCH TICKET COLLECTIONS</h2>
+        <div class="divider"></div>
+        <div class="other-products">
+            <h1 class="tit">OTHER SCRATCH TICKET COLLECTIONS</h1>
+            <a :href="'?campaign=' + randomOtherProduct.campaign">
+            <div class="banner">
+                <h2 class="tit-ban">{{ randomOtherProduct.title.toUpperCase() }}</h2>
+                <div class="card-preview"></div>
+                <div class="prizes">
+                    <div class="prize-left">
+                        <p class="tit-prize">JACKPOT</p>
+                        <p>{{ randomOtherProduct.jackpotString }} VERSE</p>
+                    </div>
+                    <div class="prize-right">
+                        <p class="tit-prize">PRICE PER TICKET</p>
+                        <p>{{ randomOtherProduct.ticketPriceString}} VERSE</p>
+                    </div>
+                </div>
+                <button class="btn-card">View Collection</button>
+            </div>
+            </a>
         </div>
         <Footer />
     </div>
 </template>
 
 <style lang="scss" scoped>
+.divider {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid #1A2231;
+    @media(max-width: 880px) {
+        position: unset;
+    }
+}
+.other-products {
+    margin-top: 30px;
+    .prizes {
+        background-color: black;
+        width: 300px;
+        border-radius: 20px;
+        position: absolute;
+        left: 647px;
+        height: 60px;
+        top: 28px;
+        border: 10px;
+        @media(max-width: 1300px) {
+            left: 50px;
+            top: 57px;
+            height: 75px;
+        }
+        @media(max-width: 880px) {
+            left: 26px;
+            width: calc(100% - 52px);
+        }
+        .tit-prize {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: v-bind('randomOtherProduct.jackpotBoxColorOneTitle'); 
+            text-shadow: unset;
+            margin-top: 10px!important;    
+            @media(max-width: 1300px) {
+                margin-top: 19px!important;
+            }   
+        }
+        p {
+            margin: 0;
+            font-size: 16px;
+            text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
+            font-weight: 600;
+        }
+        .prize-left {
+            text-align: center;
+            position: absolute;
+            left: 0;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            width: calc(50% - 1px);
+            background-color:  v-bind('randomOtherProduct.jackpotBoxColorOne');
+            color: white;
+            border-right: 1px solid black;
+            height: 100%;
+        }
 
+        .prize-right {
+            text-align: center;
+            position: absolute;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            left: 50%;
+            color: white;
+            width: 50%;
+            background-color:  v-bind('randomOtherProduct.jackpotBoxColorOne');
+            height: 100%;
+        }
+    }
+    .tit {
+        margin-bottom: 30px;
+        text-align: center;
+        color: #899BB5;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: 'Barlow', sans-serif;
+        @media(max-width: 880px) {
+            margin-top: 50px;
+        }
+    }
+
+    .card-preview {
+        background-image: v-bind('randomOtherProduct.cardPreviewLarge');
+        width: 310px;
+        height:  120px;
+        background-size: cover;
+        bottom: 0;
+        position: absolute;
+        left: 244px;
+        @media(max-width: 1300px) {
+            background-image: v-bind('randomOtherProduct.cardPreviewMedium');
+            left: 50%;
+            width: 50%;
+            height: 200px;
+        }
+        @media(max-width: 880px) {
+            display: none;
+        }
+    }
+
+    .banner {
+        border: 1px solid #273953;
+        background-image: v-bind('randomOtherProduct.bannerLarge');
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 88%;
+        margin-left: 6%;
+        height: 118px;
+        border-radius: 20px;
+        position: relative;
+        margin-bottom: 50px;
+        @media(max-width: 1300px) {
+            height: 200px;
+        }
+        @media(max-width: 880px) {
+            width: calc(100% - 30px);
+            margin-left: 15px;
+        }
+        .tit-ban {
+            position: absolute;
+            color: white;
+            font-size: 18px;
+            top: 30px;
+            font-weight: 600;
+            left: 30px;
+            @media(max-width: 1300px) {
+                left: 50px;
+                top: 10px;
+                width: 300px;
+                text-align: center;
+            }
+            @media(max-width: 880px) {
+                width: 100%;
+                left: 0;
+                top: 5px;
+                text-align: center;
+            }   
+        }
+        .btn-card {
+            width: 120px;
+            padding: 0;
+            font-weight: 600;
+            font-family: 'Barlow', sans-serif;
+            height: 35px;
+            border-radius: 30px;
+            color: white;
+            position: absolute;
+            right: 31px;
+            font-size: 14px;
+            top: 42px;
+            background-color: v-bind('randomOtherProduct.homeLinkColor');
+            border: none;
+            @media(max-width: 1300px) {
+                left: 50px;
+                top: 140px;
+                width: 300px;
+            }
+            @media(max-width: 880px) {
+                left: 26px;
+                width: calc(100% - 52px);
+            }
+        }
+    }
+}
 i.chev-down {
     background-image: url("../assets/icons/chev-down.png");
     width: 24px;
@@ -909,8 +1091,8 @@ p.usd {
     min-height: calc(100vh - 188px);
     min-height: calc(100dvh - 188px);
     @media(max-width: 880px) {
-        min-height: calc(100vh - 170px); 
-        min-height: calc(100dvh - 170px); 
+        min-height: calc(100vh - 320px); 
+        min-height: calc(100dvh - 320px); 
         margin-top: 0!important;
     }
 }
@@ -1016,7 +1198,7 @@ p.usd {
         height: calc(100vh - 60px);
         height: calc(100dvh - 60px);
         overflow-y: scroll;
-        overflow-x: scroll;
+        overflow-x: hidden;
     }
 
     @media(max-width: 980px) {

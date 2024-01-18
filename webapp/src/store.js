@@ -8,6 +8,9 @@ const products = [
         campaign: 'default',
         contractAddress: '0x4879372A662a09ce5Fd64CD7523B8F231Ac200f8',
         ticketPriceString: '3,000',
+        bannerLarge: 'url(/spaceexpeditions/banner-lg.png)',
+        cardPreviewLarge: 'url(/spaceexpeditions/card-preview-lg.png)',
+        cardPreviewMedium: 'url(/spaceexpeditions/card-preview-md.png)',
         bucketUrl: 'verse-scratcher-images',
         ticketPrice: 3000, 
         title: 'Space Expeditions',
@@ -20,7 +23,7 @@ const products = [
         highestPrice: 100000,
         highestPriceString: '100k',
         cover: '/spaceexpeditions/cover.png',
-        backgroundImage: window.location.pathname === '/' ? `url('/lunar/background.png')` : `url('/darker.png')`,
+        backgroundImage: window.location.pathname === '/' ? `url('/bg.png')` : `url('/darker.png')`,
         bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
         homeSwitchColor: '#028DFD',
         jackpotBoxColorOne: '#1F2D52',
@@ -40,6 +43,9 @@ const products = [
         campaign: 'lunar-new-year',
         contractAddress: '0x6f1153964310d0f9f9edc60d123460e61aad385b',
         ticketPriceString: '22,000',
+        bannerLarge: 'url(/lunar/banner-lg.png)',
+        cardPreviewLarge: 'url(/lunar/card-preview-lg.png)',
+        cardPreviewMedium: 'url(/lunar/card-preview-md.png)',
         bucketUrl: 'scratchverse',
         ticketPrice: 22000, 
         title: 'Lunar New Year',
@@ -108,6 +114,11 @@ export const store = reactive({
   },
   getProduct() {
     return products.find(product => product.id === this.productId);
+  },
+  getRandomOtherProduct() {
+    let product = products.find(product => product.id !== this.productId)
+    console.log(product, "product")
+    return products.find(product => product.id !== this.productId);
   },
   getProductContractAddresses() {
     return products.map(product => product.contractAddress)

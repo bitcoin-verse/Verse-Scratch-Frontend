@@ -275,8 +275,6 @@ export default {
                     })
                 })
                 
-                console.log("DATA")
-                console.log(dataConcat)
 
                 if(dataConcat) {
                     let promiseArray = []
@@ -443,6 +441,7 @@ export default {
         min-height: calc(100dvh - 60px);
         overflow: auto;
     }
+    min-height: calc(100vh - 263px);
     max-width: 100%;
     overflow: hidden;
     .ticket-holder {
@@ -537,6 +536,7 @@ export default {
     text-align: center;
 }
 .tickhead {
+    margin-top: 30px;
     font-weight: 600!important;
     font-size: 24px;
     margin-bottom: 5px;
@@ -658,11 +658,9 @@ div.tickets {
     }
 
     min-height: calc(100vh - 80px);
-
     margin-top: 0px;
     height: max-content;
     width: 100%;
-
 
     position: unset;
     overflow: auto;
