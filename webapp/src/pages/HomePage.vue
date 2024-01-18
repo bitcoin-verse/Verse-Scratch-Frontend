@@ -837,7 +837,7 @@ i.chev-down {
     display: block;
     background-size: cover;
     position: absolute;
-    z-index: 5;
+    z-index: 0;
     right: 20px;
     pointer-events: none;
     top: 14px;
