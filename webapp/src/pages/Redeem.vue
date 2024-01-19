@@ -178,7 +178,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="modal" v-if="winModal">
-            <div class="modal-body">
+            <div class="modal-body no-min-height ">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
@@ -191,7 +191,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="modal" v-if="modalFinish">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>

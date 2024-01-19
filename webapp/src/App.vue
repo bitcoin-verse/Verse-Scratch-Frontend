@@ -302,6 +302,27 @@ i.close-btn {
       }
 
       .modal-body {
+        table {
+          padding: 20px;
+          border-radius: 10px;
+          background-color: #05111c;
+          border: 1px solid #273953;
+          color: white;
+          width: 100%;
+          td.key {
+            width: 50%;
+            font-weight: 600;
+            text-align: left;
+          }
+          td.value {
+            width: 50%;
+            text-align: right;
+          }
+        }
+        min-height: 500px;
+        &.no-min-height {
+          min-height: unset!important;
+        }
         .loadingText {
           color: #FFFFFF;
           font-size: 18px;
@@ -348,15 +369,17 @@ i.close-btn {
             width: calc(100% - 48px);
           }
           text-align: center;
-          position: absolute;
+          position: relative;
           bottom: 0;
           left: 0;
           font-size: 14px;
           font-weight: 500;
           color: #586F91;
           width: calc(100% - 80px);
-          margin: 0;
+          margin-top: 40px;
+          margin-bottom: 0;
           padding: 40px;
+          padding-bottom: 0;
           line-height: 16.71px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
           a { 
@@ -402,7 +425,7 @@ i.close-btn {
         }
 
 
-        height: 540px;
+        // min-height: 540px;
         padding: 40px 32px 24px 32px;
         text-align: center;
         .img-spinner {
@@ -487,7 +510,87 @@ i.close-btn {
           }
         }
 
+        .icn-min {
+            background-image: url("./assets/icons/min.png");
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            background-size: cover;
+            left: 3px;
+            top: 2px;
+          }
+          .icn-plus {
+            background-image: url("./assets/icons/plus.png");
+            width: 30px;
+            height: 30px;
+            top: 2px;
+            right: 3px;
+            position: absolute;
+            background-size: cover;
+          }
+
         .gift-toggle-holder {
+
+          &.second {
+            margin-top: 10px!important;
+          }
+          .input-holder {
+            position: absolute;
+            right: 16px;
+            top: 10px;
+            width: 120px;
+
+            .toggler {
+              position: absolute;
+              height: 35px;
+              cursor: pointer;
+              width: 50px;
+              background: #425472;
+              &.up {
+                border-top-right-radius: 9px;
+                border-bottom-right-radius: 9px;
+                top: 0px;
+                right: 0px;
+              }
+              &.down {
+                border-top-left-radius: 9px;
+                border-bottom-left-radius: 9px;
+                top: 0px;
+                left: 0px;
+              }
+            }
+
+            /* Chrome, Safari, Edge, Opera */
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+
+            /* Firefox */
+            input[type=number] {
+              -moz-appearance: textfield;
+            }
+
+            input {
+              background: #0F1823;
+              border: 1px solid #0F1823;
+              outline: none;
+              color: white;
+              font-family: Barlow;
+              font-size: 16px;
+              font-weight: 600;
+              line-height: 19px;
+              letter-spacing: 0em;
+              text-align: center;
+              z-index: 5;
+              position: relative;
+              width: 45px;
+              border-color: none;
+              height: 31px;
+              border-radius: 9px;
+            }
+          }
           background-color: #252D40;
           height: 56px;
           width: 100%;

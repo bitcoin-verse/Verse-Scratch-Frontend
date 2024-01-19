@@ -1,7 +1,7 @@
 <script>
 import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref, computed } from 'vue';
+import { ref, computed, watch, registerRuntimeCompiler } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
 import Web3 from 'web3'
@@ -33,7 +33,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let singleTransactionApproval = ref(false)
     let giftInputLoad = ref(false)
     let giftAddress = ref("");
-    let modalLoading = ref(false)
+    let modalLoading = ref(true)
     let loadingMessage = ref("getting wallet data")
     let buyStep = ref(0) 
     let giftTicket = ref(false); 
@@ -41,7 +41,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
     let timeoutId;
-    let priceUsd = ref(0);
+    let priceUsd = ref(0)
+    let purchaseAmount = ref(1)
 
     const products = computed(() => store.getProducts());
     const selectedProductId = computed({
@@ -51,6 +52,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         getAllowance()
       }
     })
+    
     const activeProduct = computed(() => store.getProduct())
     const randomOtherProduct = computed(() => store.getRandomOtherProduct())
 
@@ -75,6 +77,15 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             cta: type
         })
     }
+
+    const validatedAmount = computed(() => {
+        if (purchaseAmount.value > 50) {
+            return 50;
+        } else if (purchaseAmount.value < 1) {
+            return 1;
+        }
+        return purchaseAmount.value;
+    })
 
     async function onTicketInputChange() {
         ticketInputValid.value = true
@@ -111,7 +122,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     function toggleModal() {
-        if(buyStep.value == 4 && modalActive.value == true) {
+        if(modalActive.value == true) {
             loadingMessage.value = ""
             buyStep.value = 0;
             giftTicket.value = false;
@@ -139,7 +150,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     async function approve() {
         let approvalAmount = 30000000000000000000000000000
         if(singleTransactionApproval.value == true) {
-            approvalAmount = Web3.utils.toWei(activeProduct.value.ticketPrice, 'ether');
+            let amount = activeProduct.value.ticketPrice * validatedAmount.value
+            approvalAmount = Web3.utils.toWei(amount, 'ether');
         }
 
         loadingMessage.value = "Please confirm the approval in your connected wallet"
@@ -161,79 +173,124 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
     }    
 
-    async function purchaseTicket(_giftAddress) {
-        try {
-            if(_giftAddress) {
-                giftAddress.value = _giftAddress
-            } else {
-                giftTicket.value = false;
+    const startTimer = () => {
+        let timer = 25;  
+        const countdown = setInterval(() => {
+            showTimer.value = true
+            timer--; 
+            loadingMessage.value = `${timer} Seconds!`;
+
+            if (timer <= 0) {
+                clearInterval(countdown);
+                modalLoading.value = false;
+                buyStep.value = 5;
+                showTimer.value = false;
             }
-            loadingMessage.value = "Please confirm the purchase in your wallet"
-            modalLoading.value = true
-            let receiver = getAccount().address
-            if(_giftAddress && _giftAddress.length > 0) {
-                try {
-                    receiver = _giftAddress
-                    const { hash } = await writeContract({
-                    address: activeProduct.value.contractAddress,
-                    abi: ContractABI,
-                    functionName: 'giftScratchTicket',
-                    chainId: 137,
-                    args: [receiver]
-                    })
-                    loadingMessage.value = "Waiting for blockchain confirmation"
-                    await waitForTransaction({ hash })
-                } catch (e) {
-                    if(e.cause.code == 4001) {
+        }, 1000);
+    }
+
+    async function multiBuy(_giftAddress) {
+        if(validatedAmount.value < 2) {
+            return 
+        }
+        let receiver = getAccount().address
+        if(_giftAddress) {
+         giftAddress.value = _giftAddress
+        } else {
+            giftTicket.value = false;
+        }
+        loadingMessage.value = "Please confirm the purchase in your wallet"
+        modalLoading.value = true
+        if(_giftAddress && _giftAddress.length > 0) receiver = _giftAddress
+
+        try {
+            const { hash } = await writeContract({
+            address: activeProduct.value.contractAddress,
+            abi: ContractABI,
+            functionName: 'bulkPurchase',
+            chainId: 137,
+            args: [receiver, validatedAmount.value]
+            })
+            loadingMessage.value = "Waiting for blockchain confirmation"
+            await waitForTransaction({ hash })
+            startTimer()
+        } catch (e) {
+            console.log(e)
+            modalLoading.value = false
+            return 
+        }   
+
+    }
+
+    async function purchaseTicket(_giftAddress) {
+        console.log("PURCHASE TICKET")
+        try {
+
+            if(buyStep.value == 2) {
+
+
+                if(verseAllowance.value >= activeProduct.value.ticketPrice * validatedAmount.value) {
+                    // continue to final step
+                    buyStep.value = 4
+                    return
+                } else {
+                    console.log("NOT ENOUGH ALLOWANCE")
+                    // go back to allowance modal
+                    buyStep.value = 3
+                    return
+                }
+            }
+            
+            if(validatedAmount.value > 1) {
+                multiBuy(_giftAddress)
+            } else {
+                // purchase ticket
+                if(_giftAddress) {
+                giftAddress.value = _giftAddress
+                } else {
+                    giftTicket.value = false;
+                }
+                loadingMessage.value = "Please confirm the purchase in your wallet"
+                modalLoading.value = true
+                let receiver = getAccount().address
+                if(_giftAddress && _giftAddress.length > 0) {
+                    try {
+                        receiver = _giftAddress
+                        const { hash } = await writeContract({
+                        address: activeProduct.value.contractAddress,
+                        abi: ContractABI,
+                        functionName: 'giftScratchTicket',
+                        chainId: 137,
+                        args: [receiver]
+                        })
+                        loadingMessage.value = "Waiting for blockchain confirmation"
+                        await waitForTransaction({ hash })
+                    } catch (e) {
+                        console.log(e)
                         modalLoading.value = false
                         return 
                     }
-                }
-                
-            } else {
-                try {
-                    const { hash } = await writeContract({
-                    address: activeProduct.value.contractAddress,
-                    abi: ContractABI,
-                    functionName: 'buyScratchTicket',
-                    chainId: 137,
-                    args: []
-                    })
-                    loadingMessage.value = "Waiting for blockchain confirmation"
-                    await waitForTransaction({ hash })
-                } catch (e) {
-                    // need to ensure this works because sometimes tx falls through even on confirm
-                    modalLoading.value = false
-                    return 
-                    // if(e.cause.code == -32000) {
-                    //     modalLoading.value = false
-                    //     return 
-                    // }
-                    // // metamask cancel
-                    // if(e.cause.code == 4001) {
-                    //     modalLoading.value = false
-                    //     return 
-                    // }
-                }   
-            }
-            let timer = 25;  
-
-            const countdown = setInterval(() => {
-                showTimer.value = true
-                timer--; 
-                if(giftTicket.value == true) {
-                    loadingMessage.value = `${timer} Seconds!`;
+                    
                 } else {
-                    loadingMessage.value = `${timer} Seconds!`;
+                    try {
+                        const { hash } = await writeContract({
+                        address: activeProduct.value.contractAddress,
+                        abi: ContractABI,
+                        functionName: 'buyScratchTicket',
+                        chainId: 137,
+                        args: []
+                        })
+                        loadingMessage.value = "Waiting for blockchain confirmation"
+                        await waitForTransaction({ hash })
+                    } catch (e) {
+                        console.log(e)
+                        // need to ensure this works because sometimes tx falls through even on confirm
+                        modalLoading.value = false
+                        return 
+                    }   
                 }
-
-                if (timer <= 0) {
-                    clearInterval(countdown);
-                    modalLoading.value = false;
-                    buyStep.value = 4;
-                    showTimer.value = false;
-                }
-            }, 1000);
+                startTimer()
+            }
 
         } catch (e) {
             modalLoading.value = false
@@ -254,8 +311,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             if(data) {
                  let dataString = data.toString()
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
-                 if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value < 3) {
-                    buyStep.value = 3;
+                //  do not automatically update modal
+                 if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value == 3) {
+                    buyStep.value = 4;
                 }
             }
             } catch (e) {
@@ -352,18 +410,30 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         giftTicket.value = !giftTicket.value
     }
 
+    const blurUpdateAmount = (event) => {
+        if(!event.target.value) {
+            purchaseAmount.value = 1;
+        }
+    }
+
+    const updateAmount = (event) => {
+        purchaseAmount.value = event.target.value;
+    }
+
     return {
         getBalance,
         connectAndClose,
         account,
         openModal,
         buyStep,
+        updateAmount,
         priceUsd,
         modal,
         accountActive,
         correctNetwork,
         approve,
         modalActive,
+        purchaseAmount,
         toggleModal,
         modalLoading,
         giftAddress,
@@ -378,6 +448,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         giftTicket,
         ticketInputAddress,
         copyText,
+        validatedAmount,
+        blurUpdateAmount,
         toggleGift,
         onTicketInputChange,
         randomOtherProduct,
@@ -470,7 +542,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="modal-body">
                     <div class="img-verse"></div>
                     <h3 class="title">Not Enough Verse</h3>
-                    <p class="subtext short">You need <span>{{activeProduct.ticketPrice}} VERSE</span> on Polygon in order to purchase a ticket</p>
+                    <p class="subtext short">You need at least <span>{{activeProduct.ticketPrice}} VERSE</span> on Polygon in order to purchase a ticket</p>
 
                     <div class="wallet-balance">
                         <p class="balance-title">WALLET BALANCE</p>
@@ -484,7 +556,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
 
         <!-- allowance modal -->
-        <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
@@ -495,7 +567,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <div class="modal-body">
                 <div class="img-approve"></div>
                 <h3 class="title">Allow the use of VERSE</h3>
-                <p class="subtext">You need to enable the use of at least <span>{{activeProduct.ticketPrice}} VERSE</span>. This is used to pay for your ticket. </p>
+                <p class="subtext">You need to enable the use of at least <span>{{parseInt(activeProduct.ticketPrice) * parseInt(validatedAmount) }} VERSE</span>. This is used to pay for your ticket. </p>
                 <div class="gift-toggle-holder">
                             <h3 class="title">Allow for one transaction only</h3>
                             <label class="switch">
@@ -508,7 +580,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
         </div>
         <!-- purchase modal post approval -->
-        <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
@@ -519,8 +591,22 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <div class="modal-body">
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
-                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
-                <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
+
+                <div class="gift-toggle-holder">
+                    <h3 class="title">Total Tickets</h3>
+                    <div class="input-holder">
+                        <div class="toggler up" @click="purchaseAmount < 50 ? purchaseAmount++ : purchaseAmount">
+                            <i class="icn-plus"></i>
+                        </div>
+                        <input type="number" :value="validatedAmount" @input="updateAmount" @blur="blurUpdateAmount">
+                        <div class="toggler down" @click="purchaseAmount > 1 ? purchaseAmount-- : purchaseAmount">
+                            <i class="icn-min"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
+
                     <h3 class="title">Send ticket as a gift?</h3>
                     <label class="switch">
                     <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
@@ -535,7 +621,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 </div>  
 
                 <div v-if="!giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket()" ><button class="btn verse-wide">Buy a Ticket</button></a>
+                    <a class="" target="_blank" @click="purchaseTicket()" >
+                        <button v-if="validatedAmount == 1" class="btn verse-wide">Buy a Ticket</button>
+                        <button v-if="validatedAmount > 1" class="btn verse-wide">Buy {{validatedAmount }} Tickets</button>
+                    </a>
                 </div>
 
                 <div v-if="giftInputLoad && giftTicket">
@@ -550,8 +639,54 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
         </div>
 
-        <!-- normal finish -->
+                <!-- purchase modal post approval -->
         <div class="modal" v-if="buyStep == 4 && !modalLoading && correctNetwork">
+            <div class="modal-head">
+                <h3 class="title">Buy Ticket</h3>
+                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
+            </div>
+            <div class="modal-divider">
+                <div class="modal-progress p75"></div>
+            </div>  
+            <div class="modal-body">
+                <div class="img-purchase"></div>
+                <h3 class="title">Summary</h3>
+                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
+
+                <table>
+                    <tr>
+                        <td class="key">Ticket Collection</td>
+                        <td class="value">{{ activeProduct.title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="key">Ticket Amount</td>
+                        <td class="value">{{ validatedAmount }}</td>
+                    </tr>
+                    <tr>
+                        <td class="key">Destination Address</td>
+                        <td class="value" v-if="ticketInputAddress">{{ ticketInputAddress.slice(0, 7) }}..</td>
+                        <td class="value" v-if="!ticketInputAddress">{{ getAccount().address.slice(0, 7)}}..</td>
+                    </tr>
+                </table>
+
+
+                <div v-if="!giftTicket">
+                    <a class="" target="_blank" @click="purchaseTicket()" >
+                        <button v-if="validatedAmount == 1" class="btn verse-wide">Complete Purchase</button>
+                        <button v-if="validatedAmount > 1" class="btn verse-wide">Complete Purchase</button>
+                    </a>
+                </div>
+
+                <div v-if="giftInputLoad == false && giftTicket">
+                    <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
+                    <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
+                    <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- normal finish -->
+        <div class="modal" v-if="buyStep == 5 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>

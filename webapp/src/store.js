@@ -41,7 +41,7 @@ const products = [
     {
         id: 2,
         campaign: 'lunar-new-year',
-        contractAddress: '0x6f1153964310d0f9f9edc60d123460e61aad385b',
+        contractAddress: '0x428613714c945bc35a66b31b35e232b5d5548f63',
         ticketPriceString: '22,000',
         bannerLarge: 'url(/lunar/banner-lg.png)',
         cardPreviewLarge: 'url(/lunar/card-preview-lg.png)',
