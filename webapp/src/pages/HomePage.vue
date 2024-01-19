@@ -45,17 +45,17 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let purchaseAmount = ref(1)
 
     const products = computed(() => store.getProducts());
+    const activeProduct = computed(() => store.getProduct())
+    const randomOtherProduct = computed(() => store.getRandomOtherProduct())
     const selectedProductId = computed({
       get: () => store.productId,
       set: (value) => {
         store.updateProduct(value)
         getAllowance()
-        getBalance()
       }
     })
     
-    const activeProduct = computed(() => store.getProduct())
-    const randomOtherProduct = computed(() => store.getRandomOtherProduct())
+
 
     async function getVersePrice() {
         try {
@@ -224,7 +224,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     async function purchaseTicket(_giftAddress) {
-        console.log("PURCHASE TICKET")
         try {
 
             if(buyStep.value == 2) {
@@ -334,16 +333,38 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             if(data) {
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
-                 if(verseBalance.value >= activeProduct.value.ticketPrice && buyStep.value < 2) {
+                
+                 console.log(verseBalance.value)
+                 console.log(activeProduct.value.ticketPrice)
+
+                 if(activeProduct.value.multibuy == false && verseBalance.value < activeProduct.value.ticketPrice) {
+                    buyStep.value = 1;
+                 }
+                 else if(verseBalance.value >= activeProduct.value.ticketPrice && buyStep.value < 2) {
                     buyStep.value = 2;    
                     getAllowance()
                  } 
+            } else {
+                if(activeProduct.value.multibuy == false) {
+                    buyStep.value = 1;
+                }
             }
             } catch (e) {
                 console.log(e)
                 modalLoading.value = false;
             }
     }
+
+    watch(activeProduct, newValue => {
+        if(newValue.multibuy == false && verseBalance.value < 3000) {
+            buyStep.value = 1;
+        } 
+
+        if(newValue.multibuy == true && buyStep.value == 1) {
+            buyStep.value = 2;
+        }
+    })
+
     watchNetwork((network) => {
         if(network.chain && network.chain.id != 137) {
             correctNetwork.value = false
@@ -529,7 +550,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
         </div>
         <!-- modal for purchasing verse -->
-        <!-- <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
             <div>
                 <div class="modal-head">
                     <h3 class="title">Buy Ticket</h3>
@@ -552,7 +573,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
             </div>
-        </div> -->
+        </div>
 
         <!-- allowance modal -->
         <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">

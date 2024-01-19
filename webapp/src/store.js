@@ -119,7 +119,6 @@ export const store = reactive({
   },
   getRandomOtherProduct() {
     let product = products.find(product => product.id !== this.productId)
-    console.log(product, "product")
     return products.find(product => product.id !== this.productId);
   },
   getProductContractAddresses() {
