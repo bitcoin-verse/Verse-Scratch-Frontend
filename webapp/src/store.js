@@ -5,6 +5,7 @@ const DEFAULT_PRODUCT = 1;
 const products = [
     {
         id: 1,
+        multibuy: false,
         campaign: 'default',
         contractAddress: '0x4879372A662a09ce5Fd64CD7523B8F231Ac200f8',
         ticketPriceString: '3,000',
@@ -40,6 +41,7 @@ const products = [
     },
     {
         id: 2,
+        multibuy: true,
         campaign: 'lunar-new-year',
         contractAddress: '0x428613714c945bc35a66b31b35e232b5d5548f63',
         ticketPriceString: '22,000',

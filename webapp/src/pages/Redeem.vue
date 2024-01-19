@@ -203,7 +203,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="modal" v-if="modalLoading">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div>
                         <div class="img-spinner" style="margin-top: 25px"></div>

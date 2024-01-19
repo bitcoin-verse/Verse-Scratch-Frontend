@@ -592,7 +592,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
 
-                <div class="gift-toggle-holder">
+                <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
                     <h3 class="title">Total Tickets</h3>
                     <div class="input-holder">
                         <div class="toggler up" @click="purchaseAmount < 50 ? purchaseAmount++ : purchaseAmount">
@@ -650,15 +650,15 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>  
             <div class="modal-body">
                 <div class="img-purchase"></div>
-                <h3 class="title">Summary</h3>
-                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
+                <h3 class="title">Final Step</h3>
+                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice * validatedAmount}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
 
                 <table>
                     <tr>
                         <td class="key">Ticket Collection</td>
                         <td class="value">{{ activeProduct.title }}</td>
                     </tr>
-                    <tr>
+                    <tr v-if="activeProduct.multibuy">
                         <td class="key">Ticket Amount</td>
                         <td class="value">{{ validatedAmount }}</td>
                     </tr>
@@ -699,7 +699,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="img-success"></div>
                     <!-- gifted ticket delivery -->
                     <div v-if="giftTicket">
-                        <h3 class="title">Ticket Purchased & Gifted!</h3>
+                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased & Gifted!</h3>
                         <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
 
                         <div class="ticketfield">
@@ -707,7 +707,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
                         </div>
-                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy Another Ticket</button></a>
+                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy More Tickets</button></a>
                         <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop"  style="margin-right: 0">View your tickets</button></a>
                     </div>
                     <!-- normal ticket delivery -->
