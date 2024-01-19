@@ -50,6 +50,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       set: (value) => {
         store.updateProduct(value)
         getAllowance()
+        getBalance()
       }
     })
     
@@ -124,7 +125,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     function toggleModal() {
         if(modalActive.value == true) {
             loadingMessage.value = ""
-            buyStep.value = 0;
+            buyStep.value = 2;
             giftTicket.value = false;
             giftAddress.value == ""
             getBalance()
@@ -227,8 +228,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         try {
 
             if(buyStep.value == 2) {
-
-
                 if(verseAllowance.value >= activeProduct.value.ticketPrice * validatedAmount.value) {
                     // continue to final step
                     buyStep.value = 4
@@ -365,8 +364,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
         if(getAccount().address &&  getAccount().address.length != undefined) {
             accountActive.value = true;
-            if(buyStep.value < 1) {
-                buyStep.value = 1;
+            if(buyStep.value < 2) {
+                buyStep.value = 2;
             }
 
             if(reopenAfterConnection.value == true) {
@@ -530,7 +529,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
         </div>
         <!-- modal for purchasing verse -->
-        <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
+        <!-- <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
             <div>
                 <div class="modal-head">
                     <h3 class="title">Buy Ticket</h3>
@@ -553,7 +552,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- allowance modal -->
         <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
