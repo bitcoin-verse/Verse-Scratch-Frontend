@@ -33,7 +33,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let singleTransactionApproval = ref(false)
     let giftInputLoad = ref(false)
     let giftAddress = ref("");
-    let modalLoading = ref(true)
+    let modalLoading = ref(false)
     let loadingMessage = ref("getting wallet data")
     let buyStep = ref(0) 
     let giftTicket = ref(false); 
@@ -55,8 +55,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       }
     })
     
-
-
     async function getVersePrice() {
         try {
             let res = await axios.get("https://markets.api.bitcoin.com/coin/data?c=VERSE")
@@ -129,7 +127,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             giftTicket.value = false;
             giftAddress.value == ""
             getBalance()
-        }
+        } 
         modalActive.value = !modalActive.value;
     }
 
@@ -138,7 +136,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     if(search.get("purchase-intent") == "true") {
         toggleModal()
-        console.log("OPEN INTENT")
         search.delete("purchase-intent");
         window.history.replaceState({}, '', `${window.location.pathname}`);
     }
@@ -372,8 +369,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             correctNetwork.value = true
         }
     })
-    watchAccount(async () => {
-        
+    watchAccount(async (account) => {
         if(!currentAccountAddress.value) {
             currentAccountAddress.value = getAccount().address
         }
@@ -383,7 +379,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             }
         }
 
-        if(getAccount().address &&  getAccount().address.length != undefined) {
+        if(account.isConnected == true) {
+            console.log("HOME ACOUNT  ACTIVE")
             accountActive.value = true;
             if(buyStep.value < 2) {
                 buyStep.value = 2;
@@ -395,6 +392,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             }
             getBalance();
         } else {
+
+            console.log("HOME ACOUNT NOT ACTIVE")
             accountActive.value = false
             buyStep.value = 0;
         }
@@ -611,6 +610,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <div class="modal-body">
                 <div class="img-purchase"></div>
                 <h3 class="title">Buy Ticket</h3>
+                <p v-if="activeProduct.multibuy" style="color: #899BB5; font-weight: 600; margin-top: 0; font-size: 17px; font-family: 'Barlow'; font-weight: 500;">BALANCE: {{ verseBalance.toFixed(0) || 0 }} VERSE</p>
 
                 <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
                     <h3 class="title">Total Tickets</h3>
@@ -626,36 +626,50 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 </div>
 
                 <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
-
                     <h3 class="title">Send ticket as a gift?</h3>
                     <label class="switch">
                     <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
                         <span class="slider round"></span>
                     </label>
                 </div>
+
                 <div class="gift-toggle-holder-bottom" v-if="giftTicket">
-                    <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
-                    <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
-                    <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
-                    <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
-                </div>  
+                        <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
+                        <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
+                        <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
+                        <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
+                    </div>  
 
-                <div v-if="!giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket()" >
-                        <button v-if="validatedAmount == 1" class="btn verse-wide">Buy a Ticket</button>
-                        <button v-if="validatedAmount > 1" class="btn verse-wide">Buy {{validatedAmount }} Tickets</button>
-                    </a>
+                <!-- enough balance -->
+                <div v-if="verseBalance >= validatedAmount * activeProduct.ticketPrice">
+                    <div v-if="!giftTicket">
+                        <a class="" target="_blank" @click="purchaseTicket()" >
+                            <button v-if="validatedAmount == 1" class="btn verse-wide">Buy a Ticket</button>
+                            <button v-if="validatedAmount > 1" class="btn verse-wide">Buy {{validatedAmount }} Tickets</button>
+                        </a>
+                    </div>
+
+                    <div v-if="giftInputLoad && giftTicket">
+                        <a class="" target="_blank" ><button class="btn verse-wide disabled">Checking Address</button></a>
+                    </div>
+
+                    <div v-if="giftInputLoad == false && giftTicket">
+                        <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
+                        <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
+                        <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
+                    </div>
                 </div>
 
-                <div v-if="giftInputLoad && giftTicket">
-                    <a class="" target="_blank" ><button class="btn verse-wide disabled">Checking Address</button></a>
+                 <!-- not enough balance -->
+                <div v-if="verseBalance < validatedAmount * activeProduct.ticketPrice">
+                    <p class="warning-balance">You do not have the amount required ({{ validatedAmount * activeProduct.ticketPrice }} VERSE) to complete this order. </p>
+
+                    <br>
+                    
+                    <button v-if="validatedAmount == 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy a Ticket</button>
+                    <button v-if="validatedAmount > 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy {{validatedAmount }} Tickets</button>
                 </div>
 
-                <div v-if="giftInputLoad == false && giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
-                    <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
-                    <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
-                </div>
             </div>
         </div>
 
@@ -819,6 +833,18 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 </template>
 
 <style lang="scss" scoped>
+.warning-balance {
+    color: orange!important;
+    margin-top: 20px;
+    font-weight: 400;
+    margin-bottom: 0;
+    padding-left: 20px;
+    padding-right: 20px;
+    @media(max-width: 880px) {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
 .divider {
     position: absolute;
     left: 0;

@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 
-const DEFAULT_PRODUCT = 1;
+const DEFAULT_PRODUCT_NAME = 'lunar-new-year';
 const products = [
     {
         id: 1,
@@ -91,28 +91,43 @@ const initProduct = () => {
   const urlParams = new URLSearchParams(window.location.search);;
   const campaign = urlParams.get('campaign');
   urlParams.delete("campaign");
-  window.history.replaceState({}, '', `${window.location.pathname}`);
 
-
-  let product = products.find(product => product.campaign === campaign);
-
-   if(product && product.id) {
-      updateMetaData(product)
-      return product.id 
-   } else {
-    let activeProduct = localStorage.getItem('collection') || DEFAULT_PRODUCT
-    let product = products.find(product => product.id === parseInt(activeProduct));
+  // campaign is set in url
+  if(campaign) {
+    localStorage.setItem('collection', campaign)
+    let product = products.find(product => product.campaign === campaign);
+    updateMetaData(product)
+    return product.id 
+  } 
+  // campaign is not set in url
+  else {
+    let product = {}
+    if(localStorage.getItem('collection') == null) {
+      product = products.find(product => product.campaign === DEFAULT_PRODUCT_NAME);
+    } 
+    else {
+      let activeProduct = localStorage.getItem('collection') != 'null' ? localStorage.getItem('collection') : DEFAULT_PRODUCT_NAME
+      product = products.find(product => product.campaign === activeProduct);
+      // if active campaign is no longer available
+      if(!product) {
+        product = products.find(product => product.campaign === DEFAULT_PRODUCT_NAME);
+        localStorage.setItem('collection', DEFAULT_PRODUCT_NAME)
+      }
+    }
 
     updateMetaData(product)
-     return parseInt(product.id)
-   }
+    return parseInt(product.id)
+  }
 }
+
+
 
 export const store = reactive({
   productId: initProduct(), // default product
   updateProduct(value) {
     this.productId = value
-    localStorage.setItem('collection', value)
+    let product = products.find(product => product.id === value);
+    localStorage.setItem('collection', product.campaign)
   },
   getProduct() {
     return products.find(product => product.id === this.productId);

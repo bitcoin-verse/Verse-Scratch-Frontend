@@ -53,8 +53,10 @@ export default {
                 blockchain: 'MATIC',
             })
         } else {
+            console.log("account not active")
             accountActive.value = false
         }
+        console.log(account)
         connectedProvider.value = account.connector.name.toLowerCase()
     })
 
