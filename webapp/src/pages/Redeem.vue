@@ -158,7 +158,7 @@ onMounted(() => {
 <template>
     <div class="backdrop" v-if="modalTutorial || winModal || modalLoading || modalFinish">
         <div class="modal" v-if="modalTutorial && !winModal && !modalFinish && !modalLoading">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>

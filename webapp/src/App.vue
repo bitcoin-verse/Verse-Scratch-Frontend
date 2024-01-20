@@ -516,7 +516,7 @@ i.close-btn {
             height: 30px;
             position: absolute;
             background-size: cover;
-            left: 3px;
+            left: 4px;
             top: 2px;
           }
           .icn-plus {
@@ -524,7 +524,7 @@ i.close-btn {
             width: 30px;
             height: 30px;
             top: 2px;
-            right: 3px;
+            right: 4px;
             position: absolute;
             background-size: cover;
           }
@@ -539,13 +539,15 @@ i.close-btn {
             right: 16px;
             top: 10px;
             width: 120px;
+            height: 35px;
 
             .toggler {
               position: absolute;
-              height: 35px;
+              height: 100%;
               cursor: pointer;
               width: 50px;
               background: #425472;
+              
               &.up {
                 border-top-right-radius: 9px;
                 border-bottom-right-radius: 9px;
@@ -578,16 +580,19 @@ i.close-btn {
               outline: none;
               color: white;
               font-family: Barlow;
-              font-size: 16px;
+              font-size: 13px;
               font-weight: 600;
-              letter-spacing: 0em;
               text-align: center;
               z-index: 5;
               position: relative;
               width: 45px;
               border-color: none;
-              height: 31px;
+              height: calc(100% - 2px);
               border-radius: 9px;
+              padding: 0;
+              @media(max-width: 880px) {
+                font-weight: 800;
+              }
             }
           }
           background-color: #252D40;

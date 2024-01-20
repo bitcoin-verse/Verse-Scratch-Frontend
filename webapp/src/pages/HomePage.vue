@@ -609,8 +609,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>  
             <div class="modal-body">
                 <div class="img-purchase"></div>
-                <h3 class="title">Buy Ticket</h3>
-                <p v-if="activeProduct.multibuy" style="color: #899BB5; font-weight: 600; margin-top: 0; font-size: 17px; font-family: 'Barlow'; font-weight: 500;">BALANCE: {{ verseBalance.toFixed(0) || 0 }} VERSE</p>
+                <h3 class="title">Buy Ticket<span v-if="activeProduct.multibuy">s</span></h3>
+                <p v-if="activeProduct.multibuy" class="balance-purchase">AVAILABLE BALANCE: {{ verseBalance.toFixed(0) || 0 }} VERSE</p>
 
                 <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
                     <h3 class="title">Total Tickets</h3>
@@ -626,7 +626,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 </div>
 
                 <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
-                    <h3 class="title">Send ticket as a gift?</h3>
+                    <h3 class="title">Send ticket<span v-if="purchaseAmount > 1">s</span> as a gift?</h3>
                     <label class="switch">
                     <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
                         <span class="slider round"></span>
@@ -659,7 +659,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
                     </div>
                 </div>
-
+                
                  <!-- not enough balance -->
                 <div v-if="verseBalance < validatedAmount * activeProduct.ticketPrice">
                     <p class="warning-balance">You do not have the amount required ({{ validatedAmount * activeProduct.ticketPrice }} VERSE) to complete this order. </p>
@@ -746,9 +746,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     </div>
                     <!-- normal ticket delivery -->
                     <div v-if="!giftTicket">
-                        <h3 class="title">Ticket Purchased!</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket and test your luck!</p>
-                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket</button></a>
+                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased!</h3>
+                        <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket<span style="color: #899BB5" v-if="validatedAmount > 1">s</span> and test your luck!</p>
+                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket<span v-if="validatedAmount > 1">s</span></button></a>
                     </div>
                 </div>
             </div>
@@ -844,6 +844,18 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         padding-left: 0;
         padding-right: 0;
     }
+}
+
+.balance-purchase {
+    color: white;
+    font-weight: 500;
+    margin-top: 0px;
+    font-size: 15px;
+    font-family: Barlow;
+    background-color: #05111c;
+    border: 1px solid #273953;
+    border-radius: 10px;
+    padding: 20px;
 }
 .divider {
     position: absolute;
