@@ -580,7 +580,6 @@ i.close-btn {
               font-family: Barlow;
               font-size: 16px;
               font-weight: 600;
-              line-height: 19px;
               letter-spacing: 0em;
               text-align: center;
               z-index: 5;
