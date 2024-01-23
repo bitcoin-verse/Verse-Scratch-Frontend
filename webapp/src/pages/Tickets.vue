@@ -153,7 +153,7 @@ export default {
                 })
                 
                 if(data) {
-                    const objToUpdate = nfts.value.find(obj => obj.id == id);
+                    const objToUpdate = nfts.value.find(obj => obj.id == id && obj.address == address);
                     if (objToUpdate) {
                         objToUpdate.claimed = data;
                         
@@ -174,8 +174,9 @@ export default {
                 functionName: 'editions',
                 args: [id]
                 })
+                
                 if(data.toString().length > 0) {
-                    const objToUpdate = nfts.value.find(obj => obj.id == id);
+                    const objToUpdate = nfts.value.find(obj => obj.id == id && obj.address == address);
                     if (objToUpdate) {
                         objToUpdate.edition = parseInt(data);
                     }
@@ -195,7 +196,7 @@ export default {
                     args: [id]
                 })
                 if(data) {
-                    const objToUpdate = nfts.value.find(obj => obj.id == id);
+                    const objToUpdate = nfts.value.find(obj => obj.id == id && obj.address == address);
                     if (objToUpdate) {
                         objToUpdate.prize = Web3.utils.fromWei(data, 'ether');
                     }
@@ -239,7 +240,8 @@ export default {
         }
 
         const ticketList = computed(() => {
-            let arr = nfts.value.toReversed().map(nft => nft)
+
+            let arr = nfts.value.map(nft => nft).reverse()
 
             if(selectedFilterOption.value != "") {
                 arr = arr.filter((item) => item.address == selectedFilterOption.value)
@@ -248,7 +250,6 @@ export default {
             if(filterClaimed.value === true) {
                 arr = arr.filter(item => !item.claimed)
             } 
-
             return arr
         })
 
@@ -280,7 +281,7 @@ export default {
                 let dataConcat = []
                 promiseResult.forEach((data, idx) => {
                     data.forEach(item => {
-                        console.log(item)
+
                         dataConcat.push({item, address: contract[idx], bucketUrl: bucketUrls[idx]})
                     })
                 })
@@ -303,7 +304,8 @@ export default {
                         promiseArray.push(promiseArray.push(getEdition(nft.id, nft.address)))
                         promiseArray.push(promiseArray.push(getPrizeAmount(nft.id,nft.address)))
                     })
-                    await Promise.all(promiseArray)
+
+                    let res = await Promise.all(promiseArray)
                     loading.value = false;
                 }
             } catch (e) {
@@ -405,7 +407,6 @@ export default {
                 <h5>No tickets found in connected wallet</h5>
             </div>
             <div class="ticket" v-for="item, index in ticketList">
-
                 <h3 class="title">Ticket {{item.id}} </h3>
 
                 <p class="status" v-if="item.claimed == false && item.scratched == true">
@@ -417,6 +418,7 @@ export default {
                 <p class="status" v-if="item.claimed == true">
                     Claimed Ticket
                 </p>
+
 
                 <div v-if="item.claimed == false">
                     <img class="mobreset" v-if="item.scratched == false" :src="'/templates/' + item.address + '/' + item.edition + '.png'">
@@ -441,7 +443,9 @@ export default {
                 </select>
                 <i class="chev-down"></i>
             </div>
+        <div class="hide-mobile">
         <Footer v-if="!loading" />
+        </div>            
     </div>
 </template>
         
@@ -449,6 +453,11 @@ export default {
 
 
 <style lang="scss" scoped>
+.hide-mobile {
+    @media(max-width: 880px) {
+        display: none;
+    }
+}
 .collection-picker {
     padding: 10px;
     .collection {
@@ -545,12 +554,12 @@ export default {
 }
 .filter-mobile {
     left: 13px;
-    bottom: 20px;
     height: 50px;
     width: calc(100% - 20px);
-    position: relative;
-    top: -305px;
+    position: fixed;
+    bottom: 0;
     display: none;
+
     @media(max-width: 880px) {
      display: block;
     }
