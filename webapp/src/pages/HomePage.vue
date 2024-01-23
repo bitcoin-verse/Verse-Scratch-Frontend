@@ -167,6 +167,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
              await waitForTransaction({ hash })
              getAllowance()
         } catch (e) {
+            console.log(e)
             modalLoading.value = false
         }
     }    
@@ -605,7 +606,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
             </div>
             <div class="modal-divider">
-                <div class="modal-progress p75"></div>
+                <div v-if="!activeProduct.multibuy" class="modal-progress p75"></div>
+                <div v-if="activeProduct.multibuy" class="modal-progress p25"></div>
             </div>  
             <div class="modal-body">
                 <div class="img-purchase"></div>

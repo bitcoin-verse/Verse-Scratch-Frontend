@@ -302,6 +302,16 @@ i.close-btn {
       }
 
       .modal-body {
+        &.collection {
+          padding-top: 10px;
+          h3.title {
+           
+          }
+          @media(max-width: 880px) {
+            padding: 4px;
+            padding-top: 10px;
+          }
+        }
         table {
           padding: 20px;
           border-radius: 10px;

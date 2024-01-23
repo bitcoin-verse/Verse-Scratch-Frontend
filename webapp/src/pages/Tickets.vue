@@ -21,6 +21,7 @@ export default {
         
         const route = useRoute()
         const contractAddresses = computed(() => store.getProductContractAddresses())
+        const products = computed(() => store.getProducts())
         let list = []
         let account = getAccount()
         let accountActive = ref(false)
@@ -28,6 +29,7 @@ export default {
         let modal = useWeb3Modal()
         let claimNow = ref(false)
 
+        let newTicketModal = ref(false)
         let winModal = ref(false)
         let giftModal = ref(false)
         let filterClaimed = ref(localStorage.getItem("filterClaimed") === 'true' ? true : false)
@@ -38,6 +40,7 @@ export default {
         let claimActive = ref(false)
         let modalLoading = ref(false)
 
+        let selectedFilterOption = ref("")
         let openDetail = ref(false);
         let detailNFT = ref({});
 
@@ -236,11 +239,17 @@ export default {
         }
 
         const ticketList = computed(() => {
-            if(filterClaimed.value === true) {
-                return nfts.value.filter(item => !item.claimed).toReversed()
-            } else {
-                return nfts.value.toReversed()
+            let arr = nfts.value.toReversed().map(nft => nft)
+
+            if(selectedFilterOption.value != "") {
+                arr = arr.filter((item) => item.address == selectedFilterOption.value)
             }
+
+            if(filterClaimed.value === true) {
+                arr = arr.filter(item => !item.claimed)
+            } 
+
+            return arr
         })
 
         
@@ -271,6 +280,7 @@ export default {
                 let dataConcat = []
                 promiseResult.forEach((data, idx) => {
                     data.forEach(item => {
+                        console.log(item)
                         dataConcat.push({item, address: contract[idx], bucketUrl: bucketUrls[idx]})
                     })
                 })
@@ -303,14 +313,43 @@ export default {
         }   
 
         return {
-            list, nfts, account, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, newTicketModal, products, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
 </script>
 
 <template>
-    <div class="backdrop" v-if="claimActive || giftModal">
+    <div class="backdrop" v-if="claimActive || giftModal || newTicketModal">
+                
+        <div class="modal" v-if="newTicketModal">
+            <div class="modal-head">
+                <h3 class="title">Buy Ticket</h3>
+                <p class="iholder"><i @click="newTicketModal = false" class="close-btn" ></i></p>
+            </div>
+            <div class="modal-divider">
+                <div class="modal-progress p25"></div>
+            </div>  
+            <div class="modal-body collection">
+                <h3 class="title">Choose a collection</h3>
+                <div class="collection-picker">
+                    <div class="collection" v-for="item in products" :style="`background-image: ${item.bannerLarge}`">
+                        <h2>{{ item.title.toUpperCase() }}</h2>
+                        <div class="overview">
+                            <div class="left" :style="`background-color: ${item.jackpotBoxColorOne}`">
+                                <h3 :style="`color: ${item.jackpotBoxColorOneTitle}`">JACKPOT</h3>
+                                <h5>{{ item.jackpotString }} VERSE</h5>
+                            </div>
+                            <div class="right" :style="`background-color: ${item.jackpotBoxColorOne}`">
+                                <h3 :style="`color: ${item.jackpotBoxColorOneTitle}`">PRICE PER TICKET</h3>
+                                <h5>{{ item.ticketPriceString }} VERSE</h5>
+                            </div>
+                        </div>
+                        <a :href="`/?campaign=${item.campaign}&purchase-intent=true`"><button class="btn-select-col" :style="`background-color: ${item.homeLinkColor}`">Buy From This Collection</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- gift-->
         <div class="modal" v-if="giftModal">
             <div class="modal-head">
@@ -335,14 +374,22 @@ export default {
     <div class="page" v-if="!openDetail">
         <div class="head">
             <h2 class="tickhead">My Tickets
-                <div class="ticket-check">
+                <div class="ticket-check clearfix">
                     <p>
                     <label class="switch">
                     <input type="checkbox" :checked="filterClaimed" v-on:change="toggleFilterClaimed">
                         <span class="slider round"></span>
                     </label>Hide Claimed Tickets</p>
+
+                    <div class="filter">
+                        <select v-model="selectedFilterOption">
+                            <option value="">All Collections</option>
+                            <option v-for="item in products" :value="item.contractAddress">{{ item.title }}</option>
+                        </select>
+                        <i class="chev-down"></i>
+                    </div>
                 </div>  
-                <a href="/?purchase-intent=true"><button class="btn verse-wide" href="">Buy Ticket</button></a>
+                <a @click="newTicketModal= true"><button class="btn verse-wide" href="">Buy Ticket</button></a>
             </h2>
 
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
@@ -385,15 +432,214 @@ export default {
                 <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >{{item.prize}} VERSE Claimed</button>
             </div>
         </div>
+
         </div>
+        <div class="filter-mobile" v-if="!loading">
+                <select v-model="selectedFilterOption">
+                    <option value="">All Collections</option>
+                    <option v-for="item in products" :value="item.contractAddress">{{ item.title }}</option>
+                </select>
+                <i class="chev-down"></i>
+            </div>
         <Footer v-if="!loading" />
     </div>
 </template>
         
 
 
-<style lang="scss" scoped>
 
+<style lang="scss" scoped>
+.collection-picker {
+    padding: 10px;
+    .collection {
+        .btn-select-col {
+            position: absolute;
+            bottom: 20px;
+            width: 68%;
+            border: none;
+            height: 36px;
+            cursor: pointer;
+            border-radius: 20px;
+            color: white;
+            left: 0;
+            font-weight: 500;
+            font-family: 'Barlow';
+            margin-left: 16%;
+            font-size: 14px;
+        }
+        .overview {
+            width: 100%;
+            position: absolute;
+            top: 50px;
+            .left {
+                @media(max-width: 880px) {
+                    width: 45%;
+                    margin-left: 5%;
+                }
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+                float: left;
+                margin-left: 15%;
+                width: 34%;
+                margin-right: 2px;
+                height: 70px;
+                h3 {
+                    margin-top: 16px;
+                    margin-bottom: 0;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                h5 {
+                    margin-top: 3px;
+                    color: white;
+                    font-size: 16px;
+                    text-align: center;
+                    text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
+                }
+
+            }
+            .right {
+                @media(max-width: 880px) {
+                    width: 45%;
+                }
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+                float: left;
+                width: 34%;
+                height: 70px;
+                h3 {
+                    margin-top: 16px;
+                    margin-bottom: 0;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                h5 {
+                    margin-top: 3px;
+                    color: white;
+                    font-size: 16px;
+                    text-align: center;
+                    text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
+                }
+            }
+        }
+        width: 100%;
+        margin-top: 15px;
+        height: 190px;
+        border-radius: 10px;
+        position: relative;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position-y: -10px;
+        border: 1px solid #273953;
+        
+        h2 {
+            color: white;
+            position: absolute;
+            top: 3px;
+            width: 100%;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+    }
+}
+.filter-mobile {
+    left: 13px;
+    bottom: 20px;
+    height: 50px;
+    width: calc(100% - 20px);
+    position: relative;
+    top: -305px;
+    display: none;
+    @media(max-width: 880px) {
+     display: block;
+    }
+
+    select {
+        padding-left: 12px;
+        font-size: 13px;
+        padding-top: 0px;
+        width: 100%;
+        height: 35px;
+        text-align: left;
+        background-color: #0f1823;
+        border: 1px solid #23303c;
+        color: white;
+        outline: none;
+        border-radius: 20px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+    }
+    select::-ms-expand {
+        display: none;
+    }
+    i.chev-down {
+        background-image: url("../assets/icons/chev-down.png");
+        width: 12px;
+        height: 12px;
+        display: block;
+        background-size: cover;
+        position: absolute;
+        z-index: 0;
+        z-index: 2;
+        right: 100px;
+        pointer-events: none;
+        top: 12px;
+        @media(max-width: 880px) {
+            right: 15px;
+        }
+    }
+
+}
+.filter {
+    margin-top: 20px;
+    float: right;
+    position: relative;
+    @media(max-width: 880px) {
+        display: none;
+    }
+    select {
+        padding-left: 12px;
+        font-size: 13px;
+        padding-top: 0px;
+        width: 160px;
+        height: 35px;
+        text-align: left;
+        margin-right: 82px;
+        background-color: #0f1823;
+        border: 1px solid #23303c;
+        color: white;
+        outline: none;
+        border-radius: 20px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        @media(max-width: 880px) {
+            margin-right: 21px;
+        }
+
+    }
+    select::-ms-expand {
+        display: none;
+    }
+    i.chev-down {
+        background-image: url("../assets/icons/chev-down.png");
+        width: 12px;
+        height: 12px;
+        display: block;
+        background-size: cover;
+        position: absolute;
+        z-index: 0;
+        z-index: 2;
+        right: 100px;
+        pointer-events: none;
+        top: 14px;
+        @media(max-width: 880px) {
+            right: 35px;
+        }
+    }
+
+}
 @keyframes pulse {
   0% {
     box-shadow: 0px -1px 10px 0px #0AADF5;
@@ -435,6 +681,12 @@ export default {
     }
 }
 .ticket-wrapper {
+      &::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 0;
+        height: 0;
+        display: none!important;
+    }
     @media(max-width: 880px) {
         padding: 13px;
         min-height: calc(100vh - 60px);
@@ -516,6 +768,11 @@ export default {
         font-size: 13px;
         font-weight: 200;
         margin-top: 30px;
+        width: 50%;
+        float: left;
+        @media(max-width: 880px) {
+            width: 100%;
+        }
         label.switch {
             padding-top: -50px;
             margin-right: 12px;
@@ -547,7 +804,7 @@ export default {
     }
     button {
         position: absolute;
-        right: 25px;
+        right: 85px;
         font-size: 14px;
         top: -20px;
         width: 115px;
