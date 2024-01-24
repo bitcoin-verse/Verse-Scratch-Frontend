@@ -385,13 +385,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
     })
     watchAccount(async (account) => {
-        // FORCE UNLOAD WALLETCONNECT
-        if(account && account.connector && account.connector.name == "WalletConnect") {
-            if(sessionStorage.getItem("localStatus") !== "wiped") {
-                disconnect()
-            sessionStorage.setItem("localStatus", "wiped");
-            }
-        }
 
         if(!currentAccountAddress.value) {
             currentAccountAddress.value = getAccount().address
