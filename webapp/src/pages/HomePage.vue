@@ -230,8 +230,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     buyStep.value = 4
                     return
                 } else {
-                    console.log("NOT ENOUGH ALLOWANCE")
-                    // go back to allowance modal
                     buyStep.value = 3
                     return
                 }
@@ -331,9 +329,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             if(data) {
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
-                
-                 console.log(verseBalance.value)
-                 console.log(activeProduct.value.ticketPrice)
+            
 
                  if(activeProduct.value.multibuy == false && verseBalance.value < activeProduct.value.ticketPrice) {
                     buyStep.value = 1;
@@ -381,7 +377,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
 
         if(account.isConnected == true) {
-            console.log("HOME ACOUNT  ACTIVE")
+            console.log("HOME ACOUNT ACTIVE")
             accountActive.value = true;
             if(buyStep.value < 2) {
                 buyStep.value = 2;
@@ -393,7 +389,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             }
             getBalance();
         } else {
-
             console.log("HOME ACOUNT NOT ACTIVE")
             accountActive.value = false
             buyStep.value = 0;

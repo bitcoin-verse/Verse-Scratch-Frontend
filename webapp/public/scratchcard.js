@@ -140,7 +140,6 @@ ScratchCard.prototype.draw = function (x, y, isDown) {
   this.lastX = x;
   this.lastY = y;
 
-  console.log(x, y);
   // Calculate the amount of cleared pixels
   var clearedPixels = this.calcPixels(25);
   this.clearPercentage(clearedPixels);
@@ -192,7 +191,6 @@ img.onload = () => {
   // gradient.addColorStop(1, '#CF11EE'); // Light grey at the end
 
   // this.ctx.fillStyle = gradient;
-  console.log(this.ctx.canvas.width)
   this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   };
 }

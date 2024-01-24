@@ -107,7 +107,6 @@ onMounted(() => {
         modalTutorial.value = false
     }
     const img = new Image();
-    console.log(props.detailNFT.address)
     img.src = `https://${props.detailNFT.bucketUrl}.s3.amazonaws.com/${props.detailNFT.id}/${props.detailNFT.address}.jpg`
     img.onload = () => {
         setTimeout(() => {
@@ -115,7 +114,7 @@ onMounted(() => {
             setupScratch()
             }
             imageLoaded.value = true;    
-        }, 500)   
+        }, 800)   
     };
 
     function setupScratch() {
