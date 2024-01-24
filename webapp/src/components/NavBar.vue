@@ -56,8 +56,8 @@ export default {
             console.log("account not active")
             accountActive.value = false
         }
-        console.log(account)
         connectedProvider.value = account.connector.name.toLowerCase()
+        console.log(connectedProvider)
     })
 
         return { account, isWallet, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
@@ -178,6 +178,22 @@ export default {
             background-image: url("./../assets/icons/mm-logo.png");
             right: 5.3px;
             top: 4.5px;
+        }
+        &.rabby {
+            width: 26px;
+            height: 22px;
+            border-radius: 0;
+            top: -5px;
+            right: -5px;
+            border-radius: 50%;
+            background-image: url("./../assets/icons/rabby.png");
+            background-size: cover;
+            @media(max-width: 880px) {
+                width: 28px;
+                height: 28px;
+                top: 4.5px;
+                right: 4.3px;
+            }
         }
     }
     &:hover {
