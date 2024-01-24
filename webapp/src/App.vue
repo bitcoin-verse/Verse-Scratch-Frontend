@@ -2,7 +2,7 @@
 
 import { RouterView } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
-import { configureChains, createConfig } from '@wagmi/core'
+import { configureChains, createConfig, disconnect, watchAccount } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
 import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
@@ -40,6 +40,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     }),
   ],
 )
+
 
 
 const metadata = {
@@ -85,6 +86,7 @@ const wagmiConfig = createConfig({
   publicClient,
   webSocketPublicClient,
 })
+
 
 initAmplitude()
 logAmplitudeEvent({

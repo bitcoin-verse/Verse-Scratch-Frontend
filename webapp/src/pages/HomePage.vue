@@ -1,5 +1,5 @@
 <script>
-import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
+import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, disconnect, watchAccount, watchNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref, computed, watch, registerRuntimeCompiler } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
@@ -385,6 +385,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
     })
     watchAccount(async (account) => {
+        // FORCE UNLOAD WALLETCONNECT
+        if(account && account.connector && account.connector.name == "WalletConnect") {
+            if(sessionStorage.getItem("localStatus") !== "wiped") {
+                disconnect()
+            sessionStorage.setItem("localStatus", "wiped");
+            }
+        }
+
         if(!currentAccountAddress.value) {
             currentAccountAddress.value = getAccount().address
         }
