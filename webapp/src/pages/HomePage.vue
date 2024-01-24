@@ -51,7 +51,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       get: () => store.productId,
       set: (value) => {
         store.updateProduct(value)
-        getAllowance()
       }
     })
     
@@ -224,7 +223,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     async function purchaseTicket(_giftAddress) {
         try {
 
+   
             if(buyStep.value == 2) {
+                console.log(verseAllowance.value, "allowance")
                 if(verseAllowance.value >= activeProduct.value.ticketPrice * validatedAmount.value) {
                     // continue to final step
                     buyStep.value = 4
@@ -302,13 +303,27 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             })
             modalLoading.value = false;
 
+
             if(data) {
+
                  let dataString = data.toString()
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
+
                 //  do not automatically update modal
-                 if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value == 3) {
-                    buyStep.value = 4;
+                if(activeProduct.multibuy) {
+                    // if user is on the approval screen, and allowance is accepted, go to final screen
+                    if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value == 3) {
+                        buyStep.value = 4;
+                    }
+                } else {
+                    // non multibuy
+                    // if on approval screen, approval just happened, go to next screen
+                    if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value > 2) {
+                        buyStep.value = 4
+                    }
                 }
+            } else {
+                verseAllowance.value = 0
             }
             } catch (e) {
                 console.log(e)
@@ -329,6 +344,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             if(data) {
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
+                 getAllowance()
             
 
                  if(activeProduct.value.multibuy == false && verseBalance.value < activeProduct.value.ticketPrice) {
@@ -336,7 +352,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                  }
                  else if(verseBalance.value >= activeProduct.value.ticketPrice && buyStep.value < 2) {
                     buyStep.value = 2;    
-                    getAllowance()
                  } 
             } else {
                 if(activeProduct.value.multibuy == false) {
@@ -350,6 +365,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     watch(activeProduct, newValue => {
+        getAllowance()
+        purchaseAmount.value = 1
+
         if(newValue.multibuy == false && verseBalance.value < 3000) {
             buyStep.value = 1;
         } 

@@ -17,8 +17,7 @@ export default {
         Redeem,
         Footer,
     },  
-    setup() {
-        
+    setup() {        
         const route = useRoute()
         const contractAddresses = computed(() => store.getProductContractAddresses())
         const products = computed(() => store.getProducts())
@@ -44,6 +43,14 @@ export default {
         let openDetail = ref(false);
         let detailNFT = ref({});
 
+
+        // entry point to watch account
+        if(getAccount().address &&  getAccount().address.length != undefined) {
+            accountActive.value = true;
+            getTicketIds()
+        } else {
+            accountActive.value = false
+        }
 
         if(route.query.gift && route.query.address && route.query.gift.length > 0 && route.query.address.length > 0) {
             disconnect()
@@ -82,6 +89,7 @@ export default {
         }
 
         watchAccount(async () => {
+            console.log("TEST")
             if(getAccount().address &&  getAccount().address.length != undefined) {
                 accountActive.value = true;
                 getTicketIds()
@@ -391,7 +399,7 @@ export default {
                         <i class="chev-down"></i>
                     </div>
                 </div>  
-                <a @click="newTicketModal= true"><button class="btn verse-wide" href="">Buy Ticket</button></a>
+                <a @click="newTicketModal= true" ><button class="btn verse-wide" >Buy Ticket</button></a>
             </h2>
 
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>
