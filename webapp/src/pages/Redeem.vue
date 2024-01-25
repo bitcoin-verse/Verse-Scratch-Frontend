@@ -209,7 +209,7 @@ onMounted(() => {
                     <div>
                         <div class="img-spinner" style="margin-top: 25px"></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
-                        <a target="_blank" style="color: #d4d2ec; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">view blockchain transaction</a>
+                        <a target="_blank" style="color: #0085FF; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                     </div>
                 </div>
             </div>
