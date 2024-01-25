@@ -89,7 +89,6 @@ export default {
         }
 
         watchAccount(async () => {
-            console.log("TEST")
             if(getAccount().address &&  getAccount().address.length != undefined) {
                 accountActive.value = true;
                 getTicketIds()
@@ -343,7 +342,7 @@ export default {
             <div class="modal-body collection">
                 <h3 class="title">Choose a collection</h3>
                 <div class="collection-picker">
-                    <div class="collection" v-for="item in products" :style="`background-image: ${item.bannerLarge}`">
+                    <div class="collection" v-for="item in products.reverse()" :style="`background-image: ${item.bannerLarge}`">
                         <h2>{{ item.title.toUpperCase() }}</h2>
                         <div class="overview">
                             <div class="left" :style="`background-color: ${item.jackpotBoxColorOne}`">

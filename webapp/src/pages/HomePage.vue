@@ -33,8 +33,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let singleTransactionApproval = ref(false)
     let giftInputLoad = ref(false)
     let giftAddress = ref("");
-    let modalLoading = ref(false)
+    let modalLoading = ref(false) 
     let loadingMessage = ref("getting wallet data")
+    let txHash = ref("")
     let buyStep = ref(0) 
     let giftTicket = ref(false); 
     let showTimer = ref(false)
@@ -145,6 +146,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     async function approve() {
+        txHash.value = ""
         let approvalAmount = 30000000000000000000000000000
         if(singleTransactionApproval.value == true) {
             let amount = activeProduct.value.ticketPrice * validatedAmount.value
@@ -161,9 +163,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 chainId: 137,
                 args: [activeProduct.value.contractAddress, approvalAmount]
             })
-
+             txHash.value = hash
              loadingMessage.value = "Processing the confirmation. Please wait a moment"
              await waitForTransaction({ hash })
+             buyStep.value = 4;
              getAllowance()
         } catch (e) {
             console.log(e)
@@ -188,6 +191,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     async function multiBuy(_giftAddress) {
+        txHash.value = ""
         if(validatedAmount.value < 2) {
             return 
         }
@@ -209,6 +213,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             chainId: 137,
             args: [receiver, validatedAmount.value]
             })
+            txHash.value = hash
             loadingMessage.value = "Waiting for blockchain confirmation"
             await waitForTransaction({ hash })
             startTimer()
@@ -221,6 +226,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     async function purchaseTicket(_giftAddress) {
+        txHash.value = ""
+
         try {
 
    
@@ -258,6 +265,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         chainId: 137,
                         args: [receiver]
                         })
+                        txHash.value = hash
                         loadingMessage.value = "Waiting for blockchain confirmation"
                         await waitForTransaction({ hash })
                     } catch (e) {
@@ -275,6 +283,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         chainId: 137,
                         args: []
                         })
+                        txHash.value = hash
                         loadingMessage.value = "Waiting for blockchain confirmation"
                         await waitForTransaction({ hash })
                     } catch (e) {
@@ -496,6 +505,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         giftInputLoad,
         singleTransactionApproval,
         toggleSingleApproval,
+        txHash
     }
   }
 }
@@ -520,6 +530,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="img-spinner"></div>
                 <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
                 <h3 v-if="showTimer" class="title">Payment Successful</h3>
+                <a target="_blank" style="color: #d4d2ec; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">view blockchain transaction</a>
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
                 <div v-if="showTimer" class="attention-footer">

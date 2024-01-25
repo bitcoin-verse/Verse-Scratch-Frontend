@@ -57,7 +57,6 @@ export default {
             accountActive.value = false
         }
         connectedProvider.value = account.connector.name.toLowerCase()
-        console.log(connectedProvider)
     })
 
         return { account, isWallet, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 

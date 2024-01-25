@@ -15,6 +15,7 @@ let showTutorial = ref(true)
 let winModal = ref(false)
 let modalLoading = ref(false)
 let modalLoadingText = ref("")
+let txHash = ref("")
 let modalFinish = ref(false)
 
 if(props.claim == true) {
@@ -31,6 +32,8 @@ const toggleShow = () => {
 }
 
 const redeem = async (address) => {
+    txHash.value = ""
+
     winModal.value = false
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
@@ -43,6 +46,7 @@ const redeem = async (address) => {
             args: [props.detailNFT.id]
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
+        txHash.value = hash
         await waitForTransaction({ hash })
         modalLoading.value = false
         modalFinish.value = true
@@ -205,6 +209,7 @@ onMounted(() => {
                     <div>
                         <div class="img-spinner" style="margin-top: 25px"></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
+                        <a target="_blank" style="color: #d4d2ec; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">view blockchain transaction</a>
                     </div>
                 </div>
             </div>
