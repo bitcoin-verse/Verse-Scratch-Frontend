@@ -15,7 +15,45 @@ import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { store } from './store.js'
+import globals from "./globals";
 
+// IF NEW VERSION IS SET, CLEAR INDEXDB
+if(localStorage.getItem(globals.VERSION) !== "true") {
+  clearAllIndexedDB()
+  localStorage.setItem(globals.VERSION, "true")
+}
+
+async function clearAllIndexedDB() {
+    try {
+        // Get a list of all databases
+        const databases = await indexedDB.databases();
+        
+        for (const dbInfo of databases) {
+            // Open a connection to each database
+            const request = indexedDB.open(dbInfo.name);
+
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(db.objectStoreNames, 'readwrite');
+
+                transaction.oncomplete = () => {
+                    console.log(`Cleared all object stores in ${dbInfo.name}`);
+                };
+
+                transaction.onerror = (event) => {
+                    console.error(`Error clearing object stores in ${dbInfo.name}:`, event.target.error);
+                };
+
+                // Clear each object store in the database
+                for (const storeName of db.objectStoreNames) {
+                    transaction.objectStore(storeName).clear();
+                }
+            };
+        }
+    } catch (error) {
+        console.error('Error clearing IndexedDB databases:', error);
+    }
+}
 
 const projectId = '5d9e3863443e82e9222f3e3f5e075798'
 const activeProduct = computed(() => store.getProduct())
