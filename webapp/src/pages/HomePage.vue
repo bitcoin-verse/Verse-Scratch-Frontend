@@ -160,6 +160,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
                 abi: ERC20ABI,
                 functionName: 'approve',
+                gas: 75000n,
                 chainId: 137,
                 args: [activeProduct.value.contractAddress, approvalAmount]
             })
