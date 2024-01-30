@@ -88,14 +88,21 @@ const metadata = {
   icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 };
 
+// quick fix converted into string
 let isWallet = false
 
+// dont have anything in session storage yet
 if(!sessionStorage.getItem('isWallet')) {
   const search = new URLSearchParams(window.location.search);
   isWallet = search.get("origin") === "wallet";
   sessionStorage.setItem('isWallet', isWallet);
+} else {
+  if(sessionStorage.getItem('isWallet') == "true") {
+    isWallet = true
+  } else {
+    isWallet = false
+  }
 }
-
 
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -108,7 +115,7 @@ const wagmiConfig = createConfig({
         metadata,
       },
     }),
-    ...(isWallet
+    ...(isWallet === true
       ? []
       : [
           new InjectedConnector({
@@ -294,6 +301,8 @@ i.close-btn {
             position: absolute;
             top: 0;
             width: 100%;
+            height: 520px;
+            overflow: auto;
             min-height: 100vh;
             min-height: 100dvh;
             left: 0;
@@ -370,6 +379,9 @@ i.close-btn {
           }
         }
         min-height: 500px;
+        @media(max-width: 880px) {
+          height: 500px!important;
+        }
         &.no-min-height {
           min-height: unset!important;
         }

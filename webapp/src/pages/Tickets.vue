@@ -143,6 +143,16 @@ export default {
             openDetail.value = true;
         }
 
+
+        function handleClickItem(item) {
+            if(item.scratched == false && item.claimed == false) {
+                openDetailScreen(item.id, item.address)
+            } 
+            else if(item.scratched == true && item.claimed == false) {
+                openClaimDetail(item.id, item.address)
+            }
+        }
+
         function closeGiftModal(connect) {
             if(connect) {
                 modal.open()
@@ -322,7 +332,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, newTicketModal, products, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, handleClickItem, newTicketModal, products, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -427,7 +437,7 @@ export default {
                 </p>
 
 
-                <div v-if="item.claimed == false">
+                <div v-if="item.claimed == false" @click="handleClickItem(item)" style="cursor: pointer">
                     <img class="mobreset" v-if="item.scratched == false" :src="'/templates/' + item.address + '/' + item.edition + '.png'">
                     <img class="mobreset unclaimed" v-if="item.scratched == true" :src="`https://${item.bucketUrl}.s3.amazonaws.com/${item.id}/${item.address}.jpg`">
                 </div>

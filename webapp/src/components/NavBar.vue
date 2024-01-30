@@ -75,7 +75,7 @@ export default {
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
-        <h3 class="title-nav">Verse Scratch Tickets</h3>
+        <h3 class="title-nav">Verse Scratcher</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
         <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
