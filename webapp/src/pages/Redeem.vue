@@ -58,6 +58,7 @@ const redeem = async (address) => {
 }
 
 
+
 watch(count, async (newValue)=> {
     if (newValue == 8) { 
         
@@ -83,18 +84,20 @@ watch(count, async (newValue)=> {
 
             const particleCount = 50 * (timeLeft / duration);
 
-            confetti(
-                    Object.assign({}, defaults, {
-                    particleCount,
-                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                    })
-                );
+            if(sessionStorage.getItem('isWallet') === "false") {
+                confetti(
+                        Object.assign({}, defaults, {
+                        particleCount,
+                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                        })
+                    );
                 confetti(
                     Object.assign({}, defaults, {
                     particleCount,
                     origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
                     })
-                );
+                )
+            }
                 
             }, 200)
         }
