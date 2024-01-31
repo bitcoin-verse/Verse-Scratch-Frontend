@@ -1,5 +1,4 @@
 import { reactive } from 'vue'
-import { useRoute } from 'vue-router'
 
 const DEFAULT_PRODUCT_NAME = 'lunar-new-year';
 const products = [
@@ -43,12 +42,12 @@ const products = [
         id: 2,
         multibuy: true,
         campaign: 'lunar-new-year',
-        contractAddress: '0x6bC71EEed86FB4428239c7371f1bc0222E0bE7a8',
+        contractAddress: '0xd9b59ffbeb8e6b1cc9bc140f5050233555803483',
         ticketPriceString: '22,000',
         bannerLarge: 'url(/lunar/banner-lg.png)',
         cardPreviewLarge: 'url(/lunar/card-preview-lg.png)',
         cardPreviewMedium: 'url(/lunar/card-preview-md.png)',
-        bucketUrl: 'scratchverse',
+        bucketUrl: 'verse-scratcher-images',
         ticketPrice: 22000, 
         title: 'Lunar New Year',
         cover: '/lunar/cover.png',
