@@ -53,6 +53,7 @@ export default {
                 blockchain: 'MATIC',
             })
         } else {
+            console.log("account not active")
             accountActive.value = false
         }
         connectedProvider.value = account.connector.name.toLowerCase()
@@ -74,7 +75,7 @@ export default {
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
-        <h3 class="title-nav">Verse Scratch Tickets</h3>
+        <h3 class="title-nav">Verse Scratcher</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
         <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
@@ -176,6 +177,22 @@ export default {
             background-image: url("./../assets/icons/mm-logo.png");
             right: 5.3px;
             top: 4.5px;
+        }
+        &.rabby {
+            width: 26px;
+            height: 22px;
+            border-radius: 0;
+            top: -5px;
+            right: -5px;
+            border-radius: 50%;
+            background-image: url("./../assets/icons/rabby.png");
+            background-size: cover;
+            @media(max-width: 880px) {
+                width: 28px;
+                height: 28px;
+                top: 4.5px;
+                right: 4.3px;
+            }
         }
     }
     &:hover {
@@ -291,6 +308,7 @@ export default {
         @media(max-width: 879px) {
             display: none;
         }
+        z-index: 2;
         position: fixed;
         top: 0;
         display: block;

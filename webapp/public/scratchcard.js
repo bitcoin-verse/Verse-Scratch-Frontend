@@ -128,6 +128,7 @@ ScratchCard.prototype.draw = function (x, y, isDown) {
     this.ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
     this.ctx.lineWidth = this.width;
     this.ctx.lineJoin = this.shape;
+
     // We set the starting position of our drawer to be the last position of the user's input
     this.ctx.moveTo(this.lastX, this.lastY);
     // Draw the line to the new X and Y coordinates
@@ -138,6 +139,7 @@ ScratchCard.prototype.draw = function (x, y, isDown) {
   // Set the last coordinates the the current coordinates so next time we start where we left off
   this.lastX = x;
   this.lastY = y;
+
   // Calculate the amount of cleared pixels
   var clearedPixels = this.calcPixels(25);
   this.clearPercentage(clearedPixels);

@@ -1,12 +1,13 @@
 <script setup>
 import { waitForTransaction, writeContract} from '@wagmi/core'
-import { ref, onMounted, watch } from 'vue';
-import GLOBALS from '../globals.js'
+import { ref, onMounted, watch, computed } from 'vue';
 import ContractABI from '../abi/contract.json'
+import { store } from '../store.js'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
+const activeProduct = computed(() => store.getProduct())
 
-let nftAddress = GLOBALS.NFT_ADDRESS
+
 let count = ref(0);
 let imageLoaded = ref(false)
 let modalTutorial = ref(true)
@@ -14,6 +15,7 @@ let showTutorial = ref(true)
 let winModal = ref(false)
 let modalLoading = ref(false)
 let modalLoadingText = ref("")
+let txHash = ref("")
 let modalFinish = ref(false)
 
 if(props.claim == true) {
@@ -29,36 +31,38 @@ const toggleShow = () => {
     localStorage.setItem('showTutorial', showTutorial.value)
 }
 
-const redeem = async () => {
+const redeem = async (address) => {
+    txHash.value = ""
+
     winModal.value = false
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
     try {
         const { hash } = await writeContract({
-            address: nftAddress,
+            address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
             chainId: 137,
             args: [props.detailNFT.id]
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
+        txHash.value = hash
         await waitForTransaction({ hash })
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
-        if(e.cause.code == 4001) {
-            winModal.value = true
-            modalLoading.value = false;
-        }
+        winModal.value = true
+        modalLoading.value = false;
 
     }
 }
 
 
+
 watch(count, async (newValue)=> {
     if (newValue == 8) { 
         
-        localStorage.setItem(props.detailNFT.id.toString() + '/' + nftAddress.toString(), true)
+        localStorage.setItem(props.detailNFT.id.toString() + '/' + props.detailNFT.address.toString(), true)
 
         const finalizeTicket = () => {
             winModal.value = true
@@ -80,18 +84,20 @@ watch(count, async (newValue)=> {
 
             const particleCount = 50 * (timeLeft / duration);
 
-            confetti(
-                    Object.assign({}, defaults, {
-                    particleCount,
-                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                    })
-                );
+            if(sessionStorage.getItem('isWallet') === "false") {
+                confetti(
+                        Object.assign({}, defaults, {
+                        particleCount,
+                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                        })
+                    );
                 confetti(
                     Object.assign({}, defaults, {
                     particleCount,
                     origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
                     })
-                );
+                )
+            }
                 
             }, 200)
         }
@@ -108,24 +114,26 @@ onMounted(() => {
         modalTutorial.value = false
     }
     const img = new Image();
-    img.src = `https://verse-scratcher-images.s3.amazonaws.com/${props.detailNFT.id}/${nftAddress}.jpg`
+    img.src = `https://${props.detailNFT.bucketUrl}.s3.amazonaws.com/${props.detailNFT.id}/${props.detailNFT.address}.jpg`
     img.onload = () => {
-        if(props.claim == false) {
+        setTimeout(() => {
+            if(props.claim == false) {
             setupScratch()
-        }
-        imageLoaded.value = true;       
+            }
+            imageLoaded.value = true;    
+        }, 800)   
     };
 
     function setupScratch() {
         let scratched = [false, false, false, false, false, false, false, false];
-        var options1 = { id: 'scratchcanvas1', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options2 = { id: 'scratchcanvas2', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options3 = { id: 'scratchcanvas3', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options4 = { id: 'scratchcanvas4', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options5 = { id: 'scratchcanvas5', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options6 = { id: 'scratchcanvas6', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options7 = { id: 'scratchcanvas7', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
-        var options8 = { id: 'scratchcanvas8', brushSize: 10, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options1 = { id: 'scratchcanvas1', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options2 = { id: 'scratchcanvas2', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options3 = { id: 'scratchcanvas3', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options4 = { id: 'scratchcanvas4', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options5 = { id: 'scratchcanvas5', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options6 = { id: 'scratchcanvas6', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options7 = { id: 'scratchcanvas7', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
+        var options8 = { id: 'scratchcanvas8', brushSize: 15, lineJoin: 'round', percentRequired: 10, fillColor: '#bdbdbd' };
         let one = new window.ScratchCard(options1);
         let two = new window.ScratchCard(options2);
         let three = new window.ScratchCard(options3);
@@ -154,7 +162,7 @@ onMounted(() => {
 <template>
     <div class="backdrop" v-if="modalTutorial || winModal || modalLoading || modalFinish">
         <div class="modal" v-if="modalTutorial && !winModal && !modalFinish && !modalLoading">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
@@ -174,20 +182,20 @@ onMounted(() => {
             </div>
         </div>
         <div class="modal" v-if="winModal">
-            <div class="modal-body">
+            <div class="modal-body no-min-height ">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
                         <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
-                        <a @click="redeem()"><button class="btn verse-wide">Claim Now</button></a>
+                        <a @click="redeem(detailNFT.address)"><button class="btn verse-wide">Claim Now</button></a>
                         <a href="/tickets"><button class="btn verse-wide secondary">View My Tickets</button></a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal" v-if="modalFinish">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
@@ -199,11 +207,12 @@ onMounted(() => {
             </div>
         </div>
         <div class="modal" v-if="modalLoading">
-            <div class="modal-body">
+            <div class="modal-body no-min-height">
                 <div>
                     <div>
                         <div class="img-spinner" style="margin-top: 25px"></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
+                        <a target="_blank" style="color: #0085FF; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                     </div>
                 </div>
             </div>
@@ -222,7 +231,7 @@ onMounted(() => {
                     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
-            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://verse-scratcher-images.s3.amazonaws.com/${detailNFT.id}/${nftAddress}.jpg)` } ">
+            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://${detailNFT.bucketUrl}.s3.amazonaws.com/${detailNFT.id}/${detailNFT.address}.jpg)` } ">
                 <canvas id="scratchcanvas1" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas2" width="69" height="69"></canvas>
                 <canvas id="scratchcanvas3" width="69" height="69"></canvas>
@@ -350,8 +359,8 @@ onMounted(() => {
     }
 }
 .background {
-    background-image: url("../assets/header.png");
-    background-color: #030C14;
+    // background-image: v-bind('activeProduct.backgroundImage')!important;
+    background: linear-gradient(180deg, #152334 0%, #030C14 100%);
     left: 0;
     top: 0;
     background-size: 100%;
@@ -374,13 +383,17 @@ onMounted(() => {
     top: 0;
 }
 .page { 
-    z-index: 2;
+    margin-top: 70px;
+    z-index: 1;
     left: 0;
     width: 100%;
-    min-height: 100vh!important;
+    min-height: calc(100vh - 70px)!important;
     position: absolute!important;
     top: 0;
     overflow: auto;
+    @media(max-width: 880px) {
+        margin-top: 20px;
+    }
 }
 .cont {
     width: 350px;

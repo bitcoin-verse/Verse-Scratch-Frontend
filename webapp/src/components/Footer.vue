@@ -9,7 +9,7 @@
                     <a @click="logclick('help')" href="https://support.bitcoin.com/en/collections/3413550-verse-dex" target="_blank" rel="noreferrer" class="short-link">Need Help?</a>
                 </div>
             </div>
-            <div class="company">© 2023 Saint Bitts LLC Bitcoin.com. All rights reserved.</div>
+            <div class="company">© 2024 Saint Bitts LLC Bitcoin.com. All rights reserved.</div>
         </div>
     </div>
 </template>
@@ -39,8 +39,7 @@ export default {
 
 <style lang="scss" scoped>
 .footer-wrap {
-    position: fixed;
-    bottom: 0;
+    position: absolute;
     @media(max-width: 880px) {
         position: static;
     }

@@ -2,19 +2,61 @@
 
 import { RouterView } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
-import { configureChains, createConfig } from '@wagmi/core'
+import { configureChains, createConfig, disconnect, watchAccount } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
 import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
+
+import { computed } from 'vue';
 
 import { WalletConnectConnector } from "@wagmi/connectors/walletConnect";
 import { InjectedConnector } from "@wagmi/connectors/injected";
 import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
+import { store } from './store.js'
+import globals from "./globals";
+
+// IF NEW VERSION IS SET, CLEAR INDEXDB
+if(localStorage.getItem(globals.VERSION) !== "true") {
+  clearAllIndexedDB()
+  localStorage.setItem(globals.VERSION, "true")
+}
+
+async function clearAllIndexedDB() {
+    try {
+        // Get a list of all databases
+        const databases = await indexedDB.databases();
+        
+        for (const dbInfo of databases) {
+            // Open a connection to each database
+            const request = indexedDB.open(dbInfo.name);
+
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(db.objectStoreNames, 'readwrite');
+
+                transaction.oncomplete = () => {
+                    console.log(`Cleared all object stores in ${dbInfo.name}`);
+                };
+
+                transaction.onerror = (event) => {
+                    console.error(`Error clearing object stores in ${dbInfo.name}:`, event.target.error);
+                };
+
+                // Clear each object store in the database
+                for (const storeName of db.objectStoreNames) {
+                    transaction.objectStore(storeName).clear();
+                }
+            };
+        }
+    } catch (error) {
+        console.error('Error clearing IndexedDB databases:', error);
+    }
+}
 
 const projectId = '5d9e3863443e82e9222f3e3f5e075798'
-
+const activeProduct = computed(() => store.getProduct())
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygon],
   [
@@ -23,7 +65,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
         switch (chain.id) {
           case 137:
             return {
-              http: "https://floral-empty-gas.matic.quiknode.pro/",
+              http: "https://1rpc.io/matic", //https://floral-empty-gas.matic.quiknode.pro/
             };
           case 1:
           default:
@@ -37,6 +79,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   ],
 )
 
+
+
 const metadata = {
   name: "VERSE Scratcher",
   description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
@@ -44,14 +88,21 @@ const metadata = {
   icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 };
 
+// quick fix converted into string
 let isWallet = false
 
+// dont have anything in session storage yet
 if(!sessionStorage.getItem('isWallet')) {
   const search = new URLSearchParams(window.location.search);
   isWallet = search.get("origin") === "wallet";
   sessionStorage.setItem('isWallet', isWallet);
+} else {
+  if(sessionStorage.getItem('isWallet') == "true") {
+    isWallet = true
+  } else {
+    isWallet = false
+  }
 }
-
 
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -64,7 +115,7 @@ const wagmiConfig = createConfig({
         metadata,
       },
     }),
-    ...(isWallet
+    ...(isWallet === true
       ? []
       : [
           new InjectedConnector({
@@ -81,6 +132,7 @@ const wagmiConfig = createConfig({
   webSocketPublicClient,
 })
 
+
 initAmplitude()
 logAmplitudeEvent({
   name: 'verse scratcher visited'
@@ -95,24 +147,26 @@ createWeb3Modal({
     
     },
     featuredWalletIds: ["107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c"],
-    includeWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c','c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', '19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927'], wagmiConfig, projectId, chains})
+    includeWalletIds: [], wagmiConfig, projectId, chains})
 
 </script>
 
+
 <template>  
-  <body>
     <div class="global-wrap">
       <div class="flex-wrap">
         <NavBar />
         <RouterView />
       </div>
     </div>
-  </body>
 </template>
 
 <style lang="scss">
 
 .verse-wide {
+  &.home {
+    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+  }
   &:hover {
     background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
   }
@@ -171,8 +225,15 @@ createWeb3Modal({
 }
 
 .global-wrap {
+  background-image: v-bind('activeProduct.backgroundImage')!important;
+  background-size: cover;
   position: relative;
+  
+  @media(max-width: 880px) {
+    background-image: none!important;
+  }
 }
+
 
 .flex-wrap {
   @media(min-width: 768px) {
@@ -224,7 +285,7 @@ i.close-btn {
   }
 }
 .backdrop {
-    overflow: auto;
+    overflow: hidden;
     position: fixed; 
     top: 0;
     left: 0;
@@ -240,6 +301,8 @@ i.close-btn {
             position: absolute;
             top: 0;
             width: 100%;
+            height: 520px;
+            overflow: auto;
             min-height: 100vh;
             min-height: 100dvh;
             left: 0;
@@ -288,6 +351,40 @@ i.close-btn {
       }
 
       .modal-body {
+        &.collection {
+          padding-top: 10px;
+          h3.title {
+           
+          }
+          @media(max-width: 880px) {
+            padding: 4px;
+            padding-top: 10px;
+          }
+        }
+        table {
+          padding: 20px;
+          border-radius: 10px;
+          background-color: #05111c;
+          border: 1px solid #273953;
+          color: white;
+          width: 100%;
+          td.key {
+            width: 50%;
+            font-weight: 600;
+            text-align: left;
+          }
+          td.value {
+            width: 50%;
+            text-align: right;
+          }
+        }
+        min-height: 500px;
+        @media(max-width: 880px) {
+          height: 500px!important;
+        }
+        &.no-min-height {
+          min-height: unset!important;
+        }
         .loadingText {
           color: #FFFFFF;
           font-size: 18px;
@@ -334,15 +431,17 @@ i.close-btn {
             width: calc(100% - 48px);
           }
           text-align: center;
-          position: absolute;
+          position: relative;
           bottom: 0;
           left: 0;
           font-size: 14px;
           font-weight: 500;
           color: #586F91;
           width: calc(100% - 80px);
-          margin: 0;
+          margin-top: 40px;
+          margin-bottom: 0;
           padding: 40px;
+          padding-bottom: 0;
           line-height: 16.71px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
           a { 
@@ -388,7 +487,7 @@ i.close-btn {
         }
 
 
-        height: 540px;
+        // min-height: 540px;
         padding: 40px 32px 24px 32px;
         text-align: center;
         .img-spinner {
@@ -473,7 +572,91 @@ i.close-btn {
           }
         }
 
+        .icn-min {
+            background-image: url("./assets/icons/min.png");
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            background-size: cover;
+            left: 4px;
+            top: 2px;
+          }
+          .icn-plus {
+            background-image: url("./assets/icons/plus.png");
+            width: 30px;
+            height: 30px;
+            top: 2px;
+            right: 4px;
+            position: absolute;
+            background-size: cover;
+          }
+
         .gift-toggle-holder {
+
+          &.second {
+            margin-top: 10px!important;
+          }
+          .input-holder {
+            position: absolute;
+            right: 16px;
+            top: 10px;
+            width: 120px;
+            height: 35px;
+
+            .toggler {
+              position: absolute;
+              height: 100%;
+              cursor: pointer;
+              width: 50px;
+              background: #425472;
+              
+              &.up {
+                border-top-right-radius: 9px;
+                border-bottom-right-radius: 9px;
+                top: 0px;
+                right: 0px;
+              }
+              &.down {
+                border-top-left-radius: 9px;
+                border-bottom-left-radius: 9px;
+                top: 0px;
+                left: 0px;
+              }
+            }
+
+            /* Chrome, Safari, Edge, Opera */
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+
+            /* Firefox */
+            input[type=number] {
+              -moz-appearance: textfield;
+            }
+
+            input {
+              background: #0F1823;
+              border: 1px solid #0F1823;
+              outline: none;
+              color: white;
+              font-family: Barlow;
+              font-size: 13px;
+              font-weight: 600;
+              text-align: center;
+              z-index: 5;
+              position: relative;
+              width: 45px;
+              border-color: none;
+              height: calc(100% - 2px);
+              border-radius: 9px;
+              padding: 0;
+              @media(max-width: 880px) {
+                font-weight: 800;
+              }
+            }
+          }
           background-color: #252D40;
           height: 56px;
           width: 100%;
@@ -548,21 +731,29 @@ h3 {
 }
 
 body {
-  position: fixed;
+  position: unset;
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
+  padding: 0;
   background-size: 100%;
   margin: 0;
+  overflow: auto;
   font-family: 'Barlow', sans-serif;
-  background-image: url("./assets/bg.png")!important;
-  background-repeat: no-repeat!important;
   background: rgba(3, 12, 20, 1);
-  background-size: contain;
+  background-repeat: no-repeat!important;
+  background-size: cover;
   @media(max-width: 880px) {
     background: rgba(3, 12, 20, 1);
     background-image: none!important;
     min-height: unset;
   }
+
+  // &::-webkit-scrollbar {
+  //       -webkit-appearance: none;
+  //       width: 0;
+  //       height: 0;
+  //       display: none!important;
+  //   }
 }
 
 #app {

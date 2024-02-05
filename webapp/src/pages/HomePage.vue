@@ -1,18 +1,18 @@
 <script>
-import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
+import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, disconnect, watchAccount, watchNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
+import { ref, computed, watch, registerRuntimeCompiler } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
 import Web3 from 'web3'
 import { copyText } from 'vue3-clipboard'
-import GLOBALS from '../globals.js'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
-
+import { store } from '../store.js'
 import { logAmplitudeEvent } from "../helpers/analytics"
+
+
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
-const contractAddress = GLOBALS.CONTRACT_ADDRESS
 
   export default {
     components: {
@@ -33,16 +33,28 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     let singleTransactionApproval = ref(false)
     let giftInputLoad = ref(false)
     let giftAddress = ref("");
-    let modalLoading = ref(false)
-    let loadingMessage = ref("getting wallet data")
+    let modalLoading = ref(false) 
+    let loadingMessage = ref("Getting Wallet Data")
+    let txHash = ref("")
     let buyStep = ref(0) 
     let giftTicket = ref(false); 
     let showTimer = ref(false)
     let ticketInputAddress = ref("")
     let ticketInputValid = ref(true)
     let timeoutId;
-    let priceUsd = ref(0);
+    let priceUsd = ref(0)
+    let purchaseAmount = ref(1)
 
+    const products = computed(() => store.getProducts());
+    const activeProduct = computed(() => store.getProduct())
+    const randomOtherProduct = computed(() => store.getRandomOtherProduct())
+    const selectedProductId = computed({
+      get: () => store.productId,
+      set: (value) => {
+        store.updateProduct(value)
+      }
+    })
+    
     async function getVersePrice() {
         try {
             let res = await axios.get("https://markets.api.bitcoin.com/coin/data?c=VERSE")
@@ -64,6 +76,15 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             cta: type
         })
     }
+
+    const validatedAmount = computed(() => {
+        if (purchaseAmount.value > 50) {
+            return 50;
+        } else if (purchaseAmount.value < 1) {
+            return 1;
+        }
+        return purchaseAmount.value;
+    })
 
     async function onTicketInputChange() {
         ticketInputValid.value = true
@@ -100,13 +121,13 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     }
 
     function toggleModal() {
-        if(buyStep.value == 4 && modalActive.value == true) {
+        if(modalActive.value == true) {
             loadingMessage.value = ""
-            buyStep.value = 0;
+            buyStep.value = 2;
             giftTicket.value = false;
             giftAddress.value == ""
             getBalance()
-        }
+        } 
         modalActive.value = !modalActive.value;
     }
 
@@ -125,9 +146,11 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     }
 
     async function approve() {
+        txHash.value = ""
         let approvalAmount = 30000000000000000000000000000
         if(singleTransactionApproval.value == true) {
-            approvalAmount = 3000000000000000000000
+            let amount = activeProduct.value.ticketPrice * validatedAmount.value
+            approvalAmount = Web3.utils.toWei(amount, 'ether');
         }
 
         loadingMessage.value = "Please confirm the approval in your connected wallet"
@@ -137,85 +160,142 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
                 abi: ERC20ABI,
                 functionName: 'approve',
+                gas: 75000n,
                 chainId: 137,
-                args: [contractAddress, approvalAmount]
+                args: [activeProduct.value.contractAddress, approvalAmount]
             })
-
+             txHash.value = hash
              loadingMessage.value = "Processing the confirmation. Please wait a moment"
              await waitForTransaction({ hash })
+             buyStep.value = 4;
              getAllowance()
         } catch (e) {
-            if(e.cause.code == 4001) {
-                modalLoading.value = false
-            }
+            console.log(e)
+            modalLoading.value = false
         }
     }    
 
-    async function purchaseTicket(_giftAddress) {
+    const startTimer = () => {
+        let timer = 25;  
+        const countdown = setInterval(() => {
+            showTimer.value = true
+            timer--; 
+            loadingMessage.value = `${timer} Seconds!`;
+
+            if (timer <= 0) {
+                clearInterval(countdown);
+                modalLoading.value = false;
+                buyStep.value = 5;
+                showTimer.value = false;
+            }
+        }, 1000);
+    }
+
+    async function multiBuy(_giftAddress) {
+        txHash.value = ""
+        if(validatedAmount.value < 2) {
+            return 
+        }
+        let receiver = getAccount().address
+        if(_giftAddress) {
+         giftAddress.value = _giftAddress
+        } else {
+            giftTicket.value = false;
+        }
+        loadingMessage.value = "Please confirm the purchase in your wallet"
+        modalLoading.value = true
+        if(_giftAddress && _giftAddress.length > 0) receiver = _giftAddress
+
         try {
-            if(_giftAddress) {
-                giftAddress.value = _giftAddress
-            } else {
-                giftTicket.value = false;
-            }
-            loadingMessage.value = "Please confirm the purchase in your wallet"
-            modalLoading.value = true
-            let receiver = getAccount().address
-            if(_giftAddress && _giftAddress.length > 0) {
-                try {
-                    receiver = _giftAddress
-                    const { hash } = await writeContract({
-                    address: contractAddress,
-                    abi: ContractABI,
-                    functionName: 'giftScratchTicket',
-                    chainId: 137,
-                    args: [receiver]
-                    })
-                    loadingMessage.value = "Waiting for blockchain confirmation"
-                    await waitForTransaction({ hash })
-                } catch (e) {
-                    if(e.cause.code == 4001) {
-                        modalLoading.value = false
-                        return 
-                    }
-                }
-                
-            } else {
-                try {
-                    const { hash } = await writeContract({
-                    address: contractAddress,
-                    abi: ContractABI,
-                    functionName: 'buyScratchTicket',
-                    chainId: 137,
-                    args: []
-                    })
-                    loadingMessage.value = "Waiting for blockchain confirmation"
-                    await waitForTransaction({ hash })
-                } catch (e) {
-                    if(e.cause.code == 4001) {
-                        modalLoading.value = false
-                        return 
-                    }
-                }   
-            }
-            let timer = 25;  
+            const { hash } = await writeContract({
+            address: activeProduct.value.contractAddress,
+            abi: ContractABI,
+            functionName: 'bulkPurchase',
+            chainId: 137,
+            args: [receiver, validatedAmount.value]
+            })
+            txHash.value = hash
+            loadingMessage.value = "Waiting for blockchain confirmation"
+            await waitForTransaction({ hash })
+            startTimer()
+        } catch (e) {
+            console.log(e)
+            modalLoading.value = false
+            return 
+        }   
 
-            const countdown = setInterval(() => {
-                showTimer.value = true
-                timer--; 
-                if(giftTicket.value == true) {
-                    loadingMessage.value = `${timer} Seconds!`;
+    }
+
+    async function purchaseTicket(_giftAddress) {
+        txHash.value = ""
+
+        try {
+
+   
+            if(buyStep.value == 2) {
+                console.log(verseAllowance.value, "allowance")
+                if(verseAllowance.value >= activeProduct.value.ticketPrice * validatedAmount.value) {
+                    // continue to final step
+                    buyStep.value = 4
+                    return
                 } else {
-                    loadingMessage.value = `${timer} Seconds!`;
+                    buyStep.value = 3
+                    return
                 }
-
-                if (timer <= 0) {
-                    clearInterval(countdown);
-                    modalLoading.value = false;
-                    buyStep.value = 4;
-                    showTimer.value = false;
+            }
+            
+            if(validatedAmount.value > 1) {
+                multiBuy(_giftAddress)
+            } else {
+                // purchase ticket
+                if(_giftAddress) {
+                giftAddress.value = _giftAddress
+                } else {
+                    giftTicket.value = false;
                 }
-            }, 1000);
+                loadingMessage.value = "Please confirm the purchase in your wallet"
+                modalLoading.value = true
+                let receiver = getAccount().address
+                if(_giftAddress && _giftAddress.length > 0) {
+                    try {
+                        receiver = _giftAddress
+                        const { hash } = await writeContract({
+                        address: activeProduct.value.contractAddress,
+                        abi: ContractABI,
+                        functionName: 'giftScratchTicket',
+                        chainId: 137,
+                        args: [receiver]
+                        })
+                        txHash.value = hash
+                        loadingMessage.value = "Waiting for blockchain confirmation"
+                        await waitForTransaction({ hash })
+                    } catch (e) {
+                        console.log(e)
+                        modalLoading.value = false
+                        return 
+                    }
+                    
+                } else {
+                    try {
+                        const { hash } = await writeContract({
+                        address: activeProduct.value.contractAddress,
+                        abi: ContractABI,
+                        functionName: 'buyScratchTicket',
+                        chainId: 137,
+                        args: []
+                        })
+                        txHash.value = hash
+                        loadingMessage.value = "Waiting for blockchain confirmation"
+                        await waitForTransaction({ hash })
+                    } catch (e) {
+                        console.log(e)
+                        // need to ensure this works because sometimes tx falls through even on confirm
+                        modalLoading.value = false
+                        return 
+                    }   
+                }
+                startTimer()
+            }
 
         } catch (e) {
             modalLoading.value = false
@@ -229,16 +309,31 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
             abi: ERC20ABI,
             functionName: 'allowance',
-            args: [getAccount().address, contractAddress]
+            args: [getAccount().address, activeProduct.value.contractAddress]
             })
             modalLoading.value = false;
 
+
             if(data) {
+
                  let dataString = data.toString()
                  verseAllowance.value= Web3.utils.fromWei(dataString, 'ether')
-                 if(verseAllowance.value >= 3000 && buyStep.value < 3) {
-                    buyStep.value = 3;
+
+                //  do not automatically update modal
+                if(activeProduct.multibuy) {
+                    // if user is on the approval screen, and allowance is accepted, go to final screen
+                    if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value == 3) {
+                        buyStep.value = 4;
+                    }
+                } else {
+                    // non multibuy
+                    // if on approval screen, approval just happened, go to next screen
+                    if(verseAllowance.value >= activeProduct.value.ticketPrice && buyStep.value > 2) {
+                        buyStep.value = 4
+                    }
                 }
+            } else {
+                verseAllowance.value = 0
             }
             } catch (e) {
                 console.log(e)
@@ -256,21 +351,42 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             })
             modalLoading.value = false;
 
-
             if(data) {
-                
                  let dataString = data.toString()
                  verseBalance.value= parseFloat(dataString) / Math.pow(10, 18);
-                 if(verseBalance.value >= 3000 && buyStep.value < 2) {
+                 getAllowance()
+            
+
+                 if(activeProduct.value.multibuy == false && verseBalance.value < activeProduct.value.ticketPrice) {
+                    buyStep.value = 1;
+                 }
+                 else if(verseBalance.value >= activeProduct.value.ticketPrice && buyStep.value < 2) {
                     buyStep.value = 2;    
-                    getAllowance()
                  } 
+            } else {
+                if(activeProduct.value.multibuy == false) {
+                    buyStep.value = 1;
+                }
             }
             } catch (e) {
                 console.log(e)
                 modalLoading.value = false;
             }
     }
+
+    watch(activeProduct, newValue => {
+        getAllowance()
+        purchaseAmount.value = 1
+
+        if(newValue.multibuy == false && verseBalance.value < 3000) {
+            buyStep.value = 1;
+        } 
+
+        if(newValue.multibuy == true && buyStep.value == 1) {
+            buyStep.value = 2;
+        }
+    })
+
     watchNetwork((network) => {
         if(network.chain && network.chain.id != 137) {
             correctNetwork.value = false
@@ -278,8 +394,8 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             correctNetwork.value = true
         }
     })
-    watchAccount(async () => {
-        
+    watchAccount(async (account) => {
+
         if(!currentAccountAddress.value) {
             currentAccountAddress.value = getAccount().address
         }
@@ -289,10 +405,11 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             }
         }
 
-        if(getAccount().address &&  getAccount().address.length != undefined) {
+        if(account.isConnected == true) {
+            console.log("HOME ACOUNT ACTIVE")
             accountActive.value = true;
-            if(buyStep.value < 1) {
-                buyStep.value = 1;
+            if(buyStep.value < 2) {
+                buyStep.value = 2;
             }
 
             if(reopenAfterConnection.value == true) {
@@ -301,6 +418,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             }
             getBalance();
         } else {
+            console.log("HOME ACOUNT NOT ACTIVE")
             accountActive.value = false
             buyStep.value = 0;
         }
@@ -336,40 +454,59 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         giftTicket.value = !giftTicket.value
     }
 
+    const blurUpdateAmount = (event) => {
+        if(!event.target.value) {
+            purchaseAmount.value = 1;
+        }
+    }
+
+    const updateAmount = (event) => {
+        purchaseAmount.value = event.target.value;
+    }
+
     return {
         getBalance,
         connectAndClose,
         account,
         openModal,
         buyStep,
+        updateAmount,
         priceUsd,
         modal,
         accountActive,
         correctNetwork,
         approve,
         modalActive,
+        purchaseAmount,
         toggleModal,
         modalLoading,
         giftAddress,
         copyDone,
         verseBalance,
+        products,
         verseAllowance,
+        activeProduct,
         loadingMessage,
         logCtaEvent,
         purchaseTicket,
         giftTicket,
         ticketInputAddress,
         copyText,
+        validatedAmount,
+        blurUpdateAmount,
         toggleGift,
         onTicketInputChange,
+        randomOtherProduct,
         ticketInputValid,
         getAccount,
         showTimer,
+        selectedProductId,
         requestNetworkChange,
         ensLoaded,
         giftInputLoad,
         singleTransactionApproval,
         toggleSingleApproval,
+        txHash
     }
   }
 }
@@ -394,6 +531,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="img-spinner"></div>
                 <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
                 <h3 v-if="showTimer" class="title">Payment Successful</h3>
+                <a target="_blank" style="color: #0085FF; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
                 <div v-if="showTimer" class="attention-footer">
@@ -450,7 +588,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                 <div class="modal-body">
                     <div class="img-verse"></div>
                     <h3 class="title">Not Enough Verse</h3>
-                    <p class="subtext short">You need <span>3000 VERSE</span> on Polygon in order to purchase a ticket</p>
+                    <p class="subtext short">You need at least <span>{{activeProduct.ticketPrice}} VERSE</span> on Polygon in order to purchase a ticket</p>
 
                     <div class="wallet-balance">
                         <p class="balance-title">WALLET BALANCE</p>
@@ -464,7 +602,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         </div>
 
         <!-- allowance modal -->
-        <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
@@ -475,7 +613,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             <div class="modal-body">
                 <div class="img-approve"></div>
                 <h3 class="title">Allow the use of VERSE</h3>
-                <p class="subtext">You need to enable the use of at least <span>3000 VERSE</span>. This is used to pay for your ticket. </p>
+                <p class="subtext">You need to enable the use of at least <span>{{parseInt(activeProduct.ticketPrice) * parseInt(validatedAmount) }} VERSE</span>. This is used to pay for your ticket. </p>
                 <div class="gift-toggle-holder">
                             <h3 class="title">Allow for one transaction only</h3>
                             <label class="switch">
@@ -488,7 +626,83 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>
         </div>
         <!-- purchase modal post approval -->
-        <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
+            <div class="modal-head">
+                <h3 class="title">Buy Ticket</h3>
+                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
+            </div>
+            <div class="modal-divider">
+                <div v-if="!activeProduct.multibuy" class="modal-progress p75"></div>
+                <div v-if="activeProduct.multibuy" class="modal-progress p25"></div>
+            </div>  
+            <div class="modal-body">
+                <div class="img-purchase"></div>
+                <h3 class="title">Buy Ticket<span v-if="activeProduct.multibuy">s</span></h3>
+                <p v-if="activeProduct.multibuy" class="balance-purchase">AVAILABLE BALANCE: {{ verseBalance.toFixed(0) || 0 }} VERSE</p>
+
+                <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
+                    <h3 class="title">Total Tickets</h3>
+                    <div class="input-holder">
+                        <div class="toggler up" @click="purchaseAmount < 50 ? purchaseAmount++ : purchaseAmount">
+                            <i class="icn-plus"></i>
+                        </div>
+                        <input type="number" :value="validatedAmount" @input="updateAmount" @blur="blurUpdateAmount">
+                        <div class="toggler down" @click="purchaseAmount > 1 ? purchaseAmount-- : purchaseAmount">
+                            <i class="icn-min"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
+                    <h3 class="title">Send ticket<span v-if="purchaseAmount > 1">s</span> as a gift?</h3>
+                    <label class="switch">
+                    <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="gift-toggle-holder-bottom" v-if="giftTicket">
+                        <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
+                        <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
+                        <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
+                        <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
+                    </div>  
+
+                <!-- enough balance -->
+                <div v-if="verseBalance >= validatedAmount * activeProduct.ticketPrice">
+                    <div v-if="!giftTicket">
+                        <a class="" target="_blank" @click="purchaseTicket()" >
+                            <button v-if="validatedAmount == 1" class="btn verse-wide">Buy a Ticket</button>
+                            <button v-if="validatedAmount > 1" class="btn verse-wide">Buy {{validatedAmount }} Tickets</button>
+                        </a>
+                    </div>
+
+                    <div v-if="giftInputLoad && giftTicket">
+                        <a class="" target="_blank" ><button class="btn verse-wide disabled">Checking Address</button></a>
+                    </div>
+
+                    <div v-if="giftInputLoad == false && giftTicket">
+                        <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
+                        <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
+                        <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
+                    </div>
+                </div>
+                
+                 <!-- not enough balance -->
+                <div v-if="verseBalance < validatedAmount * activeProduct.ticketPrice">
+                    <p class="warning-balance">You do not have the amount required ({{ validatedAmount * activeProduct.ticketPrice }} VERSE) to complete this order. </p>
+
+                    <br>
+                    
+                    <button v-if="validatedAmount == 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy a Ticket</button>
+                    <button v-if="validatedAmount > 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy {{validatedAmount }} Tickets</button>
+                </div>
+
+            </div>
+        </div>
+
+                <!-- purchase modal post approval -->
+        <div class="modal" v-if="buyStep == 4 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
@@ -498,28 +712,31 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>  
             <div class="modal-body">
                 <div class="img-purchase"></div>
-                <h3 class="title">Buy Ticket</h3>
-                <p class="subtext">You have at least <span>3000 VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
-                <div class="gift-toggle-holder" :class="{ opened: giftTicket }">
-                    <h3 class="title">Send ticket as a gift?</h3>
-                    <label class="switch">
-                    <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="gift-toggle-holder-bottom" v-if="giftTicket">
-                    <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
-                    <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
-                    <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
-                    <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
-                </div>  
+                <h3 class="title">Final Step</h3>
+                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice * validatedAmount}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
+
+                <table>
+                    <tr>
+                        <td class="key">Ticket Collection</td>
+                        <td class="value">{{ activeProduct.title }}</td>
+                    </tr>
+                    <tr v-if="activeProduct.multibuy">
+                        <td class="key">Ticket Amount</td>
+                        <td class="value">{{ validatedAmount }}</td>
+                    </tr>
+                    <tr>
+                        <td class="key">Destination Address</td>
+                        <td class="value" v-if="ticketInputAddress">{{ ticketInputAddress.slice(0, 7) }}..</td>
+                        <td class="value" v-if="!ticketInputAddress">{{ getAccount().address.slice(0, 7)}}..</td>
+                    </tr>
+                </table>
+
 
                 <div v-if="!giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket()" ><button class="btn verse-wide">Buy a Ticket</button></a>
-                </div>
-
-                <div v-if="giftInputLoad && giftTicket">
-                    <a class="" target="_blank" ><button class="btn verse-wide disabled">Checking Address</button></a>
+                    <a class="" target="_blank" @click="purchaseTicket()" >
+                        <button v-if="validatedAmount == 1" class="btn verse-wide">Complete Purchase</button>
+                        <button v-if="validatedAmount > 1" class="btn verse-wide">Complete Purchase</button>
+                    </a>
                 </div>
 
                 <div v-if="giftInputLoad == false && giftTicket">
@@ -531,7 +748,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
         </div>
 
         <!-- normal finish -->
-        <div class="modal" v-if="buyStep == 4 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="buyStep == 5 && !modalLoading && correctNetwork">
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
                 <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
@@ -544,7 +761,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                     <div class="img-success"></div>
                     <!-- gifted ticket delivery -->
                     <div v-if="giftTicket">
-                        <h3 class="title">Ticket Purchased & Gifted!</h3>
+                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased & Gifted!</h3>
                         <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
 
                         <div class="ticketfield">
@@ -552,14 +769,14 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
                         </div>
-                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy Another Ticket</button></a>
+                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy More Tickets</button></a>
                         <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop"  style="margin-right: 0">View your tickets</button></a>
                     </div>
                     <!-- normal ticket delivery -->
                     <div v-if="!giftTicket">
-                        <h3 class="title">Ticket Purchased!</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket and test your luck!</p>
-                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket</button></a>
+                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased!</h3>
+                        <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket<span style="color: #899BB5" v-if="validatedAmount > 1">s</span> and test your luck!</p>
+                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket<span v-if="validatedAmount > 1">s</span></button></a>
                     </div>
                 </div>
             </div>
@@ -570,30 +787,43 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     </div> -->
     <div class="page">
         <div class="jumbo-mob">
-            <img  src="../assets/cover.png">
+            <img  :src="activeProduct.cover">
         </div>
         <div class="float-holder clearfix">
+
             <div class="card-info">
                 <h2>SCRATCH & WIN</h2>
                 <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
+                <div class="campaign-title">
+                    <i class="chev-down"></i>
+                    <!-- {{ activeProduct.title }} -->
+                    <select v-model="selectedProductId">
+                    <option v-for="product in products" :key="product.id" :value="product.id">
+                        {{ product.title.toUpperCase() }}
+                    </option>
+                    <!-- <option value="1">Selected Collection: Space Expedition</option>
+                    <option value="2">Legacy Collection: Christmas 1999</option>
+                    <option value="3">2024 Chinese New Year</option> -->
+                </select>
+                </div>
                 <div class="topblock">
                     <p>JACKPOT</p>
-                    <h2>1,000,000 VERSE</h2>
-                    <p v-if="priceUsd" class="usd">${{ (priceUsd * 1000000).toFixed(2) }}</p>
+                    <h2>{{ activeProduct.jackpotString }} VERSE</h2>
+                    <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.jackpot).toFixed(2) }}</p>
                 </div>
                 <div class="splitblock">
                     <div class="block leftblock">
                         <p>PRICE PER TICKET</p>
-                        <h2>3,000 VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 3000).toFixed(2) }}</p>
+                        <h2>{{ activeProduct.ticketPriceString}} VERSE</h2>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.ticketPrice).toFixed(2) }}</p>
                     </div>
                     <div class="block rightblock">
                         <p>OTHER PRIZES</p>
-                        <h2>100 - 100k VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * 100).toFixed(2) }} - ${{ (priceUsd * 100000).toFixed(2) }}</p>
+                        <h2>{{activeProduct.lowestPriceString}} - {{ activeProduct.highestPriceString }} VERSE</h2>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.lowestPrice).toFixed(2) }} - ${{ (priceUsd * activeProduct.highestPrice).toFixed(2) }}</p>
                     </div>
                 </div>
-                <button class="btn verse-wide" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
+                <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
                 <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
                 <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
@@ -601,14 +831,267 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
             </div>
 
         <div class="card-holder">
-            <img class=""  src="../assets/cover.png">
+            <img class=""  :src="activeProduct.cover">
         </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="other-products">
+            <h1 class="tit">OTHER SCRATCH TICKET COLLECTIONS</h1>
+            <a :href="'?campaign=' + randomOtherProduct.campaign">
+            <div class="banner">
+                <h2 class="tit-ban">{{ randomOtherProduct.title.toUpperCase() }}</h2>
+                <div class="card-preview"></div>
+                <div class="prizes">
+                    <div class="prize-left">
+                        <p class="tit-prize">JACKPOT</p>
+                        <p>{{ randomOtherProduct.jackpotString }} VERSE</p>
+                    </div>
+                    <div class="prize-right">
+                        <p class="tit-prize">PRICE PER TICKET</p>
+                        <p>{{ randomOtherProduct.ticketPriceString}} VERSE</p>
+                    </div>
+                </div>
+                <button class="btn-card">View Collection</button>
+            </div>
+            </a>
         </div>
         <Footer />
     </div>
 </template>
 
 <style lang="scss" scoped>
+.warning-balance {
+    color: orange!important;
+    margin-top: 20px;
+    font-weight: 400;
+    margin-bottom: 0;
+    padding-left: 20px;
+    padding-right: 20px;
+    @media(max-width: 880px) {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.balance-purchase {
+    color: white;
+    font-weight: 500;
+    margin-top: 0px;
+    font-size: 15px;
+    font-family: Barlow;
+    background-color: #05111c;
+    border: 1px solid #273953;
+    border-radius: 10px;
+    padding: 20px;
+}
+.divider {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid #1A2231;
+    @media(max-width: 880px) {
+        position: unset;
+    }
+}
+.other-products {
+    margin-top: 30px;
+    .prizes {
+        background-color: black;
+        width: 300px;
+        border-radius: 20px;
+        position: absolute;
+        left: 647px;
+        height: 60px;
+        top: 28px;
+        border: 10px;
+        @media(max-width: 1300px) {
+            left: 50px;
+            top: 57px;
+            height: 75px;
+        }
+        @media(max-width: 880px) {
+            left: 26px;
+            width: calc(100% - 52px);
+        }
+        .tit-prize {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: v-bind('randomOtherProduct.jackpotBoxColorOneTitle'); 
+            text-shadow: unset;
+            margin-top: 10px!important;    
+            @media(max-width: 1300px) {
+                margin-top: 19px!important;
+            }   
+        }
+        p {
+            margin: 0;
+            font-size: 16px;
+            text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
+            font-weight: 600;
+        }
+        .prize-left {
+            text-align: center;
+            position: absolute;
+            left: 0;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            width: calc(50% - 1px);
+            background-color:  v-bind('randomOtherProduct.jackpotBoxColorOne');
+            color: white;
+            border-right: 1px solid black;
+            height: 100%;
+        }
+
+        .prize-right {
+            text-align: center;
+            position: absolute;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            left: 50%;
+            color: white;
+            width: 50%;
+            background-color:  v-bind('randomOtherProduct.jackpotBoxColorOne');
+            height: 100%;
+        }
+    }
+    .tit {
+        margin-bottom: 30px;
+        text-align: center;
+        color: #899BB5;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: 'Barlow', sans-serif;
+        @media(max-width: 880px) {
+            margin-top: 50px;
+        }
+    }
+
+    .card-preview {
+        background-image: v-bind('randomOtherProduct.cardPreviewLarge');
+        width: 310px;
+        height:  120px;
+        background-size: cover;
+        bottom: 0;
+        position: absolute;
+        left: 244px;
+        @media(max-width: 1300px) {
+            background-image: v-bind('randomOtherProduct.cardPreviewMedium');
+            left: 50%;
+            width: 50%;
+            height: 200px;
+        }
+        @media(max-width: 880px) {
+            display: none;
+        }
+    }
+
+    .banner {
+        border: 1px solid #273953;
+        background-image: v-bind('randomOtherProduct.bannerLarge');
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 88%;
+        margin-left: 6%;
+        height: 118px;
+        border-radius: 20px;
+        position: relative;
+        margin-bottom: 50px;
+        @media(max-width: 1300px) {
+            height: 200px;
+        }
+        @media(max-width: 880px) {
+            width: calc(100% - 30px);
+            margin-left: 15px;
+        }
+        .tit-ban {
+            position: absolute;
+            color: white;
+            font-size: 18px;
+            top: 30px;
+            font-weight: 600;
+            left: 30px;
+            @media(max-width: 1300px) {
+                left: 50px;
+                top: 10px;
+                width: 300px;
+                text-align: center;
+            }
+            @media(max-width: 880px) {
+                width: 100%;
+                left: 0;
+                top: 5px;
+                text-align: center;
+            }   
+        }
+        .btn-card {
+            width: 120px;
+            padding: 0;
+            font-weight: 600;
+            font-family: 'Barlow', sans-serif;
+            height: 35px;
+            border-radius: 30px;
+            color: white;
+            position: absolute;
+            right: 31px;
+            font-size: 14px;
+            top: 42px;
+            background-color: v-bind('randomOtherProduct.homeLinkColor');
+            border: none;
+            @media(max-width: 1300px) {
+                left: 50px;
+                top: 140px;
+                width: 300px;
+            }
+            @media(max-width: 880px) {
+                left: 26px;
+                width: calc(100% - 52px);
+            }
+        }
+    }
+}
+i.chev-down {
+    background-image: url("../assets/icons/chev-down.png");
+    width: 24px;
+    height: 24px;
+    display: block;
+    background-size: cover;
+    position: absolute;
+    z-index: 0;
+    right: 20px;
+    pointer-events: none;
+    top: 14px;
+}
+
+.campaign-title {
+    margin-top: 16px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: v-bind('activeProduct.homeSwitchColor');
+    text-align: center;
+    position: relative;
+    font-size: 18px;
+    font-weight: 200!important;
+    padding: 5px;
+    font-family: 'Barlow', sans-serif;
+
+    select {
+        cursor: pointer;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        text-align: center;
+        width: 100%;
+        font-size: 18px;
+        line-height: 21.6px;
+        font-weight: 600;
+        padding: 12px;
+        font-family: 'Barlow', 'Helvetica', sans-serif;
+        color: white;
+        background-color: v-bind('activeProduct.homeSwitchColor');
+    }
+}
 .terms-link {
     font-size: 12px;
     margin-top: 16px;
@@ -616,7 +1099,7 @@ const contractAddress = GLOBALS.CONTRACT_ADDRESS
     text-align: center;
     color: #899BB5;
     a {
-        color: #0085FF;
+        color: v-bind('activeProduct.homeLinkColor');
         cursor: pointer;
         text-decoration: none;
     }
@@ -626,7 +1109,7 @@ p.usd {
     font-size: 12px;
 }
 .jumbo-mob {
-    background-image: url("../assets/bg.png")!important;
+    background-image: v-bind('activeProduct.backgroundImage')!important;
     height: 211px;
     background-size: cover;
     width: 100%;
@@ -644,23 +1127,27 @@ p.usd {
 .splitblock {
     width: 100%;
     .block {
-        width: calc(49% - 24px)!important;
+        width: calc(49.5% - 24px)!important;
         float: left;
         padding: 0;
-        margin-top: 8px;
-        border-radius: 12px;
+        margin-top: 3px;
         padding: 12px;
         text-align: center;
         @media(max-width: 880px) {
-            width: calc(49% - 24px)!important;
+            width: calc(50% - 26px)!important;
             margin: 0;
-            margin-top: 8px;
+            margin-top: 3px;
+            min-height: unset!important;
+        }
+        @media(max-width: 1185px) {
+            min-height: 80px;
         }
         &.leftblock {
-            background: #4C3777;
-            margin-right: 2%!important;
+            border-bottom-left-radius: 12px;
+            background: v-bind('activeProduct.jackpotBoxColorTwo');
+            margin-right: 1%!important;
             @media(max-width: 880px) {
-                margin-right: 2%!important;
+                margin-right: 3px!important;
             }
             h2 {
                 font-size: 17px;
@@ -676,11 +1163,12 @@ p.usd {
                 margin-top: 2px;
                 margin-bottom: 2px;
                 font-size: 12px;
-                color: #D2BDFF;
+                color: v-bind('activeProduct.jackpotBoxColorTwoTitle')
             }
         }
         &.rightblock {
-            background: #6E376F;
+            border-bottom-right-radius: 12px;
+            background: v-bind('activeProduct.jackpotBoxColorThree');
             h2 {
                 font-size: 17px;
                 text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
@@ -695,21 +1183,22 @@ p.usd {
                 margin-top: 2px;
                 margin-bottom: 2px;
                 font-size: 12px;
-                color: #F7C0F8;
+                color: v-bind('activeProduct.jackpotBoxColorThreeTitle')
             }
         }
     }
 }
+
 .topblock {
     padding: 12px;
     width: calc(100% - 24px);
-    background: #363E82;
-    border-radius: 12px;
+    background: v-bind('activeProduct.jackpotBoxColorOne');
+    border-radius: 0;
     p {
         margin: 0;
         text-align: center;
         font-weight: 600;
-        color: #BFD9FF;
+        color: v-bind('activeProduct.jackpotBoxColorOneTitle')
     }
     h2 {
         font-weight: 800;
@@ -719,6 +1208,8 @@ p.usd {
     }
 }
 .top-meta {
+    padding-left: 40px;
+    padding-right: 40px;
     font-weight: 500;
     font-size: 14px;
     color: #C5CEDB;
@@ -821,8 +1312,8 @@ p.usd {
     min-height: calc(100vh - 188px);
     min-height: calc(100dvh - 188px);
     @media(max-width: 880px) {
-        min-height: calc(100vh - 170px); 
-        min-height: calc(100dvh - 170px); 
+        min-height: calc(100vh - 320px); 
+        min-height: calc(100dvh - 320px); 
         margin-top: 0!important;
     }
 }
@@ -896,12 +1387,12 @@ p.usd {
         display: none;
     }
     @media(max-width: 1000px) {
-        margin-top: 115px!important;
+        margin-top: 125px!important;
     }
     margin-left: 5%;
     float: left;
     width: 52%;
-    margin-top: 70px;
+    margin-top: 105px;
     border-radius: 6px;
     padding-left: 0px;
     background-color: transparent;
@@ -928,7 +1419,7 @@ p.usd {
         height: calc(100vh - 60px);
         height: calc(100dvh - 60px);
         overflow-y: scroll;
-        overflow-x: scroll;
+        overflow-x: hidden;
     }
 
     @media(max-width: 980px) {

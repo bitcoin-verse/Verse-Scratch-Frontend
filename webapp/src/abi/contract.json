@@ -258,6 +258,24 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_receiver",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_ticketCount",
+				"type": "uint256"
+			}
+		],
+		"name": "bulkPurchase",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "buyScratchTicket",
 		"outputs": [],
@@ -334,6 +352,16 @@
 	{
 		"inputs": [],
 		"name": "TooManyReceivers",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TooManyTickets",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ZeroTickts",
 		"type": "error"
 	},
 	{
@@ -717,6 +745,25 @@
 			}
 		],
 		"name": "drawIdToRequestId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "editions",
 		"outputs": [
 			{
 				"internalType": "uint256",
