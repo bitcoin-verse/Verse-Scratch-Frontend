@@ -25,6 +25,21 @@ export default {
             })
         }
 
+        function handleHome(newTab) {
+            const openUrl = (url, newTab) => {
+                if(newTab) {
+                    window.open(url,"_blank")
+                } else {
+                    window.open(url,"_self")
+                }
+            }
+            if(window.location.pathname == '/') {
+               openUrl("https://verse.bitcoin.com" ,newTab)
+            } else {
+               openUrl("/")
+            }
+        }
+
         const truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
 
         function truncateEthAddress(address) {
@@ -59,7 +74,7 @@ export default {
         connectedProvider.value = account.connector.name.toLowerCase()
     })
 
-        return { account, isWallet, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
     }
     
 }
@@ -67,11 +82,11 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a v-if="!isWallet" href="https://verse.bitcoin.com" target="_blank">
+        <a v-if="!isWallet" @click="handleHome(true)">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
-        <a v-if="isWallet" href="https://verse.bitcoin.com">
+        <a v-if="isWallet" @click="handleHome()">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
@@ -85,11 +100,11 @@ export default {
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
             <div class="logo">
-                <a v-if="!isWallet" href="https://verse.bitcoin.com" target="_blank">
+                <a v-if="!isWallet" @click="handleHome(true)">
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
-                <a v-if="isWallet" href="https://verse.bitcoin.com">
+                <a v-if="isWallet" @click="handleHome()">
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
