@@ -395,7 +395,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
     })
     watchAccount(async (account) => {
-
         if(!currentAccountAddress.value) {
             currentAccountAddress.value = getAccount().address
         }
