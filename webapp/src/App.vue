@@ -105,7 +105,7 @@ if(!sessionStorage.getItem('isWallet')) {
 }
 
 const wagmiConfig = createConfig({
-  autoConnect: true,
+  autoConnect: false,
   connectors: [
     new WalletConnectConnector({
       chains,

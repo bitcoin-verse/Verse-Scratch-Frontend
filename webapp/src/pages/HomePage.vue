@@ -794,9 +794,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <h2>SCRATCH & WIN</h2>
                 <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
                 <div class="campaign-title">
-                    <i class="chev-down"></i>
+                    <i v-if="products.length > 1" class="chev-down"></i>
                     <!-- {{ activeProduct.title }} -->
-                    <select v-model="selectedProductId">
+                    <select v-model="selectedProductId" >
                     <option v-for="product in products" :key="product.id" :value="product.id">
                         {{ product.title.toUpperCase() }}
                     </option>
@@ -855,6 +855,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </div>
             </a>
         </div>
+        
         <Footer />
     </div>
 </template>

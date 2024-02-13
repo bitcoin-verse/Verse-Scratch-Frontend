@@ -1,9 +1,10 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'lunar-new-year';
+const DEFAULT_PRODUCT_NAME = 'default';
 const products = [
     {
         id: 1,
+        active: true,
         multibuy: false,
         campaign: 'default',
         contractAddress: '0x4879372A662a09ce5Fd64CD7523B8F231Ac200f8',
@@ -41,6 +42,7 @@ const products = [
     {
         id: 2,
         multibuy: true,
+        active: false,
         campaign: 'lunar-new-year',
         contractAddress: '0xd9b59ffbeb8e6b1cc9bc140f5050233555803483',
         ticketPriceString: '22,000',
@@ -95,20 +97,27 @@ const initProduct = () => {
   if(campaign) {
     localStorage.setItem('collection', campaign)
     let product = products.find(product => product.campaign === campaign);
-    updateMetaData(product)
-    return product.id 
+    if(product.active == true) {
+      updateMetaData(product)
+      return product.id 
+    } else {
+      // product no longer active
+      product = products.find(product => product.campaign === DEFAULT_PRODUCT_NAME);
+      return product.id
+    }
   } 
   // campaign is not set in url
   else {
     let product = {}
     if(localStorage.getItem('collection') == null) {
       product = products.find(product => product.campaign === DEFAULT_PRODUCT_NAME);
+      
     } 
     else {
       let activeProduct = localStorage.getItem('collection') != 'null' ? localStorage.getItem('collection') : DEFAULT_PRODUCT_NAME
       product = products.find(product => product.campaign === activeProduct);
       // if active campaign is no longer available
-      if(!product) {
+      if(!product || product.active == false) {
         product = products.find(product => product.campaign === DEFAULT_PRODUCT_NAME);
         localStorage.setItem('collection', DEFAULT_PRODUCT_NAME)
       }
@@ -129,7 +138,7 @@ export const store = reactive({
     localStorage.setItem('collection', product.campaign)
   },
   getProduct() {
-    return products.find(product => product.id === this.productId);
+    return products.find(product => product.id === this.productId );
   },
   getRandomOtherProduct() {
     let product = products.find(product => product.id !== this.productId)
@@ -139,7 +148,7 @@ export const store = reactive({
     return products.map(product => product.contractAddress)
   },
   getProducts() {
-    return products
+    return products.filter(product => product.active == true)
   }
 })
 
