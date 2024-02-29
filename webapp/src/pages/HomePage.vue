@@ -45,7 +45,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let priceUsd = ref(0)
     let purchaseAmount = ref(1)
 
-    const products = computed(() => store.getProducts());
+    const products = computed(() => store.getProducts().filter(product => product.active == true));
     const activeProduct = computed(() => store.getProduct())
     const randomOtherProduct = computed(() => store.getRandomOtherProduct())
     const selectedProductId = computed({
@@ -834,8 +834,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
         </div>
 
-        <div class="divider"></div>
-        <div class="other-products">
+        <!-- <div class="divider"></div> -->
+        <!-- <div class="other-products">
             <h1 class="tit">OTHER SCRATCH TICKET COLLECTIONS</h1>
             <a :href="'?campaign=' + randomOtherProduct.campaign">
             <div class="banner">
@@ -854,7 +854,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <button class="btn-card">View Collection</button>
             </div>
             </a>
-        </div>
+        </div> -->
         
         <Footer />
     </div>
@@ -1309,8 +1309,8 @@ p.usd {
 .float-holder{
     margin-top: 40px!important;
     margin: 0 auto;
-    min-height: calc(100vh - 188px);
-    min-height: calc(100dvh - 188px);
+    min-height: calc(100vh - 160px);
+    min-height: calc(100dvh - 160px);
     @media(max-width: 880px) {
         min-height: calc(100vh - 320px); 
         min-height: calc(100dvh - 320px); 

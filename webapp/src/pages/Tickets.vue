@@ -19,7 +19,7 @@ export default {
     setup() {        
         const route = useRoute()
         const contractAddresses = computed(() => store.getProductContractAddresses())
-        const products = computed(() => store.getProducts())
+        const products = computed(() => store.getProducts().filter(product => product.active == true));
         let list = []
         let account = getAccount()
         let accountActive = ref(false)

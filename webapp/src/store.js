@@ -148,7 +148,7 @@ export const store = reactive({
     return products.map(product => product.contractAddress)
   },
   getProducts() {
-    return products.filter(product => product.active == true)
+    return products
   }
 })
 
