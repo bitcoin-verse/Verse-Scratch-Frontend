@@ -1,5 +1,5 @@
 <script>
-import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
+import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
 import Redeem from '../pages/Redeem.vue'
@@ -86,15 +86,18 @@ export default {
             );
             }, 250);
         }
-
-        watchAccount(async () => {
-            if(getAccount().address &&  getAccount().address.length != undefined) {
+        const unwatch = watchAccount(core.config, {
+            async onChange() {
+                if(getAccount().address &&  getAccount().address.length != undefined) {
                 accountActive.value = true;
                 getTicketIds()
-            } else {
-                accountActive.value = false
-            }
+                } else {
+                    accountActive.value = false
+                }
+            },
         })
+        unwatch()
+
 
         async function redeem(nftId) {
             modalLoading.value = true

@@ -16,17 +16,16 @@
 
 <script>
 import { logAmplitudeEvent } from "../helpers/analytics";
-import { getNetwork } from '@wagmi/core'
+
 export default {
     setup() {
 
         function logclick(cta) {
-            let { chain } = getNetwork()
             logAmplitudeEvent({
                 name: 'navigation clicked',
                 menu: 'footer',
                 cta: cta,
-                blockchain: chain.id
+                blockchain: 137
             })
         }
         return {

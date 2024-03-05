@@ -1,14 +1,15 @@
 <script>
-import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
+import { getAccount, disconnect, watchAccount } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import core from "../core" 
 
 export default {
-    setup() {
-        let account = getAccount()
+    setup() {   
+        let account = getAccount(core.config)
         let modal = useWeb3Modal()
         let isWallet = ref(false)
         let accountActive = ref(false)
@@ -18,7 +19,7 @@ export default {
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
         function openWalletModal(refresh) {            
-            if(refresh) disconnect()
+            if(refresh) disconnect(core.config)
             modal.open()
             logAmplitudeEvent({
                 name: 'connect wallet clicked'
@@ -48,33 +49,39 @@ export default {
             return `${match[1]}…${match[2]}`;
         };
 
-        watchAccount(async (account) => { 
-        if(account.isConnected == true) {
-            accountActive.value = true;
-            let { chain  } = getNetwork()
-            
-            const publicClient = createPublicClient({ 
-                chain: mainnet,
-                transport: http()
-            })
+        watchAccount(core.config, {
+            async onChange(account) {
+ 
+                if(account.isConnected == true) {
+                accountActive.value = true;
+                console.log(accountActive.value)
+                
+                const publicClient = createPublicClient({ 
+                    chain: mainnet,
+                    transport: http()
+                })
 
-            const ensName = await publicClient.getEnsName({
-                address: getAccount().address
-            })
-            if(ensName) ensUserName.value = ensName
+                const ensName = await publicClient.getEnsName({
+                    address: getAccount(core.config).address
+                })
+                if(ensName) ensUserName.value = ensName
 
-            logAmplitudeEvent({
-                name: 'connect wallet result',
-                blockchain: 'MATIC',
+                logAmplitudeEvent({
+                    name: 'connect wallet result',
+                    blockchain: 'MATIC',
+                })
+                console.log("is connected")
+            } else {
+                console.log("account not active")
+                accountActive.value = false
+            }
+            connectedProvider.value = account.connector.name.toLowerCase()
+            },
             })
-        } else {
-            console.log("account not active")
-            accountActive.value = false
-        }
-        connectedProvider.value = account.connector.name.toLowerCase()
-    })
+       
+           
 
-        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { account, isWallet, handleHome, ensUserName, openWalletModal, core, accountActive, truncateEthAddress, getAccount, connectedProvider} 
     }
     
 }
@@ -119,8 +126,8 @@ export default {
                  <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
             </div>
             <div v-if="!ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
+                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount(core.config).address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
+                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount(core.config).address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
             </div>
         </div>
     </div>
