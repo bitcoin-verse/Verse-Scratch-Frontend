@@ -61,14 +61,10 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygon],
   [
     jsonRpcProvider({
-      rpc: (chain) => {
-        switch (chain.id) {
-          case 137:
-          default:
-            return {
-              http: "https://polygon.meowrpc.com", //https://floral-empty-gas.matic.quiknode.pro/
-            };
-        }
+      rpc: () => {
+        return {
+          http: "https://polygon.meowrpc.com", //https://floral-empty-gas.matic.quiknode.pro/
+        };
       },
     }),
   ],
@@ -134,6 +130,7 @@ logAmplitudeEvent({
 })
 
 createWeb3Modal({ 
+    defaultChain: polygon,
     tokens: {
         137:{
             address:"0xc708d6f2153933daa50b2d0758955be0a93a8fec",
