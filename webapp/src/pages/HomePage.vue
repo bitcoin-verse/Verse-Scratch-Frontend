@@ -1,12 +1,12 @@
 <script>
 import {
   getAccount,
-  waitForTransaction,
   switchChain,
   readContract,
   writeContract,
   disconnect,
-  watchAccount
+  watchAccount,
+  waitForTransactionReceipt
 } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref, computed, watch, registerRuntimeCompiler } from 'vue'
@@ -172,18 +172,18 @@ export default {
         'Please confirm the approval in your connected wallet'
       modalLoading.value = true
       try {
-        const { hash } = await writeContract({
-          address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
+        const { hash } = await writeContract(core.config, {
           abi: ERC20ABI,
+          address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           functionName: 'approve',
+          args: [activeProduct.value.contractAddress, approvalAmount],
           gas: 75000n,
           chainId: 137,
-          args: [activeProduct.value.contractAddress, approvalAmount]
         })
         txHash.value = hash
         loadingMessage.value =
           'Processing the confirmation. Please wait a moment'
-        await waitForTransaction({ hash })
+        await waitForTransactionReceipt(core.config, { hash })
         buyStep.value = 4
         getAllowance()
       } catch (e) {
@@ -229,11 +229,12 @@ export default {
           abi: ContractABI,
           functionName: 'bulkPurchase',
           chainId: 137,
+          account: getAccount(core.config).address,
           args: [receiver, validatedAmount.value]
         })
         txHash.value = hash
         loadingMessage.value = 'Waiting for blockchain confirmation'
-        await waitForTransaction({ hash })
+        await waitForTransactionReceipt(core.config, { hash })
         startTimer()
       } catch (e) {
         console.log(e)
@@ -280,12 +281,14 @@ export default {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
                 functionName: 'giftScratchTicket',
+                account: getAccount(core.config).address,
                 chainId: 137,
                 args: [receiver]
               })
               txHash.value = hash
               loadingMessage.value = 'Waiting for blockchain confirmation'
-              await waitForTransaction({ hash })
+              let res = await waitForTransactionReceipt(core.config, { chainId: 137, hash })
+              console.log(res)
             } catch (e) {
               console.log(e)
               modalLoading.value = false
@@ -296,13 +299,14 @@ export default {
               const { hash } = await writeContract(core.config, {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
+                account: getAccount(core.config).address,
                 functionName: 'buyScratchTicket',
                 chainId: 137,
                 args: []
               })
               txHash.value = hash
               loadingMessage.value = 'Waiting for blockchain confirmation'
-              await waitForTransaction({ hash })
+              await waitForTransactionReceipt(core.config, { hash })
             } catch (e) {
               console.log(e)
               // need to ensure this works because sometimes tx falls through even on confirm
@@ -317,18 +321,29 @@ export default {
         console.log(e)
       }
     }
+
     async function getAllowance () {
       try {
         modalLoading.value = true
-        const data = await readContract({
+
+        console.log(getAccount(core.config).address)
+        console.log(activeProduct.value.contractAddress)
+
+        const data = await readContract(core.config, {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
+          chainId: 137,
           functionName: 'allowance',
-          args: [getAccount(core.config).address, activeProduct.value.contractAddress]
+          args: [getAccount(core.config).address, activeProduct.value.contractAddress],
         })
+
+
+
         modalLoading.value = false
+        console.log(data)
 
         if (data) {
+          console.log(data.toString())
           let dataString = data.toString()
           verseAllowance.value = Web3.utils.fromWei(dataString, 'ether')
 
@@ -355,7 +370,7 @@ export default {
           verseAllowance.value = 0
         }
       } catch (e) {
-        console.log(e)
+        verseAllowance.value = 0
         modalLoading.value = false
       }
     }
@@ -365,11 +380,13 @@ export default {
         const data = await readContract(core.config, {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
+          chainId: 137,
           functionName: 'balanceOf',
           args: [getAccount(core.config).address]
         })
         modalLoading.value = false
 
+        console.log(data)
         if (data) {
           let dataString = data.toString()
           verseBalance.value = parseFloat(dataString) / Math.pow(10, 18)
@@ -418,7 +435,7 @@ export default {
     //     }
     // })
 
-    const unwatch = watchAccount(core.config, {
+    watchAccount(core.config, {
       async onChange (account) {
         if (!currentAccountAddress.value) {
           currentAccountAddress.value = getAccount(core.config).address
@@ -447,7 +464,7 @@ export default {
         }
       }
     })
-    unwatch()
+
 
     function copyText () {
       let text = `https://scratcher.verse.bitcoin.com/tickets?gift=1&address=${giftAddress.value}`
@@ -494,6 +511,7 @@ export default {
       connectAndClose,
       account,
       openModal,
+      core,
       buyStep,
       updateAmount,
       priceUsd,

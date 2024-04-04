@@ -54,7 +54,6 @@ export default {
  
                 if(account.isConnected == true) {
                 accountActive.value = true;
-                console.log(accountActive.value)
                 
                 const publicClient = createPublicClient({ 
                     chain: mainnet,
@@ -65,6 +64,7 @@ export default {
                     address: getAccount(core.config).address
                 })
                 if(ensName) ensUserName.value = ensName
+    
 
                 logAmplitudeEvent({
                     name: 'connect wallet result',
