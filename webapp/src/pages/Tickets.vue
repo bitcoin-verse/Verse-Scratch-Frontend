@@ -117,7 +117,7 @@ export default {
                 objToUpdate.claimed = true
                 step.value = 1;
             } catch (e) {
-                if(e.message == 'Cannot convert undefined to a BigInt') {
+                if(e instanceof TypeError) {
                     modalLoading.value = false
                     const objToUpdate = nfts.value.find(obj => obj.id == nftId);
                     objToUpdate.claimed = true

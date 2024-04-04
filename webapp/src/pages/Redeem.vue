@@ -51,7 +51,7 @@ const redeem = async (address) => {
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
-        if(e.message == 'Cannot convert undefined to a BigInt') {
+        if(e instanceof TypeError) {
             modalLoading.value = false
             modalFinish.value = true
         }

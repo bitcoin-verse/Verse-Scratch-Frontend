@@ -186,7 +186,7 @@ export default {
         buyStep.value = 4
         getAllowance()
       } catch (e) {
-        if(e.message == 'Cannot convert undefined to a BigInt') {
+        if(e instanceof TypeError) {
           buyStep.value = 4
           getAllowance()
         } else {
@@ -239,7 +239,7 @@ export default {
         await waitForTransactionReceipt(core.config, { hash })
         startTimer()
       } catch (e) {
-        if(e.message == 'Cannot convert undefined to a BigInt') {
+        if(e instanceof TypeError) {
           startTimer()
         } else {
           modalLoading.value = false
@@ -293,7 +293,7 @@ export default {
               loadingMessage.value = 'Waiting for blockchain confirmation'
               await waitForTransactionReceipt(core.config, { chainId: 137, hash })
             } catch (e) {
-              if(e.message == 'Cannot convert undefined to a BigInt') {
+              if(e instanceof TypeError) {
                 startTimer()
               }
               modalLoading.value = false
@@ -313,10 +313,8 @@ export default {
 
               await waitForTransactionReceipt(core.config, { hash })
             } catch (e) {
-              console.log(e)
-              alert(e)
               // issue with underlying lib in combination with VueJS, need to wait for package fix, for now can ignore warning.
-              if(e.message == 'Cannot convert undefined to a BigInt') {
+              if(e instanceof TypeError) {
                 startTimer()
               } else {
               // need to ensure this works because sometimes tx falls through even on confirm
