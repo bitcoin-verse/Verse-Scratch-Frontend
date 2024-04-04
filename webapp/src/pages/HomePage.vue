@@ -314,6 +314,7 @@ export default {
               await waitForTransactionReceipt(core.config, { hash })
             } catch (e) {
               console.log(e)
+              alert(e)
               // issue with underlying lib in combination with VueJS, need to wait for package fix, for now can ignore warning.
               if(e.message == 'Cannot convert undefined to a BigInt') {
                 startTimer()
