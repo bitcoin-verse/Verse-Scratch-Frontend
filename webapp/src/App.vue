@@ -67,8 +67,14 @@ logAmplitudeEvent({
 reconnect(core.config)
 createWeb3Modal({
   wagmiConfig: core.config,
+  featuredWalletIds: [
+    '107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c'
+  ],
+  includeWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c'],
+  excludeWalletIds: [],
   projectId: "5d9e3863443e82e9222f3e3f5e075798",
-  enableAnalytics: true 
+  enableAnalytics: true,
+
 })
 
 
