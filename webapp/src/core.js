@@ -1,4 +1,4 @@
-import { polygon } from 'viem/chains'
+import { polygon, mainnet } from 'viem/chains'
 import { defaultWagmiConfig } from '@web3modal/wagmi/vue'
 
 

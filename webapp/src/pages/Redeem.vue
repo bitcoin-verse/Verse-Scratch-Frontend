@@ -1,8 +1,9 @@
 <script setup>
-import { waitForTransaction, writeContract} from '@wagmi/core'
+import { waitForTransactionReceipt, writeContract} from '@wagmi/core'
 import { ref, onMounted, watch, computed } from 'vue';
 import ContractABI from '../abi/contract.json'
 import { store } from '../store.js'
+import core from '../core'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 const activeProduct = computed(() => store.getProduct())
@@ -38,20 +39,23 @@ const redeem = async (address) => {
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
     try {
-        const { hash } = await writeContract({
+        const { hash } = await writeContract(core.config, {
             address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
-            chainId: 137,
             args: [props.detailNFT.id]
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
         txHash.value = hash
-        await waitForTransaction({ hash })
+        await waitForTransactionReceipt(core.config, { hash })
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
-        console.log(e)
+        if(e.message == 'Cannot convert undefined to a BigInt') {
+            modalLoading.value = false
+            modalFinish.value = true
+        }
+        
         winModal.value = true
         modalLoading.value = false;
 

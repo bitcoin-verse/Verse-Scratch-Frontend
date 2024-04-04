@@ -177,8 +177,7 @@ export default {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           functionName: 'approve',
           args: [activeProduct.value.contractAddress, approvalAmount],
-          gas: 75000n,
-          chainId: 137,
+          gas: 75000n
         })
         txHash.value = hash
         loadingMessage.value =
@@ -187,8 +186,12 @@ export default {
         buyStep.value = 4
         getAllowance()
       } catch (e) {
-        console.log(e)
-        modalLoading.value = false
+        if(e.message == 'Cannot convert undefined to a BigInt') {
+          buyStep.value = 4
+          getAllowance()
+        } else {
+          modalLoading.value = false
+        }
       }
     }
 
@@ -228,7 +231,6 @@ export default {
           address: activeProduct.value.contractAddress,
           abi: ContractABI,
           functionName: 'bulkPurchase',
-          chainId: 137,
           account: getAccount(core.config).address,
           args: [receiver, validatedAmount.value]
         })
@@ -237,9 +239,12 @@ export default {
         await waitForTransactionReceipt(core.config, { hash })
         startTimer()
       } catch (e) {
-        console.log(e)
-        modalLoading.value = false
+        if(e.message == 'Cannot convert undefined to a BigInt') {
+          startTimer()
+        } else {
+          modalLoading.value = false
         return
+        }
       }
     }
 
@@ -282,15 +287,15 @@ export default {
                 abi: ContractABI,
                 functionName: 'giftScratchTicket',
                 account: getAccount(core.config).address,
-                chainId: 137,
                 args: [receiver]
               })
               txHash.value = hash
               loadingMessage.value = 'Waiting for blockchain confirmation'
-              let res = await waitForTransactionReceipt(core.config, { chainId: 137, hash })
-              console.log(res)
+              await waitForTransactionReceipt(core.config, { chainId: 137, hash })
             } catch (e) {
-              console.log(e)
+              if(e.message == 'Cannot convert undefined to a BigInt') {
+                startTimer()
+              }
               modalLoading.value = false
               return
             }
@@ -301,20 +306,24 @@ export default {
                 abi: ContractABI,
                 account: getAccount(core.config).address,
                 functionName: 'buyScratchTicket',
-                chainId: 137,
                 args: []
               })
               txHash.value = hash
               loadingMessage.value = 'Waiting for blockchain confirmation'
+
               await waitForTransactionReceipt(core.config, { hash })
             } catch (e) {
               console.log(e)
+              // issue with underlying lib in combination with VueJS, need to wait for package fix, for now can ignore warning.
+              if(e.message == 'Cannot convert undefined to a BigInt') {
+                startTimer()
+              } else {
               // need to ensure this works because sometimes tx falls through even on confirm
               modalLoading.value = false
+              }
               return
             }
           }
-          startTimer()
         }
       } catch (e) {
         modalLoading.value = false
@@ -332,7 +341,6 @@ export default {
         const data = await readContract(core.config, {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
-          chainId: 137,
           functionName: 'allowance',
           args: [getAccount(core.config).address, activeProduct.value.contractAddress],
         })
@@ -380,7 +388,6 @@ export default {
         const data = await readContract(core.config, {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
-          chainId: 137,
           functionName: 'balanceOf',
           args: [getAccount(core.config).address]
         })
@@ -426,14 +433,6 @@ export default {
         buyStep.value = 2
       }
     })
-
-    // watchNetwork((network) => {
-    //     if(network.chain && network.chain.id != 137) {
-    //         correctNetwork.value = false
-    //     } else {
-    //         correctNetwork.value = true
-    //     }
-    // })
 
     watchAccount(core.config, {
       async onChange (account) {

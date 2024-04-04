@@ -1,5 +1,5 @@
 <script>
-import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
+import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
 import Redeem from '../pages/Redeem.vue'
@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router'
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
 import { store } from '../store.js'
+import core from '../core'
 
 export default {
     components: {
@@ -21,7 +22,7 @@ export default {
         const contractAddresses = computed(() => store.getProductContractAddresses())
         const products = computed(() => store.getProducts().filter(product => product.active == true));
         let list = []
-        let account = getAccount()
+        let account = getAccount(core.config)
         let accountActive = ref(false)
         let loading = ref(false)
         let modal = useWeb3Modal()
@@ -44,7 +45,7 @@ export default {
 
 
         // entry point to watch account
-        if(getAccount().address &&  getAccount().address.length != undefined) {
+        if(getAccount(core.config).address &&  getAccount(core.config).address.length != undefined) {
             accountActive.value = true;
             getTicketIds()
         } else {
@@ -88,7 +89,7 @@ export default {
         }
         const unwatch = watchAccount(core.config, {
             async onChange() {
-                if(getAccount().address &&  getAccount().address.length != undefined) {
+                if(getAccount(core.config).address &&  getAccount(core.config).address.length != undefined) {
                 accountActive.value = true;
                 getTicketIds()
                 } else {
@@ -104,19 +105,24 @@ export default {
             const obj = nfts.value.find(obj => obj.id == nftId);
 
             try {
-                const { hash } = await writeContract({
+                const { hash } = await writeContract(core.config, {
                     address: contractAddresses.value[0],
                     abi: ContractABI,
                     functionName: 'claimPrize',
-                    chainId: 137,
                     args: [obj.id]
                 })
-                await waitForTransaction({ hash })
+                await waitForTransactionReceipt(core.config, { hash })
                 modalLoading.value = false
                 const objToUpdate = nfts.value.find(obj => obj.id == nftId);
                 objToUpdate.claimed = true
                 step.value = 1;
             } catch (e) {
+                if(e.message == 'Cannot convert undefined to a BigInt') {
+                    modalLoading.value = false
+                    const objToUpdate = nfts.value.find(obj => obj.id == nftId);
+                    objToUpdate.claimed = true
+                    step.value = 1;
+                }
                 // modalLoading.value = false;
                 console.log(e)
             }
@@ -164,7 +170,7 @@ export default {
 
         async function getClaimed(id, address) {
             try {
-                const data = await readContract({
+                const data = await readContract(core.config, {
                 address: address,
                 abi: ERC721,
                 functionName: 'claimed',
@@ -187,7 +193,7 @@ export default {
         async function getEdition(id, address) {
             
             try {
-                const data = await readContract({
+                const data = await readContract(core.config, {
                 address: address,
                 abi: ERC721,
                 functionName: 'editions',
@@ -208,7 +214,7 @@ export default {
 
         async function getPrizeAmount(id, address) {
             try {
-                const data = await readContract({
+                const data = await readContract(core.config, {
                     address: address,
                     abi: ERC721,
                     functionName: 'prizes',
@@ -236,7 +242,7 @@ export default {
 
         async function getRedemptionStatus(id, address) {
             try {
-                const data = await readContract({
+                const data = await readContract(core.config, {
                 address: address,
                 abi: ERC721ABI,
                 functionName: 'tokenURI',
@@ -288,11 +294,11 @@ export default {
                     contract.push(product.contractAddress)
                     bucketUrls.push(product.bucketUrl)
                     promiseTicketArray.push(
-                        readContract({
+                        readContract(core.config, {
                             address: product.contractAddress,
                             abi: ERC721ABI,
                             functionName: 'ownedByAddress',
-                            args: [getAccount().address]
+                            args: [getAccount(core.config).address]
                         }))
                 })
                 const promiseResult = await Promise.all(promiseTicketArray)
