@@ -103,6 +103,7 @@ export default {
         async function redeem(nftId) {
             modalLoading.value = true
             const obj = nfts.value.find(obj => obj.id == nftId);
+            console.log(obj)
 
             try {
                 const { hash } = await writeContract(core.config, {
@@ -117,6 +118,7 @@ export default {
                 objToUpdate.claimed = true
                 step.value = 1;
             } catch (e) {
+                console.log(e)
                 if(e instanceof TypeError) {
                     modalLoading.value = false
                     const objToUpdate = nfts.value.find(obj => obj.id == nftId);

@@ -8,7 +8,6 @@ import core from '../core'
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 const activeProduct = computed(() => store.getProduct())
 
-
 let count = ref(0);
 let imageLoaded = ref(false)
 let modalTutorial = ref(true)
@@ -35,6 +34,7 @@ const toggleShow = () => {
 const redeem = async (address) => {
     txHash.value = ""
 
+    console.log("redeem", address)
     winModal.value = false
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
@@ -48,17 +48,17 @@ const redeem = async (address) => {
         modalLoadingText.value = "Waiting for transaction to confirm"
         txHash.value = hash
         await waitForTransactionReceipt(core.config, { hash })
+        winModal.value = false
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
         if(e instanceof TypeError) {
             modalLoading.value = false
             modalFinish.value = true
+        } else {
+            winModal.value = true
+            modalLoading.value = false;
         }
-        
-        winModal.value = true
-        modalLoading.value = false;
-
     }
 }
 

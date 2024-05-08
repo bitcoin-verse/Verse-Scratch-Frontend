@@ -51,6 +51,7 @@ export default {
 
         watchAccount(core.config, {
             async onChange(account) {
+                console.log(account)
  
                 if(account.isConnected == true) {
                 accountActive.value = true;
@@ -75,7 +76,11 @@ export default {
                 console.log("account not active")
                 accountActive.value = false
             }
-            connectedProvider.value = account.connector.name.toLowerCase()
+
+            console.log(getAccount(core.config))
+  
+            connectedProvider.value = account.connector.id.toLowerCase().replace(".", "-")
+            console.log(connectedProvider)
             },
             })
        
@@ -184,28 +189,34 @@ export default {
         top: 4.5px;
         background-size: cover;
 
-        &.bitcoin {
+        &.walletconnect {
             background-image: url("./../assets/icons/bitcoincom.png");
             right: 4.3px;
             top: 4.2px;
         }
-        &.walletconnect {
-            background-image: url("./../assets/icons/wc-logo.png");
-            right: 4.3px;
-            top: 4.2px;
-        }
+        // &.walletconnect {
+        //     background-image: url("./../assets/icons/wc-logo.png");
+        //     right: 4.3px;
+        //     top: 4.2px;
+        // }
 
-        &.metamask {
+        &.injected {
             background-image: url("./../assets/icons/mm-logo.png");
             right: 5.3px;
             top: 4.5px;
         }
-        &.rabby {
+
+        &.io-metamask {
+            background-image: url("./../assets/icons/mm-logo.png");
+            right: 5.3px;
+            top: 4.5px;
+        }
+        &.io-rabby {
             width: 26px;
-            height: 22px;
+            height: 26px;
             border-radius: 0;
-            top: -5px;
-            right: -5px;
+            top: 5px;
+            right: 6px;
             border-radius: 50%;
             background-image: url("./../assets/icons/rabby.png");
             background-size: cover;
