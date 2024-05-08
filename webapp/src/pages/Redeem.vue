@@ -39,7 +39,7 @@ const redeem = async (address) => {
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
     try {
-        const { hash } = await writeContract(core.config, {
+        const hash = await writeContract(core.config, {
             address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
@@ -47,7 +47,8 @@ const redeem = async (address) => {
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
         txHash.value = hash
-        await waitForTransactionReceipt(core.config, { hash })
+        let normalHash = { hash }
+        await waitForTransactionReceipt(core.config, { normalHash })
         winModal.value = false
         modalLoading.value = false
         modalFinish.value = true

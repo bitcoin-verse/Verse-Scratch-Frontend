@@ -319,6 +319,7 @@ i.close-btn {
         }
         &.no-min-height {
           min-height: unset!important;
+          height: unset!important;
         }
         .loadingText {
           color: #FFFFFF;

@@ -172,7 +172,7 @@ export default {
         'Please confirm the approval in your connected wallet'
       modalLoading.value = true
       try {
-        const { hash } = await writeContract(core.config, {
+        const hash = await writeContract(core.config, {
           abi: ERC20ABI,
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           functionName: 'approve',
@@ -182,7 +182,8 @@ export default {
         txHash.value = hash
         loadingMessage.value =
           'Processing the confirmation. Please wait a moment'
-        await waitForTransactionReceipt(core.config, { hash })
+        let normalHash = { hash }
+        await waitForTransactionReceipt(core.config, { normalHash })
         buyStep.value = 4
         getAllowance()
       } catch (e) {
@@ -227,7 +228,7 @@ export default {
       if (_giftAddress && _giftAddress.length > 0) receiver = _giftAddress
 
       try {
-        const { hash } = await writeContract(core.config, {
+        const hash = await writeContract(core.config, {
           address: activeProduct.value.contractAddress,
           abi: ContractABI,
           functionName: 'bulkPurchase',
@@ -236,7 +237,8 @@ export default {
         })
         txHash.value = hash
         loadingMessage.value = 'Waiting for blockchain confirmation'
-        await waitForTransactionReceipt(core.config, { hash })
+        let normalHash = { hash }
+        await waitForTransactionReceipt(core.config, { normalHash })
         startTimer()
       } catch (e) {
         if(e instanceof TypeError) {
@@ -282,7 +284,7 @@ export default {
           if (_giftAddress && _giftAddress.length > 0) {
             try {
               receiver = _giftAddress
-              const { hash } = await writeContract(core.config, {
+              const hash = await writeContract(core.config, {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
                 functionName: 'giftScratchTicket',
@@ -290,8 +292,10 @@ export default {
                 args: [receiver]
               })
               txHash.value = hash
+
               loadingMessage.value = 'Waiting for blockchain confirmation'
-              await waitForTransactionReceipt(core.config, { chainId: 137, hash })
+              let normalHash = { hash }
+              await waitForTransactionReceipt(core.config, { chainId: 137, normalHash })
             } catch (e) {
               if(e instanceof TypeError) {
                 startTimer()
@@ -301,17 +305,19 @@ export default {
             }
           } else {
             try {
-              const { hash } = await writeContract(core.config, {
+              const hash = await writeContract(core.config, {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
                 account: getAccount(core.config).address,
                 functionName: 'buyScratchTicket',
                 args: []
               })
+
               txHash.value = hash
               loadingMessage.value = 'Waiting for blockchain confirmation'
 
-              await waitForTransactionReceipt(core.config, { hash })
+              let normalHash = { hash }
+              await waitForTransactionReceipt(core.config, { normalHash })
             } catch (e) {
               // issue with underlying lib in combination with VueJS, need to wait for package fix, for now can ignore warning.
               if(e instanceof TypeError) {
@@ -572,13 +578,13 @@ export default {
         <div class="img-spinner"></div>
         <p v-if="!showTimer" class="loadingText">{{ loadingMessage }}</p>
         <h3 v-if="showTimer" class="title">Payment Successful</h3>
-        <a
+        <p><a
           target="_blank"
           style="color: #0085ff; font-weight: 600"
           :href="`https://polygonscan.com/tx/${txHash}`"
           v-if="txHash && !showTimer"
           >View blockchain transaction</a
-        >
+        ></p>
         <p v-if="showTimer && !giftTicket" class="subtext short">
           Issuing ticket to your wallet and awaiting final confirmation
         </p>

@@ -106,13 +106,14 @@ export default {
             console.log(obj)
 
             try {
-                const { hash } = await writeContract(core.config, {
+                const hash = await writeContract(core.config, {
                     address: contractAddresses.value[0],
                     abi: ContractABI,
                     functionName: 'claimPrize',
                     args: [obj.id]
                 })
-                await waitForTransactionReceipt(core.config, { hash })
+                let normalHash = { hash }
+                await waitForTransactionReceipt(core.config, { normalHash })
                 modalLoading.value = false
                 const objToUpdate = nfts.value.find(obj => obj.id == nftId);
                 objToUpdate.claimed = true
