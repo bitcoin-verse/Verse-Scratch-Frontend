@@ -26,17 +26,19 @@ icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 }
 const config = defaultWagmiConfig({
     chains, 
+    isWallet,
     projectId, 
     metadata, 
     enableWalletConnect: true, 
     enableInjected: true,
     enableEIP6963: true, 
-    enableCoinbase: true,
+    enableCoinbase: false,
 })
 
 
 export default {
-    config
+    config,
+    isWallet
 }
 
 
