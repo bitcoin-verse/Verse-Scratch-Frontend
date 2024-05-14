@@ -1188,8 +1188,8 @@ export default {
       </div>
     </div>
 
-    <!-- <div class="divider"></div> -->
-    <!-- <div class="other-products">
+    <div class="divider"></div> 
+    <div class="other-products">
             <h1 class="tit">OTHER SCRATCH TICKET COLLECTIONS</h1>
             <a :href="'?campaign=' + randomOtherProduct.campaign">
             <div class="banner">
@@ -1208,7 +1208,7 @@ export default {
                 <button class="btn-card">View Collection</button>
             </div>
             </a>
-        </div> -->
+      </div>
 
     <Footer />
   </div>
