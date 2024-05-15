@@ -44,6 +44,7 @@ const redeem = async (address) => {
             address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
+            gas: 130000,
             args: [props.detailNFT.id]
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
