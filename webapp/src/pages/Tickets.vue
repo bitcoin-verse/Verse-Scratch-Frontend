@@ -20,7 +20,8 @@ export default {
     setup() {        
         const route = useRoute()
         const contractAddresses = computed(() => store.getProductContractAddresses())
-        const products = computed(() => store.getProducts().filter(product => product.active == true));
+        const products = computed(() => store.getProducts())
+        const activeProducts = computed(() => store.getProducts().filter(product => product.active == true));
         let list = []
         let account = getAccount(core.config)
         let accountActive = ref(false)
@@ -343,7 +344,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, handleClickItem, newTicketModal, products, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, handleClickItem, newTicketModal, products, activeProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -363,7 +364,7 @@ export default {
             <div class="modal-body collection">
                 <h3 class="title">Choose a collection</h3>
                 <div class="collection-picker">
-                    <div class="collection" v-for="item in products.reverse()" :style="`background-image: ${item.bannerLarge}`">
+                    <div class="collection" v-for="item in activeProducts.reverse()" :style="`background-image: ${item.bannerLarge}`">
                         <h2>{{ item.title.toUpperCase() }}</h2>
                         <div class="overview">
                             <div class="left" :style="`background-color: ${item.jackpotBoxColorOne}`">

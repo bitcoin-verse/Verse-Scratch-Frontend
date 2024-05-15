@@ -20,6 +20,7 @@ let modalFinish = ref(false)
 
 if(props.claim == true) {
     winModal.value = true
+    count.value = 8
 }
 
 const disableTutorial = () => {
