@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'default';
+const DEFAULT_PRODUCT_NAME = 'bitcoin-pizza';
 const products = [
     {
         id: 1,
@@ -75,7 +75,44 @@ const products = [
           description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
           socialImage: "https://scratcher.verse.bitcoin.com/meta_lunar.png"
         }
-    }
+    },
+    {
+      id: 3,
+      multibuy: true,
+      active: true,
+      campaign: 'bitcoin-pizza',
+      contractAddress: '0xae16fca128d5a27c738419674a0eba886e170595',
+      ticketPriceString: '22,000',
+      bannerLarge: 'url(/bitcoinpizza/banner-lg.png)',
+      cardPreviewLarge: 'url(/bitcoinpizza/card-preview-lg.png)',
+      cardPreviewMedium: 'url(/bitcoinpizza/card-preview-md.png)',
+      bucketUrl: 'verse-scratcher-images',
+      ticketPrice: 22000, 
+      title: 'Bitcoin Pizza Day',
+      cover: '/bitcoinpizza/cover.png',
+      jackpotString: '8,888,888',
+      templateFolder: 'bitcoinpizza',
+      homeLinkColor: '#F09E0E',
+      jackpot: 8888888,
+      lowestPrice: 888,
+      lowestPriceString: '888',
+      highestPrice: 800000,
+      highestPriceString: '800k',
+      backgroundImage: window.location.pathname === '/' ? `url('/bitcoinpizza/background.png')` : `url('/darker.png')`,
+      bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+      homeSwitchColor: '#F09E0E',
+      jackpotBoxColorOne: '#232323',
+      jackpotBoxColorOneTitle: '#F09E0E',
+      jackpotBoxColorTwo: '#232323',
+      jackpotBoxColorTwoTitle: '#F09E0E',
+      jackpotBoxColorThree: '#232323',
+      jackpotBoxColorThreeTitle: '#F09E0E',
+      meta: {
+        title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+        description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+        socialImage: "https://scratcher.verse.bitcoin.com/meta_pizza.png"
+      }
+  }
 ]
 
 const updateMetaData = (product) => {
@@ -141,8 +178,8 @@ export const store = reactive({
     return products.find(product => product.id === this.productId );
   },
   getRandomOtherProduct() {
-    let product = products.find(product => product.id !== this.productId)
-    return products.find(product => product.id !== this.productId);
+    // let product = products.find(product => product.id !== this.productId && product.active == true)
+    return products.find(product => product.id !== this.productId && product.active == true);
   },
   getProductContractAddresses() {
     return products.map(product => product.contractAddress)

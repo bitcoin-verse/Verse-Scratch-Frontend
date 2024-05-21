@@ -20,6 +20,8 @@ export default {
         const route = useRoute()
         const contractAddresses = computed(() => store.getProductContractAddresses())
         const products = computed(() => store.getProducts().filter(product => product.active == true));
+        const allProducts = computed(() => store.getProducts());
+
         let list = []
         let account = getAccount()
         let accountActive = ref(false)
@@ -331,7 +333,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, handleClickItem, newTicketModal, products, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, account, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -402,7 +404,7 @@ export default {
                     <div class="filter">
                         <select v-model="selectedFilterOption">
                             <option value="">All Collections</option>
-                            <option v-for="item in products" :value="item.contractAddress">{{ item.title }}</option>
+                            <option v-for="item in allProducts" :value="item.contractAddress">{{ item.title }}</option>
                         </select>
                         <i class="chev-down"></i>
                     </div>
