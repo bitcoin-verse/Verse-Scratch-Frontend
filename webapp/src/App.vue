@@ -2,12 +2,14 @@
 
 import { RouterView } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
+import { reconnect } from '@wagmi/core'
+import { injected } from '@wagmi/connectors'
 import NavBar from './components/NavBar.vue'
 import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
-import { getWagmiConfig } from './config'
+import { getWagmiConfig, getConnectors, metadata, getIsWallet, projectId } from './config'
 
-import { computed, provide } from 'vue';
+import { computed, provide, onMounted } from 'vue';
 
 import { store } from './store.js'
 import globals from "./globals";
@@ -50,11 +52,16 @@ async function clearAllIndexedDB() {
   }
 }
 
-const projectId = '5d9e3863443e82e9222f3e3f5e075798'
 const activeProduct = computed(() => store.getProduct())
 
 const wagmiConfig = getWagmiConfig();
 provide('wagmiConfig', wagmiConfig)
+
+onMounted(async () => {
+  if (localStorage.getItem('wagmi.recentConnectorId')) {
+    const result = await reconnect(wagmiConfig, { connectors: wagmiConfig.connectors })
+  }
+})
 
 
 initAmplitude()

@@ -19,7 +19,7 @@ export default {
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
         function openWalletModal(refresh) {
-            if (refresh) disconnect()
+            if (refresh) disconnect(wagmiConfig)
             modal.open()
             logAmplitudeEvent({
                 name: 'connect wallet clicked'
@@ -71,11 +71,11 @@ export default {
                         name: 'connect wallet result',
                         blockchain: 'MATIC',
                     })
+                    connectedProvider.value = account.connector.name.toLowerCase()
                 } else {
                     console.log("account not active")
                     accountActive.value = false
                 }
-                connectedProvider.value = account.connector.name.toLowerCase()
             }
         })
 
