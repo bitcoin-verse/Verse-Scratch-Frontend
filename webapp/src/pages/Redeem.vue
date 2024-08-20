@@ -1,6 +1,6 @@
 <script setup>
-import { waitForTransaction, writeContract} from '@wagmi/core'
-import { ref, onMounted, watch, computed } from 'vue';
+import { waitForTransactionReceipt, writeContract } from '@wagmi/core'
+import { ref, onMounted, watch, computed, inject } from 'vue';
 import ContractABI from '../abi/contract.json'
 import { store } from '../store.js'
 
@@ -8,6 +8,7 @@ const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratc
 const activeProduct = computed(() => store.getProduct())
 
 
+const wagmiConfig = inject('wagmiConfig');
 let count = ref(0);
 let imageLoaded = ref(false)
 let modalTutorial = ref(true)
@@ -18,7 +19,7 @@ let modalLoadingText = ref("")
 let txHash = ref("")
 let modalFinish = ref(false)
 
-if(props.claim == true) {
+if (props.claim == true) {
     winModal.value = true
 }
 
@@ -32,13 +33,14 @@ const toggleShow = () => {
 }
 
 const redeem = async (address) => {
+    console.log(wagmiConfig);
     txHash.value = ""
 
     winModal.value = false
     modalLoading.value = true;
     modalLoadingText.value = "Please confirm the claim in your connected wallet"
     try {
-        const { hash } = await writeContract({
+        const hash = await writeContract(wagmiConfig, {
             address: address,
             abi: ContractABI,
             functionName: 'claimPrize',
@@ -47,7 +49,7 @@ const redeem = async (address) => {
         })
         modalLoadingText.value = "Waiting for transaction to confirm"
         txHash.value = hash
-        await waitForTransaction({ hash })
+        await waitForTransactionReceipt(wagmiConfig, { hash })
         modalLoading.value = false
         modalFinish.value = true
     } catch (e) {
@@ -60,46 +62,46 @@ const redeem = async (address) => {
 
 
 
-watch(count, async (newValue)=> {
-    if (newValue == 8) { 
-        
+watch(count, async (newValue) => {
+    if (newValue == 8) {
+
         localStorage.setItem(props.detailNFT.id.toString() + '/' + props.detailNFT.address.toString(), true)
 
         const finalizeTicket = () => {
             winModal.value = true
 
             const duration = 3 * 1000,
-            animationEnd = Date.now() + duration,
-            defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+                animationEnd = Date.now() + duration,
+                defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
             function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
+                return Math.random() * (max - min) + min;
             }
 
-            const interval = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
+            const interval = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
 
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
 
-            const particleCount = 50 * (timeLeft / duration);
+                const particleCount = 50 * (timeLeft / duration);
 
-            if(sessionStorage.getItem('isWallet') === "false") {
-                confetti(
+                if (sessionStorage.getItem('isWallet') === "false") {
+                    confetti(
                         Object.assign({}, defaults, {
-                        particleCount,
-                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                            particleCount,
+                            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
                         })
                     );
-                confetti(
-                    Object.assign({}, defaults, {
-                    particleCount,
-                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                    })
-                )
-            }
-                
+                    confetti(
+                        Object.assign({}, defaults, {
+                            particleCount,
+                            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                        })
+                    )
+                }
+
             }, 200)
         }
 
@@ -111,18 +113,18 @@ watch(count, async (newValue)=> {
 })
 
 onMounted(() => {
-    if(Boolean(localStorage.getItem('showTutorial')) == true) {
+    if (Boolean(localStorage.getItem('showTutorial')) == true) {
         modalTutorial.value = false
     }
     const img = new Image();
     img.src = `https://${props.detailNFT.bucketUrl}.s3.amazonaws.com/${props.detailNFT.id}/${props.detailNFT.address}.jpg`
     img.onload = () => {
         setTimeout(() => {
-            if(props.claim == false) {
-            setupScratch()
+            if (props.claim == false) {
+                setupScratch()
             }
-            imageLoaded.value = true;    
-        }, 800)   
+            imageLoaded.value = true;
+        }, 800)
     };
 
     function setupScratch() {
@@ -147,11 +149,11 @@ onMounted(() => {
         let arr = [one, two, three, four, five, six, seven, eight]
         arr.forEach((item, idx) => {
             item.addEventListener('success', function (e) {
-                if(scratched[idx] == false) {
+                if (scratched[idx] == false) {
                     scratched[idx] = true
                     count.value++;
                 }
-                if(count.value == 8) {
+                if (count.value == 8) {
                     props.setScratched(props.detailNFT.id);
                 }
             }, false);
@@ -161,19 +163,36 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="backdrop" v-if="modalTutorial || winModal || modalLoading || modalFinish">
-        <div class="modal" v-if="modalTutorial && !winModal && !modalFinish && !modalLoading">
+    <div
+        class="backdrop"
+        v-if="modalTutorial || winModal || modalLoading || modalFinish"
+    >
+        <div
+            class="modal"
+            v-if="modalTutorial && !winModal && !modalFinish && !modalLoading"
+        >
             <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
                         <h3 class="title">3 is the magic number</h3>
-                        <p class="subtext short desktop-text" style="margin-bottom: 0;">Reveal the numbers by dragging your mouse over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
-                        <p class="subtext short mobile-text" style="margin-bottom: 0;">Reveal the numbers by dragging your finger over the silver moons.<br/>Unearth three matching numbers and you've hit a cosmic jackpot!</p>
+                        <p
+                            class="subtext short desktop-text"
+                            style="margin-bottom: 0;"
+                        >Reveal the numbers by dragging your mouse over the silver moons.<br />Unearth three matching
+                            numbers and you've hit a cosmic jackpot!</p>
+                        <p
+                            class="subtext short mobile-text"
+                            style="margin-bottom: 0;"
+                        >Reveal the numbers by dragging your finger over the silver moons.<br />Unearth three matching
+                            numbers and you've hit a cosmic jackpot!</p>
                         <div class="gift-toggle-holder">
                             <h3 class="title">Don't show again</h3>
                             <label class="switch">
-                            <input type="checkbox" v-on:change="toggleShow">
+                                <input
+                                    type="checkbox"
+                                    v-on:change="toggleShow"
+                                >
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -182,38 +201,61 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <div class="modal" v-if="winModal">
+        <div
+            class="modal"
+            v-if="winModal"
+        >
             <div class="modal-body no-min-height ">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
-                        <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
+                        <h3 class="title">You have won<br />{{ detailNFT.prize }} VERSE</h3>
+                        <p
+                            class="subtext short"
+                            style="margin-bottom: 0;"
+                        >Congratulations! Claim your prize instantly, or save it for later.</p>
                         <a @click="redeem(detailNFT.address)"><button class="btn verse-wide">Claim Now</button></a>
                         <a href="/tickets"><button class="btn verse-wide secondary">View My Tickets</button></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal" v-if="modalFinish">
+        <div
+            class="modal"
+            v-if="modalFinish"
+        >
             <div class="modal-body no-min-height">
                 <div>
                     <div class="img-purchase"></div>
                     <div>
-                        <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and congrats on your win!</p>
-                        <a href="/tickets"><button class="btn verse-wide">View My Tickets</button></a>                    
+                        <h3 class="title">{{ detailNFT.prize }} VERSE<br />secured!</h3>
+                        <p
+                            class="subtext short"
+                            style="margin-bottom: 0;"
+                        >Thank you for playing, and congrats on your win!</p>
+                        <a href="/tickets"><button class="btn verse-wide">View My Tickets</button></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal" v-if="modalLoading">
+        <div
+            class="modal"
+            v-if="modalLoading"
+        >
             <div class="modal-body no-min-height">
                 <div>
                     <div>
-                        <div class="img-spinner" style="margin-top: 25px"></div>
+                        <div
+                            class="img-spinner"
+                            style="margin-top: 25px"
+                        ></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
-                        <a target="_blank" style="color: #0085FF; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
+                        <a
+                            target="_blank"
+                            style="color: #0085FF; font-weight: 600;"
+                            :href="`https://polygonscan.com/tx/${txHash}`"
+                            v-if="txHash && !showTimer"
+                        >View blockchain transaction</a>
                     </div>
                 </div>
             </div>
@@ -222,25 +264,74 @@ onMounted(() => {
 
     <div class="background"></div>
     <div class="page">
-        <div class="cont" id="conthandler">
+        <div
+            class="cont"
+            id="conthandler"
+        >
             <div class="progress">
                 <h3>FIELDS SCRATCHED {{ count }} / 8</h3>
             </div>
-            <a @click="closeDetailScreen()"><div class="close-scratch"></div></a>
-            <div v-if="!imageLoaded" style="padding: 100px;">
+            <a @click="closeDetailScreen()">
+                <div class="close-scratch"></div>
+            </a>
+            <div
+                v-if="!imageLoaded"
+                style="padding: 100px;"
+            >
                 <div style="text-align: center;">
-                    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+                    <div class="lds-ring">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                 </div>
             </div>
-            <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://${detailNFT.bucketUrl}.s3.amazonaws.com/${detailNFT.id}/${detailNFT.address}.jpg)` } ">
-                <canvas id="scratchcanvas1" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas2" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas3" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas4" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas5" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas6" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas7" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas8" width="69" height="69"></canvas>
+            <div
+                class="ticketholder animate__animated animate__backInDown "
+                v-show="imageLoaded"
+                :style="{ 'background-image': `url(https://${detailNFT.bucketUrl}.s3.amazonaws.com/${detailNFT.id}/${detailNFT.address}.jpg)` }"
+            >
+                <canvas
+                    id="scratchcanvas1"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas2"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas3"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas4"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas5"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas6"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas7"
+                    width="69"
+                    height="69"
+                ></canvas>
+                <canvas
+                    id="scratchcanvas8"
+                    width="69"
+                    height="69"
+                ></canvas>
             </div>
         </div>
     </div>
@@ -248,37 +339,44 @@ onMounted(() => {
 
 
 
-<style lang="scss" scoped>
-
+<style
+    lang="scss"
+    scoped
+>
 .desktop-text {
     display: unset;
+
     @media (max-width: 880px) {
-        display: none!important;
+        display: none !important;
     }
 }
 
 .mobile-text {
- display: none; 
- @media (max-width: 880px) {
-    display: unset!important;
- }
+    display: none;
+
+    @media (max-width: 880px) {
+        display: unset !important;
+    }
 }
+
 .title-loading {
     font-size: 18px;
     color: white;
     font-weight: 600;
-    margin-top: 16px!important;
+    margin-top: 16px !important;
 }
+
 .backdrop {
-    z-index: 5!important;
+    z-index: 5 !important;
 }
 
 .modal {
-    z-index: 6!important;
+    z-index: 6 !important;
     width: 340px;
     top: 25vh;
     left: calc(50% - 170px);
-    height: unset!important;
+    height: unset !important;
+
     @media(max-width: 880px) {
         left: 37px;
         top: 22vh;
@@ -287,6 +385,7 @@ onMounted(() => {
         height: unset;
         min-height: unset
     }
+
     .modal-body {
         height: unset;
         padding: 24px;
@@ -294,21 +393,25 @@ onMounted(() => {
         .title {
             margin-bottom: 0;
         }
+
         .subtext.short {
             width: 290px;
             margin-left: calc(50% - 175px);
             margin-top: 8px;
             color: #C5CEDB;
+
             @media(max-width: 880px) {
                 width: 90%;
                 margin-left: 5%;
                 padding: 0;
             }
         }
+
         .verse-wide {
-            font-size: 14px!important;
+            font-size: 14px !important;
             height: 36px;
             margin-top: 16px;
+
             &.secondary {
                 margin-top: 8px;
             }
@@ -317,18 +420,21 @@ onMounted(() => {
         .gift-toggle-holder {
             height: 40px;
             margin-top: 16px;
+
             .switch {
                 top: 8px;
                 right: 8px;
             }
+
             h3.title {
                 margin-top: 10px;
-                font-size: 14px!important;
+                font-size: 14px !important;
                 left: 16px;
             }
         }
     }
 }
+
 .close-scratch {
     cursor: pointer;
     width: 34px;
@@ -339,11 +445,13 @@ onMounted(() => {
     top: 21px;
     right: 16px;
 }
+
 .progress {
     @media(max-width: 880px) {
         margin-top: 20px;
         margin-bottom: 21px;
     }
+
     background-color: #030C14;
     border-radius: 24px;
     text-align: center;
@@ -351,7 +459,8 @@ onMounted(() => {
     width: 204px;
     margin-left: calc(50% - 110px);
     margin-bottom: 60px;
-    user-select: none; 
+    user-select: none;
+
     h3 {
         color: #C5CEDB;
         font-size: 14px;
@@ -359,6 +468,7 @@ onMounted(() => {
         margin: 0;
     }
 }
+
 .background {
     // background-image: v-bind('activeProduct.backgroundImage')!important;
     background: linear-gradient(180deg, #152334 0%, #030C14 100%);
@@ -374,6 +484,7 @@ onMounted(() => {
     margin: -5%;
     z-index: 0;
 }
+
 .blur {
     filter: blur(8px);
     z-index: 1;
@@ -383,22 +494,26 @@ onMounted(() => {
     left: 0;
     top: 0;
 }
-.page { 
+
+.page {
     margin-top: 70px;
     z-index: 1;
     left: 0;
     width: 100%;
-    min-height: calc(100vh - 70px)!important;
-    position: absolute!important;
+    min-height: calc(100vh - 70px) !important;
+    position: absolute !important;
     top: 0;
     overflow: auto;
+
     @media(max-width: 880px) {
         margin-top: 20px;
     }
 }
+
 .cont {
     width: 350px;
     margin-left: calc(50% - 175px);
+
     @media(max-width: 880px) {
         padding-top: 0;
         padding-left: 0;
@@ -407,12 +522,15 @@ onMounted(() => {
         width: 100%;
         overflow: auto;
     }
+
     padding-top: 20px;
+
     h2 {
         color: white;
         text-align: center;
     }
 }
+
 .ticketholder {
     position: absolute;
     margin: 0 auto;
@@ -420,11 +538,13 @@ onMounted(() => {
     background-repeat: no-repeat;
     width: 356px;
     height: 720px;
+
     @media(max-width: 880px) {
         margin-left: calc(50% - 178px);
     }
 
 }
+
 #scratchcanvas1 {
     border-radius: 50%;
     position: absolute;

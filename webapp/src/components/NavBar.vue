@@ -1,14 +1,15 @@
 <script>
-import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
+import { getAccount, watchAccount, disconnect } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export default {
     setup() {
-        let account = getAccount()
+        const wagmiConfig = inject('wagmiConfig')
+        let account = getAccount(wagmiConfig);
         let modal = useWeb3Modal()
         let isWallet = ref(false)
         let accountActive = ref(false)
@@ -17,8 +18,8 @@ export default {
 
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
-        function openWalletModal(refresh) {            
-            if(refresh) disconnect()
+        function openWalletModal(refresh) {
+            if (refresh) disconnect()
             modal.open()
             logAmplitudeEvent({
                 name: 'connect wallet clicked'
@@ -27,16 +28,16 @@ export default {
 
         function handleHome(newTab) {
             const openUrl = (url, newTab) => {
-                if(newTab) {
-                    window.open(url,"_blank")
+                if (newTab) {
+                    window.open(url, "_blank")
                 } else {
-                    window.open(url,"_self")
+                    window.open(url, "_self")
                 }
             }
-            if(window.location.pathname == '/') {
-               openUrl("https://verse.bitcoin.com" ,newTab)
+            if (window.location.pathname == '/') {
+                openUrl("https://verse.bitcoin.com", newTab)
             } else {
-               openUrl("/")
+                openUrl("/")
             }
         }
 
@@ -48,63 +49,98 @@ export default {
             return `${match[1]}…${match[2]}`;
         };
 
-        watchAccount(async (account) => { 
-        if(account.isConnected == true) {
-            accountActive.value = true;
-            let { chain  } = getNetwork()
-            
-            const publicClient = createPublicClient({ 
-                chain: mainnet,
-                transport: http()
-            })
+        watchAccount(wagmiConfig, {
+            onChange: async (account) => {
+                console.log('account change detected', account)
+                if (account.isConnected == true) {
+                    accountActive.value = true;
+                    const chains = wagmiConfig.chains;
+                    const { chainId } = getAccount(wagmiConfig);
+                    const chain = chains.find(chain => chain.id === chainId)
+                    const publicClient = createPublicClient({
+                        chain: mainnet,
+                        transport: http()
+                    })
 
-            const ensName = await publicClient.getEnsName({
-                address: getAccount().address
-            })
-            if(ensName) ensUserName.value = ensName
+                    const ensName = await publicClient.getEnsName({
+                        address: getAccount(wagmiConfig).address
+                    })
+                    if (ensName) ensUserName.value = ensName
 
-            logAmplitudeEvent({
-                name: 'connect wallet result',
-                blockchain: 'MATIC',
-            })
-        } else {
-            console.log("account not active")
-            accountActive.value = false
-        }
-        connectedProvider.value = account.connector.name.toLowerCase()
-    })
+                    logAmplitudeEvent({
+                        name: 'connect wallet result',
+                        blockchain: 'MATIC',
+                    })
+                } else {
+                    console.log("account not active")
+                    accountActive.value = false
+                }
+                connectedProvider.value = account.connector.name.toLowerCase()
+            }
+        })
 
-        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider, wagmiConfig }
     }
-    
+
 }
 </script>
 
 <template>
     <div class="navbar-mobile">
-        <a v-if="!isWallet" @click="handleHome(true)">
+        <a
+            v-if="!isWallet"
+            @click="handleHome(true)"
+        >
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
-        <a v-if="isWallet" @click="handleHome()">
+        <a
+            v-if="isWallet"
+            @click="handleHome()"
+        >
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
         <h3 class="title-nav">Verse Scratcher</h3>
-        
-        <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>
+
+        <button
+            class="btn verse-nav"
+            v-if="!accountActive"
+            @click="openWalletModal(true)"
+        >Connect</button>
+        <button
+            class="btn verse-nav mobile connected"
+            v-if="accountActive && !isWallet"
+            @click="openWalletModal(false)"
+        >
+            <div :class="'provider-logo ' + connectedProvider"></div>
+        </button>
+        <button
+            class="btn verse-nav mobile connected"
+            v-if="accountActive && isWallet"
+            @click="openWalletModal(false)"
+        >
+            <div :class="'provider-logo bitcoin'"></div>
+        </button>
 
     </div>
     <div class="navbar">
-        <a style="cursor: pointer;" href="/">
+        <a
+            style="cursor: pointer;"
+            href="/"
+        >
             <div class="logo">
-                <a v-if="!isWallet" @click="handleHome(true)">
+                <a
+                    v-if="!isWallet"
+                    @click="handleHome(true)"
+                >
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
-                <a v-if="isWallet" @click="handleHome()">
+                <a
+                    v-if="isWallet"
+                    @click="handleHome()"
+                >
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
@@ -113,14 +149,39 @@ export default {
         <h3 class="title-nav-desk">Verse Scratcher</h3>
 
         <div class="wallet">
-            <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
+            <button
+                class="btn verse-nav"
+                v-if="!accountActive"
+                @click="openWalletModal(true)"
+            >Connect Wallet</button>
             <div v-if="ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{ ensUserName}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
+                <button
+                    class="btn verse-nav connected"
+                    v-if="accountActive && !isWallet"
+                    @click="openWalletModal(false)"
+                >{{ ensUserName }} <div :class="'provider-logo ' + connectedProvider"></div></button>
+                <button
+                    class="btn verse-nav connected"
+                    v-if="accountActive && isWallet"
+                    @click="openWalletModal(false)"
+                >{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
             </div>
             <div v-if="!ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
+                <button
+                    class="btn verse-nav connected"
+                    v-if="accountActive && !isWallet"
+                    @click="openWalletModal(false)"
+                >{{ truncateEthAddress(getAccount(wagmiConfig).address || "") }} <div
+                        :class="'provider-logo ' + connectedProvider"
+                    >
+                    </div></button>
+                <button
+                    class="btn verse-nav connected"
+                    v-if="accountActive && isWallet"
+                    @click="openWalletModal(false)"
+                >{{ truncateEthAddress(getAccount(wagmiConfig).address || "") }} <div :class="'provider-logo bitcoin'">
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -158,18 +219,20 @@ export default {
     height: 36px;
     padding: 0px 16px;
     position: relative;
+
     &.mobile {
-        padding-right: 21px!important;
-        background: #3f526e!important;
+        padding-right: 21px !important;
+        background: #3f526e !important;
         background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
     }
+
     &.connected {
         background: linear-gradient(180deg, #425472 0%, #313E57 100%);
         padding-right: 40px;
     }
 
     .provider-logo {
-        position: absolute; 
+        position: absolute;
         width: 28px;
         height: 28px;
         border-radius: 50%;
@@ -182,6 +245,7 @@ export default {
             right: 4.3px;
             top: 4.2px;
         }
+
         &.walletconnect {
             background-image: url("./../assets/icons/wc-logo.png");
             right: 4.3px;
@@ -193,6 +257,7 @@ export default {
             right: 5.3px;
             top: 4.5px;
         }
+
         &.rabby {
             width: 26px;
             height: 22px;
@@ -202,6 +267,7 @@ export default {
             border-radius: 50%;
             background-image: url("./../assets/icons/rabby.png");
             background-size: cover;
+
             @media(max-width: 880px) {
                 width: 28px;
                 height: 28px;
@@ -210,27 +276,17 @@ export default {
             }
         }
     }
+
     &:hover {
         background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
     }
+
     &:active {
-        background:linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+        background: linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
     }
 }
+
 .btn-connect {
-    @media(max-width: 880px) {
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    font-weight: 600;
-    font-size: 15px;
-    left: 0;
-    height: 50px;
-    background-color: #2f2b5d;
-    border-radius: 0;
-    color: white;
-    border: none;
-    }
     margin-top: 2px;
     border: none;
     width: 140px;
@@ -242,13 +298,75 @@ export default {
     border: 1px solid white;
     color: white;
     cursor: pointer;
+
+    @media(max-width: 880px) {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        font-weight: 600;
+        font-size: 15px;
+        left: 0;
+        height: 50px;
+        background-color: #2f2b5d;
+        border-radius: 0;
+        color: white;
+        border: none;
+    }
+
 }
+
+a {
+    .nav-chev {
+        position: absolute;
+        left: 17px;
+        top: 24px;
+        background-image: url("./../assets/icons/chev.png");
+        background-size: cover;
+        width: 20px;
+        height: 20px;
+    }
+
+    .nav-verse {
+        position: absolute;
+        left: 36px;
+        top: 18px;
+        background-image: url("./../assets/icons/logo-full.png");
+        background-size: cover;
+        width: 105px;
+        height: 32px;
+    }
+}
+
+.navbar-mobile {
+    background-color: black;
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(0deg, #0F1823, #0F1823), linear-gradient(0deg, #1A2231, #1A2231);
+
+
+    .verse-nav {
+        position: absolute;
+        right: 16px;
+        top: 10px;
+    }
+
+    .title-nav {
+        color: #FFFFFF;
+        margin: 0;
+        position: absolute;
+        left: 80px;
+        top: 17.5px;
+        font-size: 16px;
+        font-family: Barlow, Helvetica, sans-serif;
+        color: white;
+        font-weight: 600;
+    }
 
     a {
         .nav-chev {
             position: absolute;
-            left: 17px;
-            top: 24px;
+            left: 8px;
+            top: 18px;
             background-image: url("./../assets/icons/chev.png");
             background-size: cover;
             width: 20px;
@@ -257,139 +375,102 @@ export default {
 
         .nav-verse {
             position: absolute;
-            left: 36px;
-            top: 18px;
-            background-image: url("./../assets/icons/logo-full.png");
-            background-size: cover;
-            width: 105px;
-            height: 32px;
-        }
-    }
-
-    .navbar-mobile {
-        background-color: black;
-        width: 100%;
-        height: 56px;
-        background: linear-gradient(0deg, #0F1823, #0F1823),linear-gradient(0deg, #1A2231, #1A2231);
-
-
-        .verse-nav {
-            position: absolute;
-            right: 16px;
+            left: 28px;
             top: 10px;
+            background-image: url("./../assets/icons/verse-mob.png");
+            background-size: cover;
+            width: 36px;
+            height: 36px;
         }
-
-        .title-nav {
-            color:#FFFFFF;
-            margin: 0;
-            position: absolute;
-            left: 80px;
-            top: 17.5px;
-            font-size:16px;
-            font-family: Barlow, Helvetica, sans-serif;
-            color: white;
-            font-weight: 600;
-        }
-
-        a {
-            .nav-chev {
-                position: absolute;
-                left: 8px;
-                top: 18px;
-                background-image: url("./../assets/icons/chev.png");
-                background-size: cover;
-                width: 20px;
-                height: 20px;
-            }
-
-            .nav-verse {
-                position: absolute;
-                left: 28px;
-                top: 10px;
-                background-image: url("./../assets/icons/verse-mob.png");
-                background-size: cover;
-                width: 36px;
-                height: 36px;
-            }
-        }
-
-        @media(min-width: 880px) {
-            display: none;
-        }
-       
     }
 
-    .navbar {
-        @media(max-width: 879px) {
-            display: none;
+    @media(min-width: 880px) {
+        display: none;
+    }
+
+}
+
+.navbar {
+    @media(max-width: 879px) {
+        display: none;
+    }
+
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    display: block;
+    width: 100%;
+    left: 0;
+    height: 70px;
+    background: rgba(3, 12, 20, 1);
+
+    div.logo {
+        color: white;
+        padding-left: 30px;
+        width: 32%;
+        position: absolute;
+        margin: 0;
+        float: left;
+
+        @media(max-width: 880px) {
+            width: 100%;
         }
-        z-index: 2;
-        position: fixed;
-        top: 0;
-        display: block;
-        width: 100%;
-        left: 0;
-        height: 70px;
-        background: rgba(3, 12, 20, 1);
-        div.logo {
-            color: white;
-            padding-left: 30px;
-            width: 32%;
-            position: absolute;
-            margin: 0;
-            float: left;
-            @media(max-width: 880px) {
-                width: 100%;
-            }
- 
-        }
-        div.links { 
-            @media(max-width: 880px) {
-            width: 100%!important;
+
+    }
+
+    div.links {
+        @media(max-width: 880px) {
+            width: 100% !important;
             padding-top: 0;
-            }
-            margin: 0;
-            padding-top: 10px;
-            float: left;
-            width: 32%;
-            text-align: center;
-            ul {
+        }
+
+        margin: 0;
+        padding-top: 10px;
+        float: left;
+        width: 32%;
+        text-align: center;
+
+        ul {
             @media(max-width: 880px) {
                 padding-left: 0;
                 margin-top: 0;
             }
+
             display: inline-block;
             margin-left: 0 auto;
             list-style-type: none;
-                li {
-                    
-                    float: left;
-                    margin-right: 20px;
 
-                    a{
-                        text-decoration: none;
-                        color: #c6bfff;
-                        font-weight: 500;
-                    }
+            li {
+
+                float: left;
+                margin-right: 20px;
+
+                a {
+                    text-decoration: none;
+                    color: #c6bfff;
+                    font-weight: 500;
                 }
             }
         }
-        div.wallet {
-            @media(max-width: 930px) {
-                display: none;
-            }
-            margin: 0;
-            margin-top: 10px;
-            margin-right: 10px;
-            float: right;
-            padding-top: 5px;
-            text-align: right;
+    }
 
-            h5 {
-                font-weight: 400;
-                color: #c6bfff;
-                margin-right: 20px;
-            }
+    div.wallet {
+        @media(max-width: 930px) {
+            display: none;
+        }
+
+        margin: 0;
+        margin-top: 10px;
+        margin-right: 10px;
+        float: right;
+        padding-top: 5px;
+        text-align: right;
+
+        h5 {
+            font-weight: 400;
+            color: #c6bfff;
+            margin-right: 20px;
         }
     }
+}
 </style>
