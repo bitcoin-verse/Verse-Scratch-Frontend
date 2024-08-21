@@ -389,6 +389,16 @@ export default {
 
         watchAccount(wagmiConfig, {
             onChange: (account) => {
+                const chains = wagmiConfig.chains
+                const chain = chains.find(chain => chain.id === account.chainId)
+
+                console.log(chains);
+
+                if (chain && chain.id != 137) {
+                    correctNetwork.value = false
+                } else {
+                    correctNetwork.value = true
+                }
                 if (!currentAccountAddress.value) {
                     currentAccountAddress.value = getAccount(wagmiConfig).address
                 }
