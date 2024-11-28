@@ -261,8 +261,8 @@ export default {
             top: 18px;
             background-image: url("./../assets/icons/logo-full.png");
             background-size: cover;
-            width: 105px;
-            height: 32px;
+            width: 119px;
+            height: 34px;
         }
     }
 
