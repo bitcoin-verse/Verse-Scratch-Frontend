@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'bitcoin-pizza';
+const DEFAULT_PRODUCT_NAME = 'christmas';
 const products = [
     {
         id: 1,
@@ -112,7 +112,44 @@ const products = [
         description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
         socialImage: "https://scratcher.verse.bitcoin.com/meta_pizza.png"
       }
-  }
+  },
+  {
+    id: 4,
+    multibuy: true,
+    active: true,
+    campaign: 'christmas',
+    contractAddress: '0x748ec42a0664c026f7b392347f0cf99c8883333a',
+    ticketPriceString: '22,000',
+    bannerLarge: 'url(/christmas/banner-lg.png)',
+    cardPreviewLarge: 'url(/christmas/card-preview-lg.png)',
+    cardPreviewMedium: 'url(/christmas/card-preview-md.png)',
+    bucketUrl: 'verse-scratcher-images',
+    ticketPrice: 22000, 
+    title: 'Christmas Scratcher',
+    cover: '/christmas/cover.png',
+    jackpotString: '8,888,888',
+    templateFolder: 'christmas',
+    homeLinkColor: '#a98529',
+    jackpot: 8888888,
+    lowestPrice: 888,
+    lowestPriceString: '888',
+    highestPrice: 800000,
+    highestPriceString: '800k',
+    backgroundImage: window.location.pathname === '/' ? `url('/christmas/background.png')` : `url('/darker.png')`,
+    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+    homeSwitchColor: '#c93a61',
+    jackpotBoxColorOne: '#232323',
+    jackpotBoxColorOneTitle: '#E02D2D',
+    jackpotBoxColorTwo: '#232323',
+    jackpotBoxColorTwoTitle: '#E02D2D',
+    jackpotBoxColorThree: '#232323',
+    jackpotBoxColorThreeTitle: '#E02D2D',
+    meta: {
+      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+      socialImage: "https://scratcher.verse.bitcoin.com/meta_lunar.png"
+    }
+},
 ]
 
 const updateMetaData = (product) => {
