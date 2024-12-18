@@ -280,7 +280,7 @@ i.close-btn {
   }
 }
 .backdrop {
-    overflow: hidden;
+    overflow: auto;
     position: fixed; 
     top: 0;
     left: 0;
@@ -741,6 +741,10 @@ body {
     background: rgba(3, 12, 20, 1);
     background-image: none!important;
     min-height: unset;
+  }
+
+  &:has(.backdrop) {
+    overflow: hidden;
   }
 
   // &::-webkit-scrollbar {
