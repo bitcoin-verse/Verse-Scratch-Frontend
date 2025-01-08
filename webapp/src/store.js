@@ -147,7 +147,7 @@ const products = [
     meta: {
       title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
       description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
-      socialImage: "https://scratcher.verse.bitcoin.com/meta_lunar.png"
+      socialImage: "https://scratcher.verse.bitcoin.com/meta_christmas.png"
     }
 },
 ]
