@@ -134,10 +134,10 @@ export default {
     top: 20px;
     text-align: center;
     width: 400px;
-    font-family: Barlow, Helvetica, sans-serif;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     margin: 0 auto;
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 800;
 }
 
 .verse-nav {
@@ -150,9 +150,9 @@ export default {
     cursor: pointer;
     text-wrap: nowrap;
     border-radius: 100px;
-    font-family: Barlow, Helvetica, sans-serif;
-    background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
-    font-weight: 600;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
+    font-weight: 800;
     color: rgb(255, 255, 255);
     font-size: 14px;
     height: 36px;
@@ -161,12 +161,13 @@ export default {
     &.mobile {
         padding-right: 21px!important;
         background: #3f526e!important;
-        background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
     &.connected {
-        background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+        background: #202B58;
         padding-right: 40px;
     }
+
 
     .provider-logo {
         position: absolute; 
@@ -211,10 +212,10 @@ export default {
         }
     }
     &:hover {
-        background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
     &:active {
-        background:linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
 }
 .btn-connect {
@@ -222,7 +223,7 @@ export default {
     width: 100%;
     position: fixed;
     bottom: 0;
-    font-weight: 600;
+    font-weight: 800;
     font-size: 15px;
     left: 0;
     height: 50px;
@@ -235,7 +236,7 @@ export default {
     border: none;
     width: 140px;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 800;
     padding: 5px 20px;
     height: 40px;
     background-color: transparent;
@@ -286,9 +287,9 @@ export default {
             left: 80px;
             top: 17.5px;
             font-size:16px;
-            font-family: Barlow, Helvetica, sans-serif;
+            font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             color: white;
-            font-weight: 600;
+            font-weight: 800;
         }
 
         a {
@@ -330,7 +331,8 @@ export default {
         width: 100%;
         left: 0;
         height: 70px;
-        background: rgba(3, 12, 20, 1);
+        background: #0A0A2C;
+
         div.logo {
             color: white;
             padding-left: 30px;
