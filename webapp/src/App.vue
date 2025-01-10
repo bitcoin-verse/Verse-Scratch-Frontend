@@ -148,25 +148,25 @@ createWeb3Modal({
 
 
 <template>  
-    <div class="global-wrap">
-      <div class="flex-wrap">
-        <NavBar />
-        <RouterView />
-      </div>
-    </div>
+  <NavBar />
+  <RouterView />
 </template>
 
 <style lang="scss">
 
 .verse-wide {
+  @font-face {
+    font-family: "Saeada";
+    src: local("Saeada", url("/fonts/LtSaeada-Black.otf"));
+  }
   &.home {
-    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
   &:hover {
-    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
   &:active {
-    background:linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
   
   &.fixBottomMobile {
@@ -197,20 +197,21 @@ createWeb3Modal({
     }
   }
   &.secondary {
-    background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+    background: #202B58;
+
   }
   cursor: pointer;
   margin-top: 24px;
-  background: linear-gradient(180deg, #0EBEF0 0%, #0085FF 100%);
+  background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   height: 48px;
   border: none;
   width: 100%;
   border-radius: 100px;
   color: white;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 17px;
   line-height: 21.6px;
-  font-family: 'Barlow', sans-serif;
+  font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   &.disabled {
     color: #313E57;
@@ -222,13 +223,13 @@ createWeb3Modal({
 .global-wrap {
   background-image: v-bind('activeProduct.backgroundImage')!important;
   background-size: cover;
-  position: relative;
+  /* position: relative; */
+  /* min-height: 800px; */
   
   @media(max-width: 880px) {
     background-image: none!important;
   }
 }
-
 
 .flex-wrap {
   @media(min-width: 768px) {
@@ -238,7 +239,9 @@ createWeb3Modal({
     max-width: 80rem;
     margin: 0px auto;
     gap: 1rem;
-    grid-template-columns: min-content max-content auto;
+    /* display: grid; */
+    /* grid-template-columns: min-content max-content auto; */
+    height: fit-content;
   }
 }
 i.close-btn {
@@ -269,12 +272,12 @@ i.close-btn {
     margin-top: 0;
     color: #C5CEDB!important;
     margin-bottom: 0;
-    font-weight: 600px;
+    font-weight: 800px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
   .balance {
     margin-top: 2px;
-    font-weight: 600;
+    font-weight: 800;
     margin-bottom: 0;
     font-size: 24px;
   }
@@ -365,7 +368,7 @@ i.close-btn {
           width: 100%;
           td.key {
             width: 50%;
-            font-weight: 600;
+            font-weight: 800;
             text-align: left;
           }
           td.value {
@@ -383,7 +386,7 @@ i.close-btn {
         .loadingText {
           color: #FFFFFF;
           font-size: 18px;
-          font-weight: 600;
+          font-weight: 800;
         }
         position: relative;
         @media(max-width: 880px) {
@@ -474,7 +477,7 @@ i.close-btn {
             text-align: left;
             color: #C5CEDB;
             line-height: 14.32px;
-            font-weight: 600;
+            font-weight: 800;
             margin: 0;
             font-size: 12px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -636,9 +639,9 @@ i.close-btn {
               border: 1px solid #0F1823;
               outline: none;
               color: white;
-              font-family: Barlow;
+              font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
               font-size: 13px;
-              font-weight: 600;
+              font-weight: 800;
               text-align: center;
               z-index: 5;
               position: relative;
@@ -670,7 +673,7 @@ i.close-btn {
           h3.title {
             color: white;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 800;
             position: absolute;
             left: 18px;
           }
@@ -722,23 +725,23 @@ i.close-btn {
 
 h3 {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 body {
   position: unset;
   width: 100%;
-  min-height: calc(100vh - 200px);
+  /* min-height: calc(100vh - 200px); */
   padding: 0;
   background-size: 100%;
   margin: 0;
   overflow: auto;
-  font-family: 'Barlow', sans-serif;
-  background: rgba(3, 12, 20, 1);
+  font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  background: #0A0A2C;
   background-repeat: no-repeat!important;
   background-size: cover;
   @media(max-width: 880px) {
-    background: rgba(3, 12, 20, 1);
+    background: #0A0A2C;
     background-image: none!important;
     min-height: unset;
   }

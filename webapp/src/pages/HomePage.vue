@@ -530,7 +530,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="img-spinner"></div>
                 <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
                 <h3 v-if="showTimer" class="title">Payment Successful</h3>
-                <a target="_blank" style="color: #0085FF; font-weight: 600;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
+                <a target="_blank" style="color: #0085FF; font-weight: 800;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
                 <div v-if="showTimer" class="attention-footer">
@@ -789,52 +789,53 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             <img  :src="activeProduct.cover">
         </div>
         <div class="float-holder clearfix">
-
-            <div class="card-info">
-                <h2>SCRATCH & WIN</h2>
-                <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
-                <div class="campaign-title">
-                    <i v-if="products.length > 1" class="chev-down"></i>
-                    <!-- {{ activeProduct.title }} -->
-                    <select v-model="selectedProductId" >
-                    <option v-for="product in products" :key="product.id" :value="product.id">
-                        {{ product.title.toUpperCase() }}
-                    </option>
-                    <!-- <option value="1">Selected Collection: Space Expedition</option>
-                    <option value="2">Legacy Collection: Christmas 1999</option>
-                    <option value="3">2024 Chinese New Year</option> -->
-                </select>
-                </div>
-                <div class="topblock">
-                    <p>JACKPOT</p>
-                    <h2>{{ activeProduct.jackpotString }} VERSE</h2>
-                    <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.jackpot).toFixed(2) }}</p>
-                </div>
-                <div class="splitblock">
-                    <div class="block leftblock">
-                        <p>PRICE PER TICKET</p>
-                        <h2>{{ activeProduct.ticketPriceString}} VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.ticketPrice).toFixed(2) }}</p>
+            <div class="card-wrapper">
+                <div class="card-info">
+                    <h2>SCRATCH & WIN</h2>
+                    <p class="top-meta">Buy a ticket, scratch the same number 3 times to win VERSE</p>
+                    <div class="campaign-title">
+                        <i v-if="products.length > 1" class="chev-down"></i>
+                        <!-- {{ activeProduct.title }} -->
+                        <select v-model="selectedProductId" >
+                        <option v-for="product in products" :key="product.id" :value="product.id">
+                            {{ product.title.toUpperCase() }}
+                        </option>
+                        <!-- <option value="1">Selected Collection: Space Expedition</option>
+                        <option value="2">Legacy Collection: Christmas 1999</option>
+                        <option value="3">2024 Chinese New Year</option> -->
+                    </select>
                     </div>
-                    <div class="block rightblock">
-                        <p>OTHER PRIZES</p>
-                        <h2>{{activeProduct.lowestPriceString}} - {{ activeProduct.highestPriceString }} VERSE</h2>
-                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.lowestPrice).toFixed(2) }} - ${{ (priceUsd * activeProduct.highestPrice).toFixed(2) }}</p>
+                    <div class="topblock">
+                        <p>JACKPOT</p>
+                        <h2>{{ activeProduct.jackpotString }} VERSE</h2>
+                        <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.jackpot).toFixed(2) }}</p>
                     </div>
-                </div>
-                <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
-                <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
-                <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
+                    <div class="splitblock">
+                        <div class="block leftblock">
+                            <p>PRICE PER TICKET</p>
+                            <h2>{{ activeProduct.ticketPriceString}} VERSE</h2>
+                            <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.ticketPrice).toFixed(2) }}</p>
+                        </div>
+                        <div class="block rightblock">
+                            <p>OTHER PRIZES</p>
+                            <h2>{{activeProduct.lowestPriceString}} - {{ activeProduct.highestPriceString }} VERSE</h2>
+                            <p v-if="priceUsd" class="usd">${{ (priceUsd * activeProduct.lowestPrice).toFixed(2) }} - ${{ (priceUsd * activeProduct.highestPrice).toFixed(2) }}</p>
+                        </div>
+                    </div>
+                    <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
+                    <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
+                    <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
 
-                <p class="terms-link">*Self custodial and verifiably random, powered by smart contracts and Chainlink VRF. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
+                    <p class="terms-link">*Self custodial and verifiably random, powered by smart contracts and Chainlink VRF. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
+                </div>
+
+
+                <div class="card-holder">
+                    <img class=""  :src="activeProduct.cover">
+                </div>
             </div>
-
-        <div class="card-holder">
-            <img class=""  :src="activeProduct.cover">
         </div>
-        </div>
-
-        <div class="divider"></div>
+        <!-- <div class="divider"></div> -->
         <div class="other-products">
             <h1 class="tit">OTHER SCRATCH TICKET COLLECTIONS</h1>
             <a :href="'?campaign=' + randomOtherProduct.campaign">
@@ -861,6 +862,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 </template>
 
 <style lang="scss" scoped>
+h1, h2, h3 {
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-weight: 800;
+}
 .warning-balance {
     color: orange!important;
     margin-top: 20px;
@@ -879,7 +884,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     font-weight: 500;
     margin-top: 0px;
     font-size: 15px;
-    font-family: Barlow;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background-color: #05111c;
     border: 1px solid #273953;
     border-radius: 10px;
@@ -889,13 +894,20 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     position: absolute;
     left: 0;
     width: 100%;
+    background-color: #0A0A2C;
     border-top: 1px solid #1A2231;
+    /* height: 15px; */
     @media(max-width: 880px) {
         position: unset;
     }
 }
 .other-products {
-    margin-top: 30px;
+    background-color: #0A0A2C;
+    border-top: 1px solid #1A2231;
+    width: 100%;
+    @media(min-width: 880px){
+        padding: 40px 0 40px;
+    }
     .prizes {
         background-color: black;
         width: 300px;
@@ -915,7 +927,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             width: calc(100% - 52px);
         }
         .tit-prize {
-            font-weight: 600;
+            font-weight: 800;
             font-size: 12px;
             margin-bottom: 4px;
             color: v-bind('randomOtherProduct.jackpotBoxColorOneTitle'); 
@@ -929,7 +941,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             margin: 0;
             font-size: 16px;
             text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
-            font-weight: 600;
+            font-weight: 800;
         }
         .prize-left {
             text-align: center;
@@ -961,8 +973,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         text-align: center;
         color: #899BB5;
         font-size: 18px;
-        font-weight: 600;
-        font-family: 'Barlow', sans-serif;
+        font-weight: 800;
+        font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         @media(max-width: 880px) {
             margin-top: 50px;
         }
@@ -993,7 +1005,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         background-repeat: no-repeat;
         background-size: cover;
         width: 88%;
-        margin-left: 6%;
+        max-width: 1200px;
+        margin: auto;
         height: 118px;
         border-radius: 20px;
         position: relative;
@@ -1010,7 +1023,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             color: white;
             font-size: 18px;
             top: 30px;
-            font-weight: 600;
+            font-weight: 800;
             left: 30px;
             @media(max-width: 1300px) {
                 left: 50px;
@@ -1028,8 +1041,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         .btn-card {
             width: 120px;
             padding: 0;
-            font-weight: 600;
-            font-family: 'Barlow', sans-serif;
+            font-weight: 800;
+            font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             height: 35px;
             border-radius: 30px;
             color: white;
@@ -1074,7 +1087,7 @@ i.chev-down {
     font-size: 18px;
     font-weight: 200!important;
     padding: 5px;
-    font-family: 'Barlow', sans-serif;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
     select {
         cursor: pointer;
@@ -1085,9 +1098,9 @@ i.chev-down {
         width: 100%;
         font-size: 18px;
         line-height: 21.6px;
-        font-weight: 600;
+        font-weight: 800;
         padding: 12px;
-        font-family: 'Barlow', 'Helvetica', sans-serif;
+        font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         color: white;
         background-color: v-bind('activeProduct.homeSwitchColor');
     }
@@ -1127,14 +1140,13 @@ p.usd {
 .splitblock {
     width: 100%;
     .block {
-        width: calc(49.5% - 24px)!important;
+        width: 50%;
         float: left;
-        padding: 0;
+        padding: 12px 0;
         margin-top: 3px;
-        padding: 12px;
         text-align: center;
         @media(max-width: 880px) {
-            width: calc(50% - 26px)!important;
+            /* width: calc(50% - 26px)!important; */
             margin: 0;
             margin-top: 3px;
             min-height: unset!important;
@@ -1167,6 +1179,14 @@ p.usd {
             }
         }
         &.rightblock {
+            @media(min-width: 1600px) {
+                white-space: nowrap;
+            }
+            width: calc(50% - 12.5px);
+            padding: 12px 4.5px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
             border-bottom-right-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorThree');
             h2 {
@@ -1177,6 +1197,7 @@ p.usd {
                 }
                 @media(max-width: 930px) {
                  font-size: 15px;
+                 place-self: center;
                 }
             }
             p {
@@ -1191,18 +1212,17 @@ p.usd {
 
 .topblock {
     padding: 12px;
-    width: calc(100% - 24px);
     background: v-bind('activeProduct.jackpotBoxColorOne');
     border-radius: 0;
     p {
         margin: 0;
         text-align: center;
-        font-weight: 600;
+        font-weight: 800;
         color: v-bind('activeProduct.jackpotBoxColorOneTitle')
     }
     h2 {
         font-weight: 800;
-        font-size: 32px;
+        font-size: 32px !important;
         text-align: center;
         text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
     }
@@ -1253,8 +1273,8 @@ p.usd {
 .giftInput {
     outline: none;
     width: calc(100% - 18px);
-    font-family: 'Barlow', sans-serif;
-    font-weight: 600;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-weight: 800;
     border: none;
     border-radius: 12px;
     height: 48px;
@@ -1273,7 +1293,7 @@ p.usd {
         width: calc(100% - 10px);
         padding-left: 15px;
         color: white;
-        font-weight: 600;
+        font-weight: 800;
         padding-bottom: 13px;
         padding-top: 10px;
     }
@@ -1287,7 +1307,7 @@ p.usd {
     background-color: #4a42aa;
     color: #fff; 
     p {
-        font-weight: 600;
+        font-weight: 800;
         max-width: 80rem;
         margin: 0px auto;
         @media(max-width: 880px) {
@@ -1298,23 +1318,38 @@ p.usd {
 }
 
 .clearfix {
+    background-image: v-bind('activeProduct.backgroundImage');
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: auto;
     overflow: auto;
-    max-width: 1600px;
     width: 100%;
     @media(max-width: 880px) {
         width: 100%!important;
         position: unset;
+        background-image: unset;
     }
 }
 .float-holder{
-    margin-top: 40px!important;
-    margin: 0 auto;
-    min-height: calc(100vh - 160px);
-    min-height: calc(100dvh - 160px);
+    min-height: calc(100vh - 212px);
+    min-height: calc(100dvh - 212px);
     @media(max-width: 880px) {
-        min-height: calc(100vh - 320px); 
-        min-height: calc(100dvh - 320px); 
         margin-top: 0!important;
+    }
+}
+.card-wrapper {
+    width: 100%;
+    max-width: 1600px;
+    margin: auto;
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 5%;
+    @media(min-width: 880px) {
+        margin: 80px auto;
     }
 }
 .blocks {
@@ -1354,13 +1389,10 @@ p.usd {
     }
 }
 .card-info {
-    padding: 30px;
-    padding-top: 60px;
     float: left;
-    padding-left: 100px;
     width: 27%;
+    max-width: 335px;
     color: white;
-    padding-right: 0;
     @media(max-width: 880px) {
         width: calc(100% - 30px)!important;
         padding: 15px;
@@ -1369,7 +1401,7 @@ p.usd {
 
     h2 {
         margin: 0;
-        font-size: 40px;
+        font-size: 32px;
         font-weight: 800;
         text-align: center;
 
@@ -1389,12 +1421,9 @@ p.usd {
     @media(max-width: 1000px) {
         margin-top: 125px!important;
     }
-    margin-left: 5%;
     float: left;
-    width: 52%;
-    margin-top: 105px;
+    max-width: 633px;
     border-radius: 6px;
-    padding-left: 0px;
     background-color: transparent;
 
     img {
