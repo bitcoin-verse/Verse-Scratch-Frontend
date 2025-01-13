@@ -149,7 +149,44 @@ const products = [
       description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
       socialImage: "https://scratcher.verse.bitcoin.com/meta_christmas.png"
     }
-},
+  },
+  {
+    id: 5,
+    multibuy: true,
+    active: true,
+    campaign: 'valentines',
+    contractAddress: '',
+    ticketPriceString: '22,000',
+    bannerLarge: 'url(/valentines/banner-lg.png)',
+    cardPreviewLarge: 'url(/valentines/card-preview-lg.png)',
+    cardPreviewMedium: 'url(/valentines/card-preview-md.png)',
+    bucketUrl: 'verse-scratcher-images',
+    ticketPrice: 22000, 
+    title: "Valentine's Day",
+    cover: '/valentines/cover.png',
+    jackpotString: '8,888,888',
+    templateFolder: 'valentines',
+    homeLinkColor: '#a98529',
+    jackpot: 8888888,
+    lowestPrice: 888,
+    lowestPriceString: '888',
+    highestPrice: 800000,
+    highestPriceString: '800k',
+    backgroundImage: window.location.pathname === '/' ? `url('/valentines/background.png')` : `url('/darker.png')`,
+    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+    homeSwitchColor: '#c93a61',
+    jackpotBoxColorOne: '#232323',
+    jackpotBoxColorOneTitle: '#A90101',
+    jackpotBoxColorTwo: '#232323',
+    jackpotBoxColorTwoTitle: '#A90101',
+    jackpotBoxColorThree: '#232323',
+    jackpotBoxColorThreeTitle: '#A90101',
+    meta: {
+      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+      socialImage: "https://scratcher.verse.bitcoin.com/meta_valentines.png"
+    }
+  },
 ]
 
 const updateMetaData = (product) => {
