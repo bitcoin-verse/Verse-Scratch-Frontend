@@ -174,7 +174,7 @@ const products = [
     highestPriceString: '800k',
     backgroundImage: window.location.pathname === '/' ? `url('/valentines/background.png')` : `url('/darker.png')`,
     bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
-    homeSwitchColor: '#c93a61',
+    homeSwitchColor: '#A90101',
     jackpotBoxColorOne: '#232323',
     jackpotBoxColorOneTitle: '#A90101',
     jackpotBoxColorTwo: '#232323',
