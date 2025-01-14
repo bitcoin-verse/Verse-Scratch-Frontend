@@ -209,10 +209,13 @@ export const store = reactive({
   updateProduct(value) {
     this.productId = value
     let product = products.find(product => product.id === value);
-    localStorage.setItem('collection', product.campaign)
+    localStorage.setItem('collection', product.campaign);
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('campaign', product.campaign);
+    window.location.search = urlParams;
   },
   getProduct() {
-    return products.find(product => product.id === this.productId );
+    return products.find(product => product.id === this.productId);
   },
   getRandomOtherProduct() {
     // let product = products.find(product => product.id !== this.productId && product.active == true)
