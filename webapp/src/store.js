@@ -155,7 +155,7 @@ const products = [
     multibuy: true,
     active: true,
     campaign: 'valentines',
-    contractAddress: '',
+    contractAddress: '0x0e2F51Ce5D9cD0cdfD091AB6a235D2ee5EF087d2',
     ticketPriceString: '22,000',
     bannerLarge: 'url(/valentines/banner-lg.png)',
     cardPreviewLarge: 'url(/valentines/card-preview-lg.png)',
