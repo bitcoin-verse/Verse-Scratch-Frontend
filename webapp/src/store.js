@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'christmas';
+const DEFAULT_PRODUCT_NAME = 'lunar-new-year';
 const products = [
     {
         id: 1,
@@ -42,7 +42,7 @@ const products = [
     {
         id: 2,
         multibuy: true,
-        active: false,
+        active: true,
         campaign: 'lunar-new-year',
         contractAddress: '0xd9b59ffbeb8e6b1cc9bc140f5050233555803483',
         ticketPriceString: '22,000',
