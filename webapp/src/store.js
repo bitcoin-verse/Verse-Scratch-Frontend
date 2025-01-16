@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'bitcoin-pizza';
+const DEFAULT_PRODUCT_NAME = 'christmas';
 const products = [
     {
         id: 1,
@@ -112,7 +112,44 @@ const products = [
         description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
         socialImage: "https://scratcher.verse.bitcoin.com/meta_pizza.png"
       }
-  }
+  },
+  {
+    id: 4,
+    multibuy: true,
+    active: true,
+    campaign: 'christmas',
+    contractAddress: '0x748ec42a0664c026f7b392347f0cf99c8883333a',
+    ticketPriceString: '22,000',
+    bannerLarge: 'url(/christmas/banner-lg.png)',
+    cardPreviewLarge: 'url(/christmas/card-preview-lg.png)',
+    cardPreviewMedium: 'url(/christmas/card-preview-md.png)',
+    bucketUrl: 'verse-scratcher-images',
+    ticketPrice: 22000, 
+    title: 'Christmas Scratcher',
+    cover: '/christmas/cover.png',
+    jackpotString: '8,888,888',
+    templateFolder: 'christmas',
+    homeLinkColor: '#a98529',
+    jackpot: 8888888,
+    lowestPrice: 888,
+    lowestPriceString: '888',
+    highestPrice: 800000,
+    highestPriceString: '800k',
+    backgroundImage: window.location.pathname === '/' ? `url('/christmas/background.png')` : `url('/darker.png')`,
+    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+    homeSwitchColor: '#c93a61',
+    jackpotBoxColorOne: '#232323',
+    jackpotBoxColorOneTitle: '#E02D2D',
+    jackpotBoxColorTwo: '#232323',
+    jackpotBoxColorTwoTitle: '#E02D2D',
+    jackpotBoxColorThree: '#232323',
+    jackpotBoxColorThreeTitle: '#E02D2D',
+    meta: {
+      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+      socialImage: "https://scratcher.verse.bitcoin.com/meta_christmas.png"
+    }
+},
 ]
 
 const updateMetaData = (product) => {
@@ -172,14 +209,18 @@ export const store = reactive({
   updateProduct(value) {
     this.productId = value
     let product = products.find(product => product.id === value);
-    localStorage.setItem('collection', product.campaign)
+    localStorage.setItem('collection', product.campaign);
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('campaign', product.campaign);
+    window.location.search = urlParams;
   },
   getProduct() {
-    return products.find(product => product.id === this.productId );
+    return products.find(product => product.id === this.productId);
   },
   getRandomOtherProduct() {
-    // let product = products.find(product => product.id !== this.productId && product.active == true)
-    return products.find(product => product.id !== this.productId && product.active == true);
+    const filtered = products.filter((p)=> p.id != this.productId && p.active == true);
+    const randomIdx = Math.floor(Math.random() * filtered.length);
+    return filtered[randomIdx];
   },
   getProductContractAddresses() {
     return products.map(product => product.contractAddress)

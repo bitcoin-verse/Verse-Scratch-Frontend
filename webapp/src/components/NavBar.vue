@@ -195,10 +195,10 @@ export default {
     top: 20px;
     text-align: center;
     width: 400px;
-    font-family: Barlow, Helvetica, sans-serif;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     margin: 0 auto;
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 800;
 }
 
 .verse-nav {
@@ -211,9 +211,9 @@ export default {
     cursor: pointer;
     text-wrap: nowrap;
     border-radius: 100px;
-    font-family: Barlow, Helvetica, sans-serif;
-    background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
-    font-weight: 600;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
+    font-weight: 800;
     color: rgb(255, 255, 255);
     font-size: 14px;
     height: 36px;
@@ -221,15 +221,16 @@ export default {
     position: relative;
 
     &.mobile {
-        padding-right: 21px !important;
-        background: #3f526e !important;
-        background: linear-gradient(rgb(14, 190, 240) 0%, rgb(0, 133, 255) 100%);
+        padding-right: 21px!important;
+        background: #3f526e!important;
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
 
     &.connected {
-        background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+        background: #202B58;
         padding-right: 40px;
     }
+
 
     .provider-logo {
         position: absolute;
@@ -278,20 +279,33 @@ export default {
     }
 
     &:hover {
-        background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
 
     &:active {
-        background: linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+        background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
     }
 }
 
 .btn-connect {
+    @media(max-width: 880px) {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    font-weight: 800;
+    font-size: 15px;
+    left: 0;
+    height: 50px;
+    background-color: #2f2b5d;
+    border-radius: 0;
+    color: white;
+    border: none;
+    }
     margin-top: 2px;
     border: none;
     width: 140px;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 800;
     padding: 5px 20px;
     height: 40px;
     background-color: transparent;
@@ -379,8 +393,8 @@ a {
             top: 10px;
             background-image: url("./../assets/icons/verse-mob.png");
             background-size: cover;
-            width: 36px;
-            height: 36px;
+            width: 119px;
+            height: 34px;
         }
     }
 
@@ -391,68 +405,61 @@ a {
 }
 
 .navbar {
-    @media(max-width: 879px) {
-        display: none;
-    }
-
-    z-index: 2;
-    position: fixed;
-    top: 0;
-    display: block;
-    width: 100%;
-    left: 0;
-    height: 70px;
-    background: rgba(3, 12, 20, 1);
-
-    div.logo {
-        color: white;
-        padding-left: 30px;
-        width: 32%;
-        position: absolute;
-        margin: 0;
-        float: left;
-
-        @media(max-width: 880px) {
-            width: 100%;
+        @media(max-width: 879px) {
+            display: none;
         }
+        z-index: 2;
+        position: fixed;
+        top: 0;
+        display: block;
+        width: 100%;
+        left: 0;
+        height: 70px;
+        background: #0A0A2C;
 
-    }
-
-    div.links {
-        @media(max-width: 880px) {
-            width: 100% !important;
+        div.logo {
+            color: white;
+            padding-left: 30px;
+            width: 32%;
+            position: absolute;
+            margin: 0;
+            float: left;
+            @media(max-width: 880px) {
+                width: 100%;
+            }
+ 
+        }
+        div.links { 
+            @media(max-width: 880px) {
+            width: 100%!important;
             padding-top: 0;
-        }
-
-        margin: 0;
-        padding-top: 10px;
-        float: left;
-        width: 32%;
-        text-align: center;
-
-        ul {
+            }
+            margin: 0;
+            padding-top: 10px;
+            float: left;
+            width: 32%;
+            text-align: center;
+            ul {
             @media(max-width: 880px) {
                 padding-left: 0;
                 margin-top: 0;
             }
-
             display: inline-block;
             margin-left: 0 auto;
             list-style-type: none;
+                li {
+                    
+                    float: left;
+                    margin-right: 20px;
 
-            li {
-
-                float: left;
-                margin-right: 20px;
-
-                a {
-                    text-decoration: none;
-                    color: #c6bfff;
-                    font-weight: 500;
+                    a{
+                        text-decoration: none;
+                        color: #c6bfff;
+                        font-weight: 500;
+                    }
                 }
             }
         }
-    }
 
     div.wallet {
         @media(max-width: 930px) {

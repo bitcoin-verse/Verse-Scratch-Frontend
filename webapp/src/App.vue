@@ -84,27 +84,27 @@ createWeb3Modal({
 </script>
 
 
-<template>
-  <div class="global-wrap">
-    <div class="flex-wrap">
-      <NavBar />
-      <RouterView />
-    </div>
-  </div>
+<template>  
+  <NavBar />
+  <RouterView />
 </template>
 
 <style lang="scss">
 .verse-wide {
+  @font-face {
+    font-family: "Saeada";
+    src: local("Saeada", url("/fonts/LtSaeada-Black.otf"));
+  }
   &.home {
-    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
 
   &:hover {
-    background: linear-gradient(rgb(49, 201, 244) 0%, rgb(44, 150, 246) 100%);
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
 
   &:active {
-    background: linear-gradient(rgb(1, 137, 254) 0%, rgb(44, 150, 246) 100%)
+    background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   }
 
   &.fixBottomMobile {
@@ -140,22 +140,22 @@ createWeb3Modal({
   }
 
   &.secondary {
-    background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+    background: #202B58;
+
   }
 
   cursor: pointer;
   margin-top: 24px;
-  background: linear-gradient(180deg, #0EBEF0 0%, #0085FF 100%);
+  background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
   height: 48px;
   border: none;
   width: 100%;
   border-radius: 100px;
   color: white;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 17px;
   line-height: 21.6px;
-  font-family: 'Barlow',
-  sans-serif;
+  font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   &.disabled {
     color: #313E57;
@@ -167,13 +167,12 @@ createWeb3Modal({
 .global-wrap {
   background-image: v-bind('activeProduct.backgroundImage') !important;
   background-size: cover;
-  position: relative;
-
+  /* position: relative; */
+  /* min-height: 800px; */
   @media(max-width: 880px) {
     background-image: none !important;
   }
 }
-
 
 .flex-wrap {
   @media(min-width: 768px) {
@@ -183,7 +182,9 @@ createWeb3Modal({
     max-width: 80rem;
     margin: 0px auto;
     gap: 1rem;
-    grid-template-columns: min-content max-content auto;
+    /* display: grid; */
+    /* grid-template-columns: min-content max-content auto; */
+    height: fit-content;
   }
 }
 
@@ -217,13 +218,13 @@ i.close-btn {
     margin-top: 0;
     color: #C5CEDB !important;
     margin-bottom: 0;
-    font-weight: 600px;
+    font-weight: 800px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
   .balance {
     margin-top: 2px;
-    font-weight: 600;
+    font-weight: 800;
     margin-bottom: 0;
     font-size: 24px;
   }
@@ -371,6 +372,35 @@ i.close-btn {
         border-bottom-left-radius: 13.5px;
         border-bottom-right-radius: 13.5px;
 
+      .modal-body {
+        &.collection {
+          padding-top: 10px;
+          h3.title {
+           
+          }
+          @media(max-width: 880px) {
+            padding: 4px;
+            padding-top: 10px;
+          }
+        }
+        table {
+          padding: 20px;
+          border-radius: 10px;
+          background-color: #05111c;
+          border: 1px solid #273953;
+          color: white;
+          width: 100%;
+          td.key {
+            width: 50%;
+            font-weight: 800;
+            text-align: left;
+          }
+          td.value {
+            width: 50%;
+            text-align: right;
+          }
+        }
+        min-height: 500px;
         @media(max-width: 880px) {
           position: fixed;
           bottom: 0;
@@ -383,14 +413,10 @@ i.close-btn {
           font-size: 14px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         }
-      }
-
-      .modal-footer {
-        @media(max-width: 880px) {
-          position: absolute;
-          padding-left: 24px;
-          padding-right: 24px;
-          width: calc(100% - 48px);
+        .loadingText {
+          color: #FFFFFF;
+          font-size: 18px;
+          font-weight: 800;
         }
 
         text-align: center;
@@ -454,17 +480,12 @@ i.close-btn {
           text-align: left;
           color: #C5CEDB;
           line-height: 14.32px;
-          font-weight: 600;
+          font-weight: 800;
           margin: 0;
           font-size: 12px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         }
       }
-
-
-      // min-height: 540px;
-      padding: 40px 32px 24px 32px;
-      text-align: center;
 
       .img-spinner {
         background-image: url("./assets/icons/activity.svg");
@@ -621,7 +642,6 @@ i.close-btn {
               border-bottom-left-radius: 9px;
               top: 0px;
               left: 0px;
-            }
           }
 
           /* Chrome, Safari, Edge, Opera */
@@ -635,28 +655,26 @@ i.close-btn {
           input[type=number] {
             -moz-appearance: textfield;
           }
-
-          input {
-            background: #0F1823;
-            border: 1px solid #0F1823;
-            outline: none;
-            color: white;
-            font-family: Barlow;
-            font-size: 13px;
-            font-weight: 600;
-            text-align: center;
-            z-index: 5;
-            position: relative;
-            width: 45px;
-            border-color: none;
-            height: calc(100% - 2px);
-            border-radius: 9px;
-            padding: 0;
-
-            @media(max-width: 880px) {
+            input {
+              background: #0F1823;
+              border: 1px solid #0F1823;
+              outline: none;
+              color: white;
+              font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+              font-size: 13px;
               font-weight: 800;
-            }
-          }
+              text-align: center;
+              z-index: 5;
+              position: relative;
+              width: 45px;
+              border-color: none;
+              height: calc(100% - 2px);
+              border-radius: 9px;
+              padding: 0;
+              @media(max-width: 880px) {
+                font-weight: 800;
+              }
+           }
         }
 
         background-color: #252D40;
@@ -736,25 +754,25 @@ i.close-btn {
 
 h3 {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 body {
   position: unset;
   width: 100%;
-  min-height: calc(100vh - 200px);
+  /* min-height: calc(100vh - 200px); */
   padding: 0;
   background-size: 100%;
   margin: 0;
   overflow: auto;
-  font-family: 'Barlow', sans-serif;
-  background: rgba(3, 12, 20, 1);
-  background-repeat: no-repeat !important;
+  font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  background: #0A0A2C;
+  background-repeat: no-repeat!important;
   background-size: cover;
 
   @media(max-width: 880px) {
-    background: rgba(3, 12, 20, 1);
-    background-image: none !important;
+    background: #0A0A2C;
+    background-image: none!important;
     min-height: unset;
   }
 

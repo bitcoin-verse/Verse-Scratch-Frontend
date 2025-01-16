@@ -250,12 +250,7 @@ onMounted(() => {
                             style="margin-top: 25px"
                         ></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
-                        <a
-                            target="_blank"
-                            style="color: #0085FF; font-weight: 600;"
-                            :href="`https://polygonscan.com/tx/${txHash}`"
-                            v-if="txHash && !showTimer"
-                        >View blockchain transaction</a>
+                        <a target="_blank" style="color: #0085FF; font-weight: 800;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                     </div>
                 </div>
             </div>
@@ -362,8 +357,8 @@ onMounted(() => {
 .title-loading {
     font-size: 18px;
     color: white;
-    font-weight: 600;
-    margin-top: 16px !important;
+    font-weight: 800;
+    margin-top: 16px!important;
 }
 
 .backdrop {
@@ -464,7 +459,7 @@ onMounted(() => {
     h3 {
         color: #C5CEDB;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 800;
         margin: 0;
     }
 }

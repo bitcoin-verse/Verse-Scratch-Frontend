@@ -85,8 +85,12 @@ export default {
     flex-direction: column;
     flex: 0 1 0%;
     z-index: 1;
-    color: rgb(255, 255, 255);
-    background: black;
+    background: #0A0A2C;
+    border-top: 1px solid #141F4C;
+    @media(min-width: 880px) {
+        height: 64px;
+    }
+
 
     .footer-content {
         display: flex;
@@ -117,7 +121,10 @@ export default {
                     text-decoration: none;
                     font-size: 0.75rem;
                     font-weight: 400;
-                    color: rgb(197, 206, 219);
+                    color: #8B92AA;
+                    @media(max-width:880px) {
+                        width: 9.719rem;
+                    }
                 }
             }
         }
@@ -125,7 +132,8 @@ export default {
         .company {
             font-size: 0.75rem;
             font-weight: 400;
-            color: rgb(88, 111, 145);
+            color:#434C74;
+            ;
         }
     }
 
