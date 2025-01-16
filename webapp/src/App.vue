@@ -3,11 +3,10 @@
 import { RouterView } from 'vue-router'
 import { polygon } from '@wagmi/core/chains'
 import { reconnect } from '@wagmi/core'
-import { injected } from '@wagmi/connectors'
 import NavBar from './components/NavBar.vue'
 import { createWeb3Modal } from '@web3modal/wagmi/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
-import { getWagmiConfig, getConnectors, metadata, getIsWallet, projectId } from './config'
+import { getWagmiConfig, projectId } from './config'
 
 import { computed, provide, onMounted } from 'vue';
 
@@ -749,6 +748,8 @@ i.close-btn {
         cursor: pointer;
       }
     }
+  }
+    } 
   }
 }
 
