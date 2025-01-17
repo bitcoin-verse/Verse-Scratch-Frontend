@@ -1,20 +1,22 @@
 <script>
 import { getAccount, disconnect, watchAccount } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
-import { logAmplitudeEvent } from "../helpers/analytics";
+import { computed, ref } from 'vue';
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+
+import { logAmplitudeEvent } from "../helpers/analytics";
 import core from "../core" 
 
 export default {
     setup() {   
-        let account = getAccount(core.config)
+        let accountRef = ref(getAccount(core.config))
         let modal = useWeb3Modal()
         let isWallet = ref(false)
-        let accountActive = ref(false)
-        let connectedProvider = ref("")
-        let ensUserName = ref("");
+        let accountActive = computed(() => accountRef.value.isConnected === true)
+        let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
+        let connectedProvider = computed(() => isWallet.value ? "bitcoincom-wallet" : accountRef.value.connector.id.toLowerCase().replace(".", "-"))
+        let ensUserName = ref(null); // null | string
 
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
@@ -51,42 +53,37 @@ export default {
 
         watchAccount(core.config, {
             async onChange(account) {
-                console.log(account)
+                console.log({
+                    account,
+                    connectedProvider: account.connector.id,
+                    isWallet: isWallet.value
+                })
+                accountRef.value = account
  
-                if(account.isConnected == true) {
-                accountActive.value = true;
-                
+                if(!account.isConnected) {
+                    console.log("account not active")
+                    return
+                }
+
+                console.log("wallet is connected")
                 const publicClient = createPublicClient({ 
                     chain: mainnet,
                     transport: http()
                 })
 
                 const ensName = await publicClient.getEnsName({
-                    address: getAccount(core.config).address
+                    address: account.address
                 })
-                if(ensName) ensUserName.value = ensName
-    
+                ensUserName.value = ensName
 
                 logAmplitudeEvent({
                     name: 'connect wallet result',
                     blockchain: 'MATIC',
                 })
-                console.log("is connected")
-            } else {
-                console.log("account not active")
-                accountActive.value = false
-            }
-
-            console.log(getAccount(core.config))
-  
-            connectedProvider.value = account.connector.id.toLowerCase().replace(".", "-")
-            console.log(connectedProvider)
             },
-            })
-       
-           
+        })
 
-        return { account, isWallet, handleHome, ensUserName, openWalletModal, core, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { isWallet, handleHome, ensUserName, openWalletModal, accountActive, connectedProvider, truncatedAddress } 
     }
     
 }
@@ -105,9 +102,7 @@ export default {
         <h3 class="title-nav">Verse Scratcher</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>
-
+        <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
     </div>
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
@@ -126,13 +121,8 @@ export default {
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
-            <div v-if="ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{ ensUserName}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
-            </div>
-            <div v-if="!ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount(core.config).address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount(core.config).address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
+            <div>
+                <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">{{ ensUserName ?? truncatedAddress }} <div :class="'provider-logo ' + connectedProvider"></div></button>
             </div>
         </div>
     </div>
@@ -189,16 +179,16 @@ export default {
         top: 4.5px;
         background-size: cover;
 
-        &.walletconnect {
+        &.bitcoincom-wallet {
             background-image: url("./../assets/icons/bitcoincom.png");
             right: 4.3px;
             top: 4.2px;
         }
-        // &.walletconnect {
-        //     background-image: url("./../assets/icons/wc-logo.png");
-        //     right: 4.3px;
-        //     top: 4.2px;
-        // }
+        &.walletconnect {
+            background-image: url("./../assets/icons/wc-logo.png");
+            right: 4.3px;
+            top: 4.2px;
+        }
 
         &.injected {
             background-image: url("./../assets/icons/mm-logo.png");
