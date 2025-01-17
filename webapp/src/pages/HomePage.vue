@@ -1097,8 +1097,8 @@ i.chev-down {
         text-align: center;
         width: 100%;
         font-size: 18px;
-        line-height: 21.6px;
-        font-weight: 800;
+        line-height: 18px;
+        font-weight: 600;
         padding: 12px;
         font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         color: white;
@@ -1215,14 +1215,16 @@ p.usd {
     background: v-bind('activeProduct.jackpotBoxColorOne');
     border-radius: 0;
     p {
-        margin: 0;
+        margin: 0.5rem 0 0;
         text-align: center;
-        font-weight: 800;
+        font-weight: 600;
         color: v-bind('activeProduct.jackpotBoxColorOneTitle')
     }
     h2 {
+        margin: 0.25rem 0 0 !important;
         font-weight: 800;
-        font-size: 32px !important;
+        font-size: 32px;
+        line-height: 32px;
         text-align: center;
         text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
     }
@@ -1400,7 +1402,7 @@ p.usd {
     }
 
     h2 {
-        margin: 0;
+        margin: 0.25rem 0;
         font-size: 32px;
         font-weight: 800;
         text-align: center;
