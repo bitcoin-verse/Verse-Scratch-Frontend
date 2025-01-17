@@ -1,12 +1,11 @@
 <script setup>
 import { waitForTransactionReceipt, writeContract} from '@wagmi/core'
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+
 import ContractABI from '../abi/contract.json'
-import { store } from '../store.js'
 import core from '../core'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
-const activeProduct = computed(() => store.getProduct())
 
 let count = ref(0);
 let imageLoaded = ref(false)
@@ -92,7 +91,7 @@ watch(count, async (newValue)=> {
 
             const particleCount = 50 * (timeLeft / duration);
 
-            if(sessionStorage.getItem('isWallet') === "false") {
+            if(!core.isWallet) {
                 confetti(
                         Object.assign({}, defaults, {
                         particleCount,

@@ -1,4 +1,4 @@
-import { polygon, mainnet } from 'viem/chains'
+import { polygon } from 'viem/chains'
 import { defaultWagmiConfig } from '@web3modal/wagmi/vue'
 
 let isWallet = false
@@ -9,20 +9,16 @@ if (!sessionStorage.getItem('isWallet')) {
   isWallet = search.get('origin') === 'wallet'
   sessionStorage.setItem('isWallet', isWallet)
 } else {
-  if (sessionStorage.getItem('isWallet') == 'true') {
-    isWallet = true
-  } else {
-    isWallet = false
-  }
+  isWallet = sessionStorage.getItem('isWallet') == 'true'
 }
 
 const projectId = '5d9e3863443e82e9222f3e3f5e075798'
 const chains = [polygon]
 const metadata = {
-name: "VERSE Scratcher",
-description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
-url: "https://scratcher.verse.bitcoin.com",
-icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
+  name: "VERSE Scratcher",
+  description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
+  url: "https://scratcher.verse.bitcoin.com",
+  icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 }
 const config = defaultWagmiConfig({
     chains, 
@@ -38,7 +34,8 @@ const config = defaultWagmiConfig({
 
 export default {
     config,
-    isWallet
+    isWallet,
+    projectId
 }
 
 

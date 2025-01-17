@@ -1,13 +1,13 @@
 <script>
-import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
-import ERC721ABI from '../abi/ERC721.json'
-import Redeem from '../pages/Redeem.vue'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import ContractABI from '../abi/contract.json'
-import ERC721 from '../abi/ERC721.json'
 import { useRoute } from 'vue-router'
 import Web3 from 'web3'
+import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
+import { useWeb3Modal } from '@web3modal/wagmi/vue'
+
+import ERC721ABI from '../abi/ERC721.json'
+import ContractABI from '../abi/contract.json'
+import Redeem from '../pages/Redeem.vue'
 import Footer from '../components/Footer.vue'
 import { store } from '../store.js'
 import core from '../core'
@@ -177,7 +177,7 @@ export default {
             try {
                 const data = await readContract(core.config, {
                     address: address,
-                    abi: ERC721,
+                    abi: ERC721ABI,
                     functionName: 'claimed',
                     args: [id]
                 })
@@ -200,7 +200,7 @@ export default {
             try {
                 const data = await readContract(core.config, {
                     address: address,
-                    abi: ERC721,
+                    abi: ERC721ABI,
                     functionName: 'editions',
                     args: [id]
                 })
@@ -221,7 +221,7 @@ export default {
             try {
                 const data = await readContract(core.config, {
                     address: address,
-                    abi: ERC721,
+                    abi: ERC721ABI,
                     functionName: 'prizes',
                     args: [id]
                 })

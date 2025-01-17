@@ -12,13 +12,10 @@ export default {
     setup() {   
         let accountRef = ref(getAccount(core.config))
         let modal = useWeb3Modal()
-        let isWallet = ref(false)
         let accountActive = computed(() => accountRef.value.isConnected === true)
         let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
-        let connectedProvider = computed(() => isWallet.value ? "bitcoincom-wallet" : accountRef.value.connector.id.toLowerCase().replace(".", "-"))
+        let connectedProvider = computed(() => core.isWallet ? "bitcoincom-wallet" : accountRef.value.connector.id.toLowerCase().replace(".", "-"))
         let ensUserName = ref(null); // null | string
-
-        sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
 
         function openWalletModal(refresh) {            
             if(refresh) disconnect(core.config)
@@ -29,17 +26,10 @@ export default {
         }
 
         function handleHome(newTab) {
-            const openUrl = (url, newTab) => {
-                if(newTab) {
-                    window.open(url,"_blank")
-                } else {
-                    window.open(url,"_self")
-                }
-            }
             if(window.location.pathname == '/') {
-               openUrl("https://verse.bitcoin.com" ,newTab)
+                window.open("https://verse.bitcoin.com", newTab ? "_blank" : "_self")
             } else {
-               openUrl("/")
+                window.open("/", "_self")
             }
         }
 
@@ -56,7 +46,6 @@ export default {
                 console.log({
                     account,
                     connectedProvider: account.connector.id,
-                    isWallet: isWallet.value
                 })
                 accountRef.value = account
  
@@ -83,7 +72,7 @@ export default {
             },
         })
 
-        return { isWallet, handleHome, ensUserName, openWalletModal, accountActive, connectedProvider, truncatedAddress } 
+        return { isWallet: core.isWallet, handleHome, ensUserName, openWalletModal, accountActive, connectedProvider, truncatedAddress } 
     }
     
 }
@@ -91,11 +80,7 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a v-if="!isWallet" @click="handleHome(true)">
-            <div class="nav-chev"></div>
-            <div class="nav-verse"></div>
-        </a>
-        <a v-if="isWallet" @click="handleHome()">
+        <a @click="handleHome(!isWallet)">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
@@ -107,11 +92,7 @@ export default {
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
             <div class="logo">
-                <a v-if="!isWallet" @click="handleHome(true)">
-                    <div class="nav-chev"></div>
-                    <div class="nav-verse"></div>
-                </a>
-                <a v-if="isWallet" @click="handleHome()">
+                <a @click="handleHome(!isWallet)">
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>

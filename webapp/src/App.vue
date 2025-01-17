@@ -1,21 +1,14 @@
 <script setup>
-
+import { computed } from 'vue'
 import { RouterView } from 'vue-router'
-
-import { polygon } from 'viem/chains'
 import { reconnect } from '@wagmi/core'
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/vue'
+import { createWeb3Modal } from '@web3modal/wagmi/vue'
+
 import NavBar from './components/NavBar.vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
 import core from "./core"
-
-
-
 import { store } from './store.js'
 import globals from "./globals";
-import { computed } from 'vue'
-
-
 
 
 // IF NEW VERSION IS SET, CLEAR INDEXDB
@@ -70,20 +63,13 @@ console.log(core.isWallet, "is wallet")
 
 
 createWeb3Modal({
-
   wagmiConfig: core.config,
   featuredWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c'],
   excludeWalletIds: core.isWallet === true ? ['fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa'] : [],
   allWallets: core.isWallet === true ? 'HIDE' : 'SHOW',
-  projectId: "5d9e3863443e82e9222f3e3f5e075798",
+  projectId: core.projectId,
   enableAnalytics: true,
-
 })
-
-
-
-
-
 </script>
 
 
