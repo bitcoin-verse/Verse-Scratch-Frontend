@@ -4,18 +4,17 @@ import {
   switchChain,
   readContract,
   writeContract,
-  disconnect,
   watchAccount,
   waitForTransactionReceipt
 } from '@wagmi/core'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref, computed, watch, registerRuntimeCompiler } from 'vue'
+import { useWeb3Modal, useWeb3ModalState } from '@web3modal/wagmi/vue'
+import { ref, computed, watch } from 'vue'
+import Web3 from 'web3'
+import axios from 'axios'
+
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
-import Web3 from 'web3'
-import { copyText } from 'vue3-clipboard'
 import Footer from '../components/Footer.vue'
-import axios from 'axios'
 import { store } from '../store.js'
 import { logAmplitudeEvent } from '../helpers/analytics'
 import core from '../core'
@@ -31,13 +30,13 @@ export default {
     Footer
   },
   setup() {
-    let account = getAccount(core.config)
+    let web3ModalState = useWeb3ModalState()
+    let accountRef = ref(getAccount(core.config))
     let currentAccountAddress = ref('')
     let modal = useWeb3Modal()
     let copyDone = ref(false)
-    let reopenAfterConnection = ref(false)
-    let accountActive = ref(false)
-    let correctNetwork = ref(true)
+    let accountActive = computed(() => accountRef.value.isConnected === true)
+    let correctNetwork = computed(() => accountRef.value.chainId === 137)
     let modalActive = ref(false)
     let ensLoaded = ref('')
     let verseBalance = ref(0)
@@ -83,7 +82,7 @@ export default {
     }
     getVersePrice()
     async function requestNetworkChange() {
-      await switchChain({ chainId: 137 })
+      await switchChain(core.config, { chainId: 137 })
     }
 
     async function logCtaEvent(type) {
@@ -217,7 +216,7 @@ export default {
       if (validatedAmount.value < 2) {
         return
       }
-      let receiver = getAccount(core.config).address
+      let receiver = accountRef.value.address
       if (_giftAddress) {
         giftAddress.value = _giftAddress
       } else {
@@ -232,7 +231,7 @@ export default {
           address: activeProduct.value.contractAddress,
           abi: ContractABI,
           functionName: 'bulkPurchase',
-          account: getAccount(core.config).address,
+          account: accountRef.value.address,
           args: [receiver, validatedAmount.value]
         })
         txHash.value = hash
@@ -280,7 +279,7 @@ export default {
           }
           loadingMessage.value = 'Please confirm the purchase in your wallet'
           modalLoading.value = true
-          let receiver = getAccount(core.config).address
+          let receiver = accountRef.value.address
           if (_giftAddress && _giftAddress.length > 0) {
             try {
               receiver = _giftAddress
@@ -288,7 +287,7 @@ export default {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
                 functionName: 'giftScratchTicket',
-                account: getAccount(core.config).address,
+                account: accountRef.value.address,
                 args: [receiver]
               })
               txHash.value = hash
@@ -308,7 +307,7 @@ export default {
               const hash = await writeContract(core.config, {
                 address: activeProduct.value.contractAddress,
                 abi: ContractABI,
-                account: getAccount(core.config).address,
+                account: accountRef.value.address,
                 functionName: 'buyScratchTicket',
                 args: []
               })
@@ -340,14 +339,14 @@ export default {
       try {
         modalLoading.value = true
 
-        console.log(getAccount(core.config).address)
+        console.log(accountRef.value.address)
         console.log(activeProduct.value.contractAddress)
 
         const data = await readContract(core.config, {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
           functionName: 'allowance',
-          args: [getAccount(core.config).address, activeProduct.value.contractAddress],
+          args: [accountRef.value.address, activeProduct.value.contractAddress],
         })
 
 
@@ -394,7 +393,7 @@ export default {
           address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
           abi: ERC20ABI,
           functionName: 'balanceOf',
-          args: [getAccount(core.config).address]
+          args: [accountRef.value.address]
         })
         modalLoading.value = false
 
@@ -438,32 +437,28 @@ export default {
         buyStep.value = 2
       }
     })
-
+    
     watchAccount(core.config, {
       async onChange(account) {
+        accountRef.value = account
+
         if (!currentAccountAddress.value) {
-          currentAccountAddress.value = getAccount(core.config).address
+          currentAccountAddress.value = account.address
         } else {
-          if (currentAccountAddress.value != getAccount(core.config).address) {
+          if (currentAccountAddress.value != account.address) {
             location.reload()
           }
         }
 
         if (account.isConnected == true) {
           console.log('HOME ACOUNT ACTIVE')
-          accountActive.value = true
           if (buyStep.value < 2) {
             buyStep.value = 2
           }
 
-          if (reopenAfterConnection.value == true) {
-            reopenAfterConnection.value = false
-            toggleModal()
-          }
           getBalance()
         } else {
           console.log('HOME ACOUNT NOT ACTIVE')
-          accountActive.value = false
           buyStep.value = 0
         }
       }
@@ -482,11 +477,9 @@ export default {
 
     function connectAndClose() {
       modal.open()
-      reopenAfterConnection.value = true
       logAmplitudeEvent({
         name: 'connect wallet clicked'
       })
-      toggleModal()
     }
 
     function openModal() {
@@ -511,9 +504,10 @@ export default {
     }
 
     return {
+      web3ModalState,
       getBalance,
       connectAndClose,
-      account,
+      accountRef,
       openModal,
       core,
       buyStep,
@@ -545,7 +539,6 @@ export default {
       onTicketInputChange,
       randomOtherProduct,
       ticketInputValid,
-      getAccount,
       showTimer,
       selectedProductId,
       requestNetworkChange,
@@ -563,7 +556,7 @@ export default {
   <!-- modals -->
   <div
     class="backdrop"
-    v-if="modalActive"
+    v-if="modalActive && !web3ModalState.open"
   >
     <!-- modal for loading -->
     <div
@@ -625,7 +618,7 @@ export default {
     <!-- modal for switching network -->
     <div
       class="modal"
-      v-if="correctNetwork == false"
+      v-if="accountActive && !correctNetwork"
     >
       <div>
         <div class="modal-head">
@@ -652,7 +645,7 @@ export default {
     <!-- modal for connecting account -->
     <div
       class="modal"
-      v-if="buyStep == 0 && !modalLoading && correctNetwork"
+      v-if="!accountActive || (buyStep == 0 && !modalLoading && correctNetwork)"
     >
       <div>
         <div class="modal-head">
@@ -973,7 +966,7 @@ export default {
             <td
               class="value"
               v-if="!ticketInputAddress"
-            >{{ getAccount().address.slice(0, 7) }}..</td>
+            >{{ accountRef.address.slice(0, 7) }}..</td>
           </tr>
         </table>
 
