@@ -157,7 +157,90 @@ createWeb3Modal({
 .verse-wide {
   @font-face {
     font-family: "Saeada";
-    src: local("Saeada", url("/fonts/LtSaeada-Black.otf"));
+    src: url("/fonts/LTSaeada-Hairline.otf") format("opentype");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Thin.otf") format("opentype");
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-ExtraLight.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Light.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Medium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-SemiBold.otf") format("opentype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-ExtraBold.otf") format("opentype");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-Black.otf") format("opentype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Saeada";
+    src: url("/fonts/LTSaeada-ExtraBlack.otf") format("opentype");
+    font-weight: 950;
+    font-style: normal;
+    font-display: swap;
   }
   &.home {
     background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
