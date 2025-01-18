@@ -1,6 +1,6 @@
 <script>
 import { getAccount, disconnect, watchAccount } from '@wagmi/core'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
+import { useWeb3Modal, useWalletInfo } from '@web3modal/wagmi/vue'
 import { computed, ref } from 'vue';
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -10,11 +10,11 @@ import core from "../core"
 
 export default {
     setup() {   
+        let { walletInfo } = useWalletInfo()
         let accountRef = ref(getAccount(core.config))
         let modal = useWeb3Modal()
         let accountActive = computed(() => accountRef.value.isConnected === true)
         let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
-        let connectedProvider = computed(() => core.isWallet ? "bitcoincom-wallet" : accountRef.value.connector.id.toLowerCase().replace(".", "-"))
         let ensUserName = ref(null); // null | string
 
         function openWalletModal(refresh) {            
@@ -43,10 +43,7 @@ export default {
 
         watchAccount(core.config, {
             async onChange(account) {
-                console.log({
-                    account,
-                    connectedProvider: account.connector.id,
-                })
+                console.log({ account })
                 accountRef.value = account
  
                 if(!account.isConnected) {
@@ -72,7 +69,7 @@ export default {
             },
         })
 
-        return { isWallet: core.isWallet, handleHome, ensUserName, openWalletModal, accountActive, connectedProvider, truncatedAddress } 
+        return { isWallet: core.isWallet, walletInfo, handleHome, ensUserName, openWalletModal, accountActive, truncatedAddress } 
     }
     
 }
@@ -87,7 +84,9 @@ export default {
         <h3 class="title-nav">Verse Scratcher</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
+        <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)">
+            <img v-if="!!walletInfo" :src="walletInfo.icon" :alt="walletInfo.name" class="provider-logo"/>
+        </button>
     </div>
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
@@ -103,7 +102,10 @@ export default {
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
             <div>
-                <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">{{ ensUserName ?? truncatedAddress }} <div :class="'provider-logo ' + connectedProvider"></div></button>
+                <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">
+                    {{ ensUserName ?? truncatedAddress }} 
+                    <img v-if="!!walletInfo" :src="walletInfo.icon" :alt="walletInfo.name" class="provider-logo"/>
+                </button>
             </div>
         </div>
     </div>
