@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import { reconnect } from '@wagmi/core'
-import { createWeb3Modal } from '@web3modal/wagmi/vue'
+import { createAppKit } from '@reown/appkit/vue'
 
 import NavBar from './components/NavBar.vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
@@ -61,15 +61,30 @@ logAmplitudeEvent({
 reconnect(core.config)
 console.log(core.isWallet, "is wallet")
 
+createAppKit({
+  adapters: [core.wagmiAdapter],
+  networks: core.networks,
+  projectId: core.projectId,
+  metadata: core.metadata,
+  enableWalletConnect: true,
+  enableInjected: true,
+  enableEIP6963: true,
+  enableCoinbase: false,
 
-createWeb3Modal({
-  wagmiConfig: core.config,
   featuredWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c'],
   excludeWalletIds: core.isWallet === true ? ['fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa'] : [],
   allWallets: core.isWallet === true ? 'HIDE' : 'SHOW',
-  projectId: core.projectId,
-  enableAnalytics: true,
+  features: {
+    analytics: true,
+    email: false,
+    socials: false,
+    onramp: false,
+    swaps: false,
+    send: false,
+  },
 })
+
+
 </script>
 
 

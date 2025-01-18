@@ -7,7 +7,7 @@ import {
   watchAccount,
   waitForTransactionReceipt
 } from '@wagmi/core'
-import { useWeb3Modal, useWeb3ModalState } from '@web3modal/wagmi/vue'
+import { useAppKit, useAppKitState } from '@reown/appkit/vue'
 import { ref, computed, watch } from 'vue'
 import Web3 from 'web3'
 import axios from 'axios'
@@ -30,10 +30,10 @@ export default {
     Footer
   },
   setup() {
-    let web3ModalState = useWeb3ModalState()
+    let web3ModalState = useAppKitState()
     let accountRef = ref(getAccount(core.config))
     let currentAccountAddress = ref('')
-    let modal = useWeb3Modal()
+    let modal = useAppKit()
     let copyDone = ref(false)
     let accountActive = computed(() => accountRef.value.isConnected === true)
     let correctNetwork = computed(() => accountRef.value.chainId === 137)

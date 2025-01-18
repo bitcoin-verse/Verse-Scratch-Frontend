@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router'
 import Web3 from 'web3'
 import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
+import { useAppKit } from '@reown/appkit/vue'
 
 import ERC721ABI from '../abi/ERC721.json'
 import ContractABI from '../abi/contract.json'
@@ -27,7 +27,7 @@ export default {
         let account = getAccount(core.config)
         let accountActive = ref(false)
         let loading = ref(false)
-        let modal = useWeb3Modal()
+        let modal = useAppKit()
         let claimNow = ref(false)
 
         let newTicketModal = ref(false)

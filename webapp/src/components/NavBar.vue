@@ -1,6 +1,6 @@
 <script>
 import { getAccount, disconnect, watchAccount } from '@wagmi/core'
-import { useWeb3Modal, useWalletInfo } from '@web3modal/wagmi/vue'
+import { useAppKit } from '@reown/appkit/vue'
 import { computed, ref } from 'vue';
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -10,9 +10,9 @@ import core from "../core"
 
 export default {
     setup() {   
-        let { walletInfo } = useWalletInfo()
+        let walletInfo = ref(null)
         let accountRef = ref(getAccount(core.config))
-        let modal = useWeb3Modal()
+        let modal = useAppKit()
         let accountActive = computed(() => accountRef.value.isConnected === true)
         let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
         let ensUserName = ref(null); // null | string
@@ -43,7 +43,17 @@ export default {
 
         watchAccount(core.config, {
             async onChange(account) {
-                console.log({ account })
+                if(account.connector) {
+                    if(account.connector.name === "WalletConnect") {
+                        const metadata = (await account.connector.getProvider?.())?.signer?.session?.peer.metadata
+                        walletInfo.value = metadata ? { name: metadata.name, icon: metadata.icons[0] } : null
+                    } else {
+                        const { name, icon } = account.connector
+                        walletInfo.value = { name, icon }
+                    }
+                }
+
+                console.log("Account change: ", { account })
                 accountRef.value = account
  
                 if(!account.isConnected) {
