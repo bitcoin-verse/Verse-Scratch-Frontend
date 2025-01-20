@@ -291,7 +291,7 @@ createWeb3Modal({
   width: 100%;
   border-radius: 100px;
   color: white;
-  font-weight: 800;
+  font-weight: 500;
   font-size: 17px;
   line-height: 21.6px;
   font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;

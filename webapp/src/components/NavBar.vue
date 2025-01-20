@@ -137,7 +137,7 @@ export default {
     font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     margin: 0 auto;
     font-size: 22px;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .verse-nav {
@@ -152,7 +152,7 @@ export default {
     border-radius: 100px;
     font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: linear-gradient(90deg, #2569fa 0%, #9333ea 100%);
-    font-weight: 800;
+    font-weight: 500;
     color: rgb(255, 255, 255);
     font-size: 14px;
     height: 36px;
@@ -223,7 +223,7 @@ export default {
     width: 100%;
     position: fixed;
     bottom: 0;
-    font-weight: 800;
+    font-weight: 500;
     font-size: 15px;
     left: 0;
     height: 50px;
