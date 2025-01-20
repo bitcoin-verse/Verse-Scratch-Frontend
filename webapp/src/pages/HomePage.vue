@@ -530,7 +530,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="img-spinner"></div>
                 <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
                 <h3 v-if="showTimer" class="title">Payment Successful</h3>
-                <a target="_blank" style="color: #0085FF; font-weight: 800;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
+                <a target="_blank" style="color: #0085FF; font-weight: 500;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
                 <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
                 <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
                 <div v-if="showTimer" class="attention-footer">
@@ -1041,7 +1041,7 @@ h1, h2, h3 {
         .btn-card {
             width: 120px;
             padding: 0;
-            font-weight: 800;
+            font-weight: 500;
             font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             height: 35px;
             border-radius: 30px;
