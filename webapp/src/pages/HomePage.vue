@@ -620,7 +620,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                                 <span class="slider round"></span>
                             </label>
                         </div>
-                <a class="" target="_blank" @click="approve()"><button class="btn verse-wide">Allow the use of VERSE</button></a>
+                <button @click="approve()" class="btn verse-wide">Allow the use of VERSE</button>
                 <p class="modal-footer">The Polygon network requires that you manually approve the spending  of each token in your wallet. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
             </div>
         </div>
