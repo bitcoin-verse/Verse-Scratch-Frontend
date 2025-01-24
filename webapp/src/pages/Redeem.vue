@@ -1,11 +1,14 @@
 <script setup>
 import { waitForTransaction, writeContract} from '@wagmi/core'
 import { ref, onMounted, watch, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import ContractABI from '../abi/contract.json'
 import { store } from '../store.js'
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 const activeProduct = computed(() => store.getProduct())
+
+const router = useRouter();
 
 
 let count = ref(0);
@@ -29,6 +32,10 @@ const disableTutorial = () => {
 const toggleShow = () => {
     showTutorial.value = !showTutorial.value
     localStorage.setItem('showTutorial', showTutorial.value)
+}
+
+const viewTickets = () => {
+    window.location.reload();
 }
 
 const redeem = async (address) => {
@@ -177,7 +184,7 @@ onMounted(() => {
                                 <span class="slider round"></span>
                             </label>
                         </div>
-                        <a @click="disableTutorial()"><button class="btn verse-wide">Start Scratching</button></a>
+                        <button @click="disableTutorial()" class="btn verse-wide">Start Scratching</button>
                     </div>
                 </div>
             </div>
@@ -189,8 +196,8 @@ onMounted(() => {
                     <div>
                         <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
-                        <a @click="redeem(detailNFT.address)"><button class="btn verse-wide">Claim Now</button></a>
-                        <a href="/tickets"><button class="btn verse-wide secondary">View My Tickets</button></a>
+                        <button class="btn verse-wide" @click="redeem(detailNFT.address)">Claim Now</button>
+                        <button class="btn verse-wide secondary" @click="viewTickets()">View My Tickets</button>
                     </div>
                 </div>
             </div>
@@ -202,7 +209,7 @@ onMounted(() => {
                     <div>
                         <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and congrats on your win!</p>
-                        <a href="/tickets"><button class="btn verse-wide">View My Tickets</button></a>                    
+                        <button class="btn verse-wide" @click="viewTickets()">View My Tickets</button>           
                     </div>
                 </div>
             </div>
