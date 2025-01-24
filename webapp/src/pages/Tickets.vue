@@ -98,6 +98,10 @@ export default {
             }
         })
 
+        function openCampaign() {
+            route.push(`/?campaign=${item.campaign}&purchase-intent=true`);
+        }
+
         async function redeem(nftId) {
             modalLoading.value = true
             const obj = nfts.value.find(obj => obj.id == nftId);
@@ -365,7 +369,7 @@ export default {
                                 <h5>{{ item.ticketPriceString }} VERSE</h5>
                             </div>
                         </div>
-                        <a :href="`/?campaign=${item.campaign}&purchase-intent=true`"><button class="btn-select-col" :style="`background-color: ${item.homeLinkColor}`">Buy From This Collection</button></a>
+                        <button class="btn-select-col" :style="`background-color: ${item.homeLinkColor}`" @click="openCampaign()">Buy From This Collection</button>
                     </div>
                 </div>
             </div>
@@ -381,8 +385,8 @@ export default {
                 <p class="subtext">Somebody has sent a scratch ticket to you. Your ticket has a chance to win <span>1.000.000 Verse!</span>
                 <br><br>No transaction is required to scratch. Connect your account (<span> {{ giftAccount.slice(0, 7) }}..</span>) to redeem the ticket.
                 </p>
-                <a @click="closeGiftModal(true)" v-if="accountActive == false"><button class="btn verse-wide fixBottomMobile">Connect and Redeem</button></a>
-                <a @click="closeGiftModal(false)" v-if="accountActive == true"><button class="btn verse-wide fixBottomMobile">Redeem</button></a>
+                <button class="btn verse-wide fixBottomMobile" @click="closeGiftModal(true)" v-if="accountActive == false">Connect and Redeem</button>
+                <button class="btn verse-wide fixBottomMobile" @click="closeGiftModal(false)" v-if="accountActive == true">Redeem</button>
                 <img url="/gift.png">
             </div>
         </div>
@@ -409,7 +413,7 @@ export default {
                         <i class="chev-down"></i>
                     </div>
                 </div>  
-                <a @click="newTicketModal= true" ><button class="btn verse-wide" >Buy Ticket</button></a>
+                <button class="btn verse-wide" @click="newTicketModal= true">Buy Ticket</button>
             </h2>
 
             <div class="tickconnect" v-if="!accountActive">Connect your wallet to view your tickets. </div>

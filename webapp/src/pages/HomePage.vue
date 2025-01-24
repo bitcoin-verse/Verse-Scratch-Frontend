@@ -131,6 +131,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         modalActive.value = !modalActive.value;
     }
 
+    function changeLocation(href, newTab) {
+        if (newTab) {
+            window.open(href);
+        } else {
+            window.location.href = href;
+        }
+    }
+
     // handle intent to toggle modal
     const search = new URLSearchParams(window.location.search);
 
@@ -505,7 +513,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         giftInputLoad,
         singleTransactionApproval,
         toggleSingleApproval,
-        txHash
+        txHash,
+        changeLocation
     }
   }
 }
@@ -550,7 +559,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="change-network"></div>
                     <h3 class="title">Wrong Network Selected</h3>
                     <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
-                    <a class="" target="_blank" @click="requestNetworkChange()"><button class="btn verse-wide">Switch Wallet to Polygon</button></a>
+                    <button @click="requestNetworkChange()" class="btn verse-wide">Switch Wallet to Polygon</button>
                 </div>
             </div>
         </div>
@@ -569,7 +578,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 <div class="img-wallet"></div>
                 <h3 class="title">No Wallet Connected</h3>
                 <p class="subtext short">Connect your wallet below to get started. We support all major wallet providers.</p>
-                <a class="" target="_blank" @click="connectAndClose()"><button class="btn verse-wide">Connect Wallet</button></a>
+                <button @click="connectAndClose()" class="btn verse-wide">Connect Wallet</button>
                 <p class="modal-footer">Haven't set up a wallet yet? Get your wallet up and running with just a few clicks at <a target="_blank" href="https://wallet.bitcoin.com/">wallet.bitcoin.com </a></p>
             </div>
             </div>
@@ -593,8 +602,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <p class="balance-title">WALLET BALANCE</p>
                         <p class="balance">{{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE</p>
                     </div>
-                    <a class="" target="_blank" href="https://verse.bitcoin.com/" @click="logCtaEvent('buy')"><button class="btn verse-wide half">Buy VERSE</button></a>
-                    <a class="" target="_blank" href="https://wallet.polygon.technology/polygon/bridge" @click="logCtaEvent('bridge')"><button class="btn verse-wide half secondary">Bridge VERSE</button></a>
+                    <button class="btn verse-wide half" @click="logCtaEvent('buy'); changeLocation('https://verse.bitcoin.com/', newTab)">Buy VERSE</button>
+                    <button class="btn verse-wide half secondary" @click="logCtaEvent('bridge'); changeLocation('https://wallet.polygon.technology/polygon/bridge', newTab)">Bridge VERSE</button>
                     <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
                 </div>
             </div>
@@ -677,13 +686,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     </div>
 
                     <div v-if="giftInputLoad && giftTicket">
-                        <a class="" target="_blank" ><button class="btn verse-wide disabled">Checking Address</button></a>
+                        <button class="btn verse-wide disabled">Checking Address</button>
                     </div>
 
                     <div v-if="giftInputLoad == false && giftTicket">
-                        <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
-                        <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
-                        <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
+                        <button class="btn verse-wide" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0">Buy a Ticket</button>
+                        <button class="btn verse-wide disabled" v-if="ticketInputAddress.length == 0 && giftTicket">Submit an Address</button>
+                        <button class="btn verse-wide disabled" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0">Input Valid Address</button>
                     </div>
                 </div>
                 
@@ -739,9 +748,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 </div>
 
                 <div v-if="giftInputLoad == false && giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide">Buy a Ticket</button></a>
-                    <a class="" target="_blank" v-if="ticketInputAddress.length == 0 && giftTicket"><button class="btn verse-wide disabled">Submit an Address</button></a>
-                    <a class="" target="_blank" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0"><button class="btn verse-wide disabled">Input Valid Address</button></a>
+                    <button class="btn verse-wide"  @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0">Buy a Ticket</button>
+                    <button class="btn verse-wide disabled" v-if="ticketInputAddress.length == 0 && giftTicket">Submit an Address</button>
+                    <button class="btn verse-wide disabled" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0">Input Valid Address</button>
                 </div>
             </div>
         </div>
@@ -768,14 +777,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                             <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
                             <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
                         </div>
-                        <a class="" href="/"><button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0">Buy More Tickets</button></a>
-                        <a class="" href="/tickets"><button class="btn verse-wide half secondary extraTop"  style="margin-right: 0">View your tickets</button></a>
+                        <button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0" @click="changeLocation('/')">Buy More Tickets</button>
+                        <button class="btn verse-wide half secondary extraTop" @click="changeLocation('/tickets')"  style="margin-right: 0">View your tickets</button>
                     </div>
                     <!-- normal ticket delivery -->
                     <div v-if="!giftTicket">
                         <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket<span style="color: #899BB5" v-if="validatedAmount > 1">s</span> and test your luck!</p>
-                        <a class="" href="/tickets"><button class="btn verse-wide">View Your Ticket<span v-if="validatedAmount > 1">s</span></button></a>
+                        <button class="btn verse-wide" @click="changeLocation('/tickets')" >View Your Ticket<span v-if="validatedAmount > 1">s</span></button>
                     </div>
                 </div>
             </div>
@@ -823,8 +832,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         </div>
                     </div>
                     <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
-                    <a @click="openModal()" v-if="!accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">Connect Wallet</button></a>
-                    <a href="/tickets" v-if="accountActive"><button class="btn verse-wide secondary" style="margin-top: 10px!important;">View My Tickets</button></a>
+                    <button class="btn verse-wide secondary" @click="openModal()" v-if="!accountActive" style="margin-top: 10px!important;">Connect Wallet</button>
+                    <button class="btn verse-wide secondary" v-if="accountActive" @click="changeLocation('/tickets')" style="margin-top: 10px!important;">View My Tickets</button>
 
                     <p class="terms-link">*Self custodial and verifiably random, powered by smart contracts and Chainlink VRF. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
                 </div>
