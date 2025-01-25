@@ -16,17 +16,18 @@
 
 <script>
 import { logAmplitudeEvent } from "../helpers/analytics";
-import { getNetwork } from '@wagmi/core'
+import { getAccount } from '@wagmi/core'
+import core from "../core"
 export default {
     setup() {
 
         function logclick(cta) {
-            let { chain } = getNetwork()
+            let account = getAccount(core.config)
             logAmplitudeEvent({
                 name: 'navigation clicked',
                 menu: 'footer',
                 cta: cta,
-                blockchain: chain.id
+                blockchain: account.chainId
             })
         }
         return {
