@@ -24,8 +24,8 @@ export default {
         const allProducts = computed(() => store.getProducts());
 
         let list = []
-        let account = getAccount(core.config)
-        let accountActive = ref(false)
+        let accountRef = ref(getAccount(core.config))
+        let accountActive = computed(() => accountRef.value.address !== undefined)
         let loading = ref(false)
         let modal = useAppKit()
         let claimNow = ref(false)
@@ -44,15 +44,6 @@ export default {
         let selectedFilterOption = ref("")
         let openDetail = ref(false);
         let detailNFT = ref({});
-
-
-        // entry point to watch account
-        if(getAccount(core.config).address &&  getAccount(core.config).address.length != undefined) {
-            accountActive.value = true;
-            getTicketIds()
-        } else {
-            accountActive.value = false
-        }
 
         if(route.query.gift && route.query.address && route.query.gift.length > 0 && route.query.address.length > 0) {
             disconnect(core.config)
@@ -91,13 +82,12 @@ export default {
         }
 
         watchAccount(core.config, {
-            onChange: async () => {
-                if(getAccount(core.config).address &&  getAccount(core.config).address.length != undefined) {
-                    accountActive.value = true;
+            onChange: async (account) => {
+                accountRef.value = account
+
+                if(account.address !== undefined) {
                     getTicketIds()
-                } else {
-                    accountActive.value = false
-                }
+                } 
             }
         })
 
@@ -340,7 +330,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }

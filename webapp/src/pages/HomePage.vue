@@ -21,13 +21,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         Footer
     }, 
   setup() {
-    let account = getAccount(core.config)
+    let accountRef = ref(getAccount(core.config))
     let currentAccountAddress = ref("")
     let modal = useAppKit()
     let copyDone = ref(false)
     let reopenAfterConnection = ref(false)
-    let accountActive = ref(false)
-    let correctNetwork = ref(true)
+    let accountActive = computed(() => accountRef.value.isConnected)
+    let correctNetwork = computed(() => accountRef.value.chainId === 137)
     let modalActive = ref(false) 
     let ensLoaded = ref("")
     let verseBalance = ref(0);
@@ -209,7 +209,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         if(validatedAmount.value < 2) {
             return 
         }
-        let receiver = getAccount(core.config).address
+        let receiver = accountRef.value.address
         if(_giftAddress) {
          giftAddress.value = _giftAddress
         } else {
@@ -271,7 +271,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 }
                 loadingMessage.value = "Please confirm the purchase in your wallet"
                 modalLoading.value = true
-                let receiver = getAccount(core.config).address
+                let receiver = accountRef.value.address
                 if(_giftAddress && _giftAddress.length > 0) {
                     try {
                         receiver = _giftAddress
@@ -327,7 +327,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
                 abi: ERC20ABI,
                 functionName: 'allowance',
-                args: [getAccount(core.config).address, globals.ROUTER_CONTRACT_ADDRESS]
+                args: [accountRef.value.address, globals.ROUTER_CONTRACT_ADDRESS]
             })
             modalLoading.value = false;
 
@@ -365,7 +365,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
                 abi: ERC20ABI,
                 functionName: 'balanceOf',
-                args: [getAccount(core.config).address]
+                args: [accountRef.value.address]
             })
             modalLoading.value = false;
 
@@ -407,11 +407,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     watchAccount(core.config, {
         onChange: async (account) => {
-            if(account.chainId !== 137) {
-                correctNetwork.value = false
-            } else {
-                correctNetwork.value = true
-            }
+            accountRef.value = account
 
             if(!currentAccountAddress.value) {
                 currentAccountAddress.value = account.address
@@ -423,7 +419,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
             if(account.isConnected == true) {
                 console.log("HOME ACOUNT ACTIVE")
-                accountActive.value = true;
                 if(buyStep.value < 2) {
                     buyStep.value = 2;
                 }
@@ -435,7 +430,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 getBalance();
             } else {
                 console.log("HOME ACOUNT NOT ACTIVE")
-                accountActive.value = false
                 buyStep.value = 0;
             }
         }
@@ -482,6 +476,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     return {
+        accountRef,
         getBalance,
         connectAndClose,
         openModal,
@@ -514,7 +509,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         onTicketInputChange,
         randomOtherProduct,
         ticketInputValid,
-        getAccount,
         showTimer,
         selectedProductId,
         requestNetworkChange,
@@ -744,7 +738,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <tr>
                         <td class="key">Destination Address</td>
                         <td class="value" v-if="ticketInputAddress">{{ ticketInputAddress.slice(0, 7) }}..</td>
-                        <td class="value" v-if="!ticketInputAddress">{{ getAccount(core.config).address.slice(0, 7)}}..</td>
+                        <td class="value" v-if="!ticketInputAddress">{{ accountRef.address.slice(0, 7)}}..</td>
                     </tr>
                 </table>
 
