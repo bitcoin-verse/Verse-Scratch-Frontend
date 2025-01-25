@@ -1,6 +1,6 @@
 <script>
 import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount } from '@wagmi/core'
-import { useAppKit } from '@reown/appkit/vue'
+import { useAppKit, useAppKitState } from '@reown/appkit/vue'
 import { ref, computed, watch } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
@@ -21,6 +21,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         Footer
     }, 
   setup() {
+    let web3ModalState = useAppKitState()
     let accountRef = ref(getAccount(core.config))
     let currentAccountAddress = ref("")
     let modal = useAppKit()
@@ -477,6 +478,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     return {
         accountRef,
+        web3ModalState,
         getBalance,
         connectAndClose,
         openModal,
@@ -525,7 +527,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
 <template>
     <!-- modals -->
-    <div class="backdrop" v-if="modalActive">
+    <div class="backdrop" v-if="modalActive && !web3ModalState.open">
         <!-- modal for loading -->
         <div class="modal" v-if="modalLoading">
             <div class="modal-head">
@@ -552,7 +554,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
 
         <!-- modal for switching network -->
-        <div class="modal" v-if="correctNetwork == false">
+        <div class="modal" v-if="accountActive && correctNetwork == false">
             <div>
                 <div class="modal-head">
                     <h3 class="title">Switch Network</h3>
@@ -568,7 +570,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
 
         <!-- modal for connecting account -->
-        <div class="modal" v-if="buyStep == 0 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="!accountActive || (buyStep == 0 && !modalLoading && correctNetwork)">
             <div>
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
