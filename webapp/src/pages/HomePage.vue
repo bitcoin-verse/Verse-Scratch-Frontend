@@ -4,12 +4,14 @@ import { useWeb3Modal } from '@web3modal/wagmi/vue'
 import { ref, computed, watch, registerRuntimeCompiler } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
+import RouterContractABI from '../abi/router-contract.json';
 import Web3 from 'web3'
 import { copyText } from 'vue3-clipboard'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
 import { store } from '../store.js'
 import { logAmplitudeEvent } from "../helpers/analytics"
+import globals from "../globals";
 
 
 const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alchemy.com/v2/jOIyWO860V1Ekgvo9-WGdjDgNr2nYxlh'));
@@ -165,12 +167,15 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         modalLoading.value = true;
         try {
             const { hash } = await writeContract({
-                address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
+                address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
                 abi: ERC20ABI,
                 functionName: 'approve',
                 gas: 75000n,
                 chainId: 137,
-                args: [activeProduct.value.contractAddress, approvalAmount]
+                args: [
+                    globals.ROUTER_CONTRACT_ADDRESS,
+                    approvalAmount,
+                ]
             })
              txHash.value = hash
              loadingMessage.value = "Processing the confirmation. Please wait a moment"
@@ -216,11 +221,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
         try {
             const { hash } = await writeContract({
-            address: activeProduct.value.contractAddress,
-            abi: ContractABI,
-            functionName: 'bulkPurchase',
-            chainId: 137,
-            args: [receiver, validatedAmount.value]
+                address: globals.ROUTER_CONTRACT_ADDRESS,
+                abi: RouterContractABI,
+                functionName: 'buyTickets',
+                chainId: 137,
+                args: [                        
+                    activeProduct.value.contractAddress,
+                    validatedAmount.value,
+                ]         
             })
             txHash.value = hash
             loadingMessage.value = "Waiting for blockchain confirmation"
@@ -286,21 +294,23 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 } else {
                     try {
                         const { hash } = await writeContract({
-                        address: activeProduct.value.contractAddress,
-                        abi: ContractABI,
-                        functionName: 'buyScratchTicket',
-                        chainId: 137,
-                        args: []
+                            address: globals.ROUTER_CONTRACT_ADDRESS,
+                            abi: RouterContractABI,
+                            functionName: 'buyTickets',
+                            chainId: 137,
+                            args: [                        
+                                activeProduct.value.contractAddress,
+                                1,
+                            ]                   
                         })
-                        txHash.value = hash
-                        loadingMessage.value = "Waiting for blockchain confirmation"
+                        txHash.value = hash;
+                        loadingMessage.value =  "Waiting for blockchain confirmation"
                         await waitForTransaction({ hash })
-                    } catch (e) {
+                    }   catch (e) {
                         console.log(e)
-                        // need to ensure this works because sometimes tx falls through even on confirm
                         modalLoading.value = false
                         return 
-                    }   
+                    }  
                 }
                 startTimer()
             }
@@ -314,10 +324,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         try {
             modalLoading.value = true;
             const data = await readContract({
-            address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
+            address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
             abi: ERC20ABI,
             functionName: 'allowance',
-            args: [getAccount().address, activeProduct.value.contractAddress]
+            args: [getAccount().address, globals.ROUTER_CONTRACT_ADDRESS]
             })
             modalLoading.value = false;
 
@@ -352,7 +362,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         try {
             modalLoading.value = true;
             const data = await readContract({
-            address: '0xc708d6f2153933daa50b2d0758955be0a93a8fec',
+            address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
             abi: ERC20ABI,
             functionName: 'balanceOf',
             args: [getAccount().address]
