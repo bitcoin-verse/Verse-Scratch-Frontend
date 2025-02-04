@@ -56,7 +56,7 @@ logAmplitudeEvent({
 })
 
 reconnect(core.config)
-console.log(core.isWallet, "is wallet")
+
 createAppKit({
   adapters: [core.wagmiAdapter],
   networks: core.networks,
