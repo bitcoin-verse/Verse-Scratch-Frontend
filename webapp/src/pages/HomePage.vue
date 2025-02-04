@@ -850,7 +850,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
 
                 <div class="card-holder">
-                    <img class=""  :src="activeProduct.cover">
+                    <img class=""  :src="activeProduct.cover" loading="lazy">
                 </div>
             </div>
         </div>
@@ -1158,6 +1158,7 @@ p.usd {
 }
 .splitblock {
     width: 100%;
+    min-height: 60px;
     .block {
         width: 50%;
         float: left;
@@ -1177,6 +1178,7 @@ p.usd {
             border-bottom-left-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorTwo');
             margin-right: 1%!important;
+            min-height: 60px;
             @media(max-width: 880px) {
                 margin-right: 3px!important;
             }
@@ -1198,16 +1200,11 @@ p.usd {
             }
         }
         &.rightblock {
-            @media(min-width: 1600px) {
-                white-space: nowrap;
-            }
             width: calc(50% - 12.5px);
             padding: 12px 4.5px;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
             border-bottom-right-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorThree');
+            min-height: 60px;
             h2 {
                 font-size: 17px;
                 text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
@@ -1233,6 +1230,7 @@ p.usd {
     padding: 12px;
     background: v-bind('activeProduct.jackpotBoxColorOne');
     border-radius: 0;
+    height: 90px;
     p {
         margin: 0.5rem 0 0;
         text-align: center;
@@ -1352,8 +1350,6 @@ p.usd {
     }
 }
 .float-holder{
-    min-height: calc(100vh - 212px);
-    min-height: calc(100dvh - 212px);
     @media(max-width: 880px) {
         margin-top: 0!important;
     }
@@ -1367,7 +1363,6 @@ p.usd {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    height: 100%;
     gap: 5%;
     @media(min-width: 880px) {
         margin: 80px auto;
@@ -1414,10 +1409,12 @@ p.usd {
     width: 27%;
     max-width: 335px;
     color: white;
+    height: 519px;
     @media(max-width: 880px) {
         width: calc(100% - 30px)!important;
         padding: 15px;
         padding-bottom: 50px;
+        height: fit-content;
     }
 
     h2 {
@@ -1466,8 +1463,6 @@ p.usd {
     @media(max-width: 880px) {
         width: 100%;
         padding-top: 0px;
-        height: calc(100vh - 60px);
-        height: calc(100dvh - 60px);
         overflow-y: scroll;
         overflow-x: hidden;
     }
@@ -1479,6 +1474,6 @@ p.usd {
     min-height: calc(100vh - 100px);
     min-height: calc(100dvh - 100px);
     width: 100%;
-    padding-top: 50px;
+    padding-top: 80px;
 }
 </style>
