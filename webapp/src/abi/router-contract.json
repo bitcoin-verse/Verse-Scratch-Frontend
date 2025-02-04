@@ -1,0 +1,142 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_weth", "type": "address" },
+      { "internalType": "address", "name": "_verseToken", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "receivedAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenPurchase",
+    "type": "event"
+  },
+  { "stateMutability": "payable", "type": "fallback" },
+  {
+    "inputs": [],
+    "name": "VERSE_TOKEN",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WETH",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "scratcherContract",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_ticketCount", "type": "uint256" }
+    ],
+    "name": "buyTickets",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_scratcherContract",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_ticketCount", "type": "uint256" },
+      { "internalType": "address", "name": "_uniswapRouter", "type": "address" }
+    ],
+    "name": "buyTicketsWithETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_scratcherContract",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_ticketCount", "type": "uint256" },
+      { "internalType": "address", "name": "_inputToken", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "_maxTokenAmount",
+        "type": "uint256"
+      },
+      { "internalType": "address", "name": "_uniswapRouter", "type": "address" }
+    ],
+    "name": "buyWithToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_scratcherContract",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_ticketCount", "type": "uint256" },
+      { "internalType": "address", "name": "_uniswapRouter", "type": "address" }
+    ],
+    "name": "getETHPriceForTickets",
+    "outputs": [
+      { "internalType": "uint256", "name": "ethAmount", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_scratcherContract",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_ticketCount", "type": "uint256" },
+      { "internalType": "address", "name": "_inputToken", "type": "address" },
+      { "internalType": "address", "name": "_uniswapRouter", "type": "address" }
+    ],
+    "name": "getTokenPriceForTickets",
+    "outputs": [
+      { "internalType": "uint256", "name": "tokenAmount", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "stateMutability": "payable", "type": "receive" }
+]
