@@ -1,16 +1,16 @@
 <script>
-import { getAccount, waitForTransaction, switchNetwork, readContract, writeContract, disconnect, watchAccount, watchNetwork } from '@wagmi/core'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref, computed, watch, registerRuntimeCompiler } from 'vue';
+import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount } from '@wagmi/core'
+import { useAppKit, useAppKitState } from '@reown/appkit/vue'
+import { ref, computed, watch } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
 import RouterContractABI from '../abi/router-contract.json';
 import Web3 from 'web3'
-import { copyText } from 'vue3-clipboard'
 import Footer from '../components/Footer.vue'
 import axios from "axios"
 import { store } from '../store.js'
 import { logAmplitudeEvent } from "../helpers/analytics"
+import core from "../core.js"
 import globals from "../globals";
 
 
@@ -21,13 +21,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         Footer
     }, 
   setup() {
-    let account = getAccount()
+    let web3ModalState = useAppKitState()
+    let accountRef = ref(getAccount(core.config))
     let currentAccountAddress = ref("")
-    let modal = useWeb3Modal()
+    let modal = useAppKit()
     let copyDone = ref(false)
     let reopenAfterConnection = ref(false)
-    let accountActive = ref(false)
-    let correctNetwork = ref(true)
+    let accountActive = computed(() => accountRef.value.isConnected)
+    let correctNetwork = computed(() => accountRef.value.chainId === 137)
     let modalActive = ref(false) 
     let ensLoaded = ref("")
     let verseBalance = ref(0);
@@ -69,7 +70,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
     getVersePrice()
     async function requestNetworkChange() {
-        await switchNetwork({ chainId: 137 })
+        await switchChain(core.config, { chainId: 137 })
     }
 
     async function logCtaEvent(type) {
@@ -166,7 +167,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         loadingMessage.value = "Please confirm the approval in your connected wallet"
         modalLoading.value = true;
         try {
-            const { hash } = await writeContract({
+            const hash = await writeContract(core.config, {
                 address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
                 abi: ERC20ABI,
                 functionName: 'approve',
@@ -179,7 +180,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             })
              txHash.value = hash
              loadingMessage.value = "Processing the confirmation. Please wait a moment"
-             await waitForTransaction({ hash })
+             await waitForTransactionReceipt(core.config, { hash })
              buyStep.value = 4;
              getAllowance()
         } catch (e) {
@@ -209,7 +210,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         if(validatedAmount.value < 2) {
             return 
         }
-        let receiver = getAccount().address
+        let receiver = accountRef.value.address
         if(_giftAddress) {
          giftAddress.value = _giftAddress
         } else {
@@ -220,19 +221,19 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         if(_giftAddress && _giftAddress.length > 0) receiver = _giftAddress
 
         try {
-            const { hash } = await writeContract({
-                address: globals.ROUTER_CONTRACT_ADDRESS,
-                abi: RouterContractABI,
-                functionName: 'buyTickets',
-                chainId: 137,
-                args: [                        
+            const hash = await writeContract(core.config, {
+                    address: globals.ROUTER_CONTRACT_ADDRESS,
+                    abi: RouterContractABI,
+                    functionName: 'buyTickets',
+                    chainId: 137,
+                    args: [                        
                     activeProduct.value.contractAddress,
                     validatedAmount.value,
                 ]         
             })
             txHash.value = hash
             loadingMessage.value = "Waiting for blockchain confirmation"
-            await waitForTransaction({ hash })
+            await waitForTransactionReceipt(core.config, { hash })
             startTimer()
         } catch (e) {
             console.log(e)
@@ -271,20 +272,20 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 }
                 loadingMessage.value = "Please confirm the purchase in your wallet"
                 modalLoading.value = true
-                let receiver = getAccount().address
+                let receiver = accountRef.value.address
                 if(_giftAddress && _giftAddress.length > 0) {
                     try {
                         receiver = _giftAddress
-                        const { hash } = await writeContract({
-                        address: activeProduct.value.contractAddress,
-                        abi: ContractABI,
-                        functionName: 'giftScratchTicket',
-                        chainId: 137,
-                        args: [receiver]
+                        const hash = await writeContract(core.config, {
+                            address: activeProduct.value.contractAddress,
+                            abi: ContractABI,
+                            functionName: 'giftScratchTicket',
+                            chainId: 137,
+                            args: [receiver]
                         })
                         txHash.value = hash
                         loadingMessage.value = "Waiting for blockchain confirmation"
-                        await waitForTransaction({ hash })
+                        await waitForTransactionReceipt(core.config, { hash })
                     } catch (e) {
                         console.log(e)
                         modalLoading.value = false
@@ -293,19 +294,19 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     
                 } else {
                     try {
-                        const { hash } = await writeContract({
-                            address: globals.ROUTER_CONTRACT_ADDRESS,
-                            abi: RouterContractABI,
-                            functionName: 'buyTickets',
-                            chainId: 137,
-                            args: [                        
+                        const hash = await writeContract(core.config, {
+                                address: globals.ROUTER_CONTRACT_ADDRESS,
+                                abi: RouterContractABI,
+                                functionName: 'buyTickets',
+                                chainId: 137,
+                                args: [                        
                                 activeProduct.value.contractAddress,
                                 1,
                             ]                   
                         })
                         txHash.value = hash;
                         loadingMessage.value =  "Waiting for blockchain confirmation"
-                        await waitForTransaction({ hash })
+                        await waitForTransactionReceipt(core.config, { hash })
                     }   catch (e) {
                         console.log(e)
                         modalLoading.value = false
@@ -323,11 +324,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     async function getAllowance() {
         try {
             modalLoading.value = true;
-            const data = await readContract({
-            address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
-            abi: ERC20ABI,
-            functionName: 'allowance',
-            args: [getAccount().address, globals.ROUTER_CONTRACT_ADDRESS]
+            const data = await readContract(core.config, {
+                address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
+                abi: ERC20ABI,
+                functionName: 'allowance',
+                args: [accountRef.value.address, globals.ROUTER_CONTRACT_ADDRESS]
             })
             modalLoading.value = false;
 
@@ -361,11 +362,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     async function getBalance() {
         try {
             modalLoading.value = true;
-            const data = await readContract({
-            address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
-            abi: ERC20ABI,
-            functionName: 'balanceOf',
-            args: [getAccount().address]
+            const data = await readContract(core.config, {
+                address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
+                abi: ERC20ABI,
+                functionName: 'balanceOf',
+                args: [accountRef.value.address]
             })
             modalLoading.value = false;
 
@@ -405,39 +406,33 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }
     })
 
-    watchNetwork((network) => {
-        if(network.chain && network.chain.id != 137) {
-            correctNetwork.value = false
-        } else {
-            correctNetwork.value = true
-        }
-    })
-    watchAccount(async (account) => {
-        if(!currentAccountAddress.value) {
-            currentAccountAddress.value = getAccount().address
-        }
-        else {
-            if(currentAccountAddress.value != getAccount().address) {
-                location.reload()
-            }
-        }
+    watchAccount(core.config, {
+        onChange: async (account) => {
+            accountRef.value = account
 
-        if(account.isConnected == true) {
-            console.log("HOME ACOUNT ACTIVE")
-            accountActive.value = true;
-            if(buyStep.value < 2) {
-                buyStep.value = 2;
+            if(!currentAccountAddress.value) {
+                currentAccountAddress.value = account.address
+            } else {
+                if(currentAccountAddress.value != account.address) {
+                    location.reload()
+                }
             }
 
-            if(reopenAfterConnection.value == true) {
-                reopenAfterConnection.value = false;
-                toggleModal()
+            if(account.isConnected == true) {
+                console.log("HOME ACOUNT ACTIVE")
+                if(buyStep.value < 2) {
+                    buyStep.value = 2;
+                }
+
+                if(reopenAfterConnection.value == true) {
+                    reopenAfterConnection.value = false;
+                    toggleModal()
+                }
+                getBalance();
+            } else {
+                console.log("HOME ACOUNT NOT ACTIVE")
+                buyStep.value = 0;
             }
-            getBalance();
-        } else {
-            console.log("HOME ACOUNT NOT ACTIVE")
-            accountActive.value = false
-            buyStep.value = 0;
         }
     })
 
@@ -482,9 +477,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     return {
+        accountRef,
+        web3ModalState,
         getBalance,
         connectAndClose,
-        account,
         openModal,
         buyStep,
         updateAmount,
@@ -515,7 +511,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         onTicketInputChange,
         randomOtherProduct,
         ticketInputValid,
-        getAccount,
         showTimer,
         selectedProductId,
         requestNetworkChange,
@@ -532,7 +527,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
 <template>
     <!-- modals -->
-    <div class="backdrop" v-if="modalActive">
+    <div class="backdrop" v-if="modalActive && !web3ModalState.open">
         <!-- modal for loading -->
         <div class="modal" v-if="modalLoading">
             <div class="modal-head">
@@ -559,7 +554,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
 
         <!-- modal for switching network -->
-        <div class="modal" v-if="correctNetwork == false">
+        <div class="modal" v-if="accountActive && correctNetwork == false">
             <div>
                 <div class="modal-head">
                     <h3 class="title">Switch Network</h3>
@@ -575,7 +570,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </div>
 
         <!-- modal for connecting account -->
-        <div class="modal" v-if="buyStep == 0 && !modalLoading && correctNetwork">
+        <div class="modal" v-if="!accountActive || (buyStep == 0 && !modalLoading && correctNetwork)">
             <div>
             <div class="modal-head">
                 <h3 class="title">Buy Ticket</h3>
@@ -745,7 +740,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <tr>
                         <td class="key">Destination Address</td>
                         <td class="value" v-if="ticketInputAddress">{{ ticketInputAddress.slice(0, 7) }}..</td>
-                        <td class="value" v-if="!ticketInputAddress">{{ getAccount().address.slice(0, 7)}}..</td>
+                        <td class="value" v-if="!ticketInputAddress">{{ accountRef.address.slice(0, 7)}}..</td>
                     </tr>
                 </table>
 

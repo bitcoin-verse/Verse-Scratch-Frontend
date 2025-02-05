@@ -1,21 +1,14 @@
 <script setup>
-
 import { RouterView } from 'vue-router'
-import { polygon } from '@wagmi/core/chains'
-import { configureChains, createConfig, disconnect, watchAccount } from '@wagmi/core'
+import { reconnect } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
-import { createWeb3Modal } from '@web3modal/wagmi/vue'
+import { createAppKit } from '@reown/appkit/vue'
 import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
-
 import { computed } from 'vue';
 
-import { WalletConnectConnector } from "@wagmi/connectors/walletConnect";
-import { InjectedConnector } from "@wagmi/connectors/injected";
-import { CoinbaseWalletConnector } from "@wagmi/connectors/coinbaseWallet";
-
-import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { store } from './store.js'
 import globals from "./globals";
+import core from "./core"
 
 // IF NEW VERSION IS SET, CLEAR INDEXDB
 if(localStorage.getItem(globals.VERSION) !== "true") {
@@ -55,94 +48,36 @@ async function clearAllIndexedDB() {
     }
 }
 
-const projectId = '5d9e3863443e82e9222f3e3f5e075798'
 const activeProduct = computed(() => store.getProduct())
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [polygon],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        switch (chain.id) {
-          case 137:
-          default:
-            return {
-              http: "https://polygon.meowrpc.com", //https://floral-empty-gas.matic.quiknode.pro/
-            };
-        }
-      },
-    }),
-  ],
-)
-
-
-
-const metadata = {
-  name: "VERSE Scratcher",
-  description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
-  url: "https://scratcher.verse.bitcoin.com",
-  icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
-};
-
-// quick fix converted into string
-let isWallet = false
-
-// dont have anything in session storage yet
-if(!sessionStorage.getItem('isWallet')) {
-  const search = new URLSearchParams(window.location.search);
-  isWallet = search.get("origin") === "wallet";
-  sessionStorage.setItem('isWallet', isWallet);
-} else {
-  if(sessionStorage.getItem('isWallet') == "true") {
-    isWallet = true
-  } else {
-    isWallet = false
-  }
-}
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: [
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId,
-        showQrModal: false,
-        metadata,
-      },
-    }),
-    ...(isWallet === true
-      ? []
-      : [
-          new InjectedConnector({
-            chains,
-            options: { shimDisconnect: true },
-          }),
-          new CoinbaseWalletConnector({
-            chains,
-            options: { appName: metadata.name },
-          }),
-        ]),
-  ],
-  publicClient,
-  webSocketPublicClient,
-})
-
 
 initAmplitude()
 logAmplitudeEvent({
   name: 'verse scratcher visited'
 })
 
-createWeb3Modal({ 
-    tokens: {
-        137:{
-            address:"0xc708d6f2153933daa50b2d0758955be0a93a8fec",
-            image:"https://assets.coingecko.com/coins/images/28424/small/verselogo.png?1670461811" 
-        },
-    
-    },
-    featuredWalletIds: ["107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c"],
-    includeWalletIds: [], wagmiConfig, projectId, chains})
+reconnect(core.config)
+
+createAppKit({
+  adapters: [core.wagmiAdapter],
+  networks: core.networks,
+  projectId: core.projectId,
+  metadata: core.metadata,
+  enableWalletConnect: true,
+  enableInjected: true,
+  enableEIP6963: true,
+  enableCoinbase: false,
+  featuredWalletIds: ['107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c'],
+  excludeWalletIds: core.isWallet === true ? ['fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa'] : [],
+  allWallets: core.isWallet === true ? 'HIDE' : 'SHOW',
+  features: {
+    analytics: true,
+    email: false,
+    socials: false,
+    onramp: false,
+    swaps: false,
+    send: false,
+  },
+})
 
 </script>
 

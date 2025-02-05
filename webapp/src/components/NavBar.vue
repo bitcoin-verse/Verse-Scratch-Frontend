@@ -1,24 +1,23 @@
 <script>
-import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
+import { getAccount, watchAccount, disconnect } from '@wagmi/core'
+import { useAppKit } from '@reown/appkit/vue'
+import { ref, computed } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import core from "../core"
 
 export default {
     setup() {
-        let account = getAccount()
-        let modal = useWeb3Modal()
-        let isWallet = ref(false)
-        let accountActive = ref(false)
-        let connectedProvider = ref("")
-        let ensUserName = ref("");
-
-        sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
+        let walletInfo = ref(null)
+        let accountRef = ref(getAccount(core.config))
+        let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
+        let modal = useAppKit()
+        let accountActive = computed(() => accountRef.value.isConnected)
+        let ensUserName = ref(null);
 
         function openWalletModal(refresh) {            
-            if(refresh) disconnect()
+            if(refresh) disconnect(core.config)
             modal.open()
             logAmplitudeEvent({
                 name: 'connect wallet clicked'
@@ -26,17 +25,10 @@ export default {
         }
 
         function handleHome(newTab) {
-            const openUrl = (url, newTab) => {
-                if(newTab) {
-                    window.open(url,"_blank")
-                } else {
-                    window.open(url,"_self")
-                }
-            }
             if(window.location.pathname == '/') {
-               openUrl("https://verse.bitcoin.com" ,newTab)
+                window.open("https://verse.bitcoin.com", newTab ? "_blank" : "_self")
             } else {
-               openUrl("/")
+                window.open("/", "_self")
             }
         }
 
@@ -48,33 +40,43 @@ export default {
             return `${match[1]}…${match[2]}`;
         };
 
-        watchAccount(async (account) => { 
-        if(account.isConnected == true) {
-            accountActive.value = true;
-            let { chain  } = getNetwork()
-            
-            const publicClient = createPublicClient({ 
-                chain: mainnet,
-                transport: http()
-            })
+        watchAccount(core.config, {
+            onChange: async (account) => { 
+                accountRef.value = account
 
-            const ensName = await publicClient.getEnsName({
-                address: getAccount().address
-            })
-            if(ensName) ensUserName.value = ensName
+                if(account.connector) {
+                    if(account.connector.name === "WalletConnect") {
+                        const metadata = (await account.connector.getProvider?.())?.signer?.session?.peer.metadata
+                        walletInfo.value = metadata ? { name: metadata.name, icon: metadata.icons[0] } : null
+                    } else {
+                        const { name, icon } = account.connector
+                        walletInfo.value = { name, icon }
+                    }
+                }
 
-            logAmplitudeEvent({
-                name: 'connect wallet result',
-                blockchain: 'MATIC',
-            })
-        } else {
-            console.log("account not active")
-            accountActive.value = false
-        }
-        connectedProvider.value = account.connector.name.toLowerCase()
-    })
+                if(!account.isConnected) {
+                    console.log("account not active")
+                    return
+                }
 
-        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+                const publicClient = createPublicClient({ 
+                    chain: mainnet,
+                    transport: http()
+                })
+
+                const ensName = await publicClient.getEnsName({
+                    address: account.address
+                })
+                ensUserName.value = ensName
+
+                logAmplitudeEvent({
+                    name: 'connect wallet result',
+                    blockchain: 'MATIC',
+                })
+            }
+        })
+
+        return { isWallet: core.isWallet, walletInfo, handleHome, ensUserName, openWalletModal, accountActive, truncatedAddress } 
     }
     
 }
@@ -82,29 +84,21 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a v-if="!isWallet" @click="handleHome(true)">
-            <div class="nav-chev"></div>
-            <div class="nav-verse"></div>
-        </a>
-        <a v-if="isWallet" @click="handleHome()">
+        <a @click="handleHome(!isWallet)">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
         <h3 class="title-nav">Verse Scratcher</h3>
         
         <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>
-
+        <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)">
+            <img v-if="!!walletInfo" :src="walletInfo.icon" :alt="walletInfo.name" class="provider-logo"/>
+        </button>
     </div>
     <div class="navbar">
         <a style="cursor: pointer;" href="/">
             <div class="logo">
-                <a v-if="!isWallet" @click="handleHome(true)">
-                    <div class="nav-chev"></div>
-                    <div class="nav-verse"></div>
-                </a>
-                <a v-if="isWallet" @click="handleHome()">
+                <a @click="handleHome(!isWallet)">
                     <div class="nav-chev"></div>
                     <div class="nav-verse"></div>
                 </a>
@@ -114,13 +108,11 @@ export default {
 
         <div class="wallet">
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
-            <div v-if="ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{ ensUserName}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
-            </div>
-            <div v-if="!ensUserName">
-                <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo ' + connectedProvider"></div></button>
-                 <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{truncateEthAddress(getAccount().address || "")}} <div :class="'provider-logo bitcoin'"></div></button>
+            <div>
+                <button class="btn verse-nav connected" v-if="accountActive" @click="openWalletModal(false)">
+                    {{ ensUserName ?? truncatedAddress }} 
+                    <img v-if="!!walletInfo" :src="walletInfo.icon" :alt="walletInfo.name" class="provider-logo"/>
+                </button>
             </div>
         </div>
     </div>

@@ -1,15 +1,16 @@
 <script>
-import { getAccount, waitForTransaction, readContract, disconnect, writeContract, watchAccount, watchNetwork } from '@wagmi/core'
+import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
 import Redeem from '../pages/Redeem.vue'
-import { useWeb3Modal } from '@web3modal/wagmi/vue'
+import { useAppKit } from '@reown/appkit/vue'
 import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
 import { useRoute } from 'vue-router'
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
 import { store } from '../store.js'
+import core from "../core.js"
 
 export default {
     components: {
@@ -23,10 +24,10 @@ export default {
         const allProducts = computed(() => store.getProducts());
 
         let list = []
-        let account = getAccount()
-        let accountActive = ref(false)
+        let accountRef = ref(getAccount(core.config))
+        let accountActive = computed(() => accountRef.value.address !== undefined)
         let loading = ref(false)
-        let modal = useWeb3Modal()
+        let modal = useAppKit()
         let claimNow = ref(false)
 
         let newTicketModal = ref(false)
@@ -44,17 +45,8 @@ export default {
         let openDetail = ref(false);
         let detailNFT = ref({});
 
-
-        // entry point to watch account
-        if(getAccount().address &&  getAccount().address.length != undefined) {
-            accountActive.value = true;
-            getTicketIds()
-        } else {
-            accountActive.value = false
-        }
-
         if(route.query.gift && route.query.address && route.query.gift.length > 0 && route.query.address.length > 0) {
-            disconnect()
+            disconnect(core.config)
             giftModal.value = true
             giftAccount.value = route.query.address
             const duration = 3 * 1000,
@@ -89,12 +81,13 @@ export default {
             }, 250);
         }
 
-        watchAccount(async () => {
-            if(getAccount().address &&  getAccount().address.length != undefined) {
-                accountActive.value = true;
-                getTicketIds()
-            } else {
-                accountActive.value = false
+        watchAccount(core.config, {
+            onChange: async (account) => {
+                accountRef.value = account
+
+                if(account.address !== undefined) {
+                    getTicketIds()
+                } 
             }
         })
 
@@ -107,14 +100,14 @@ export default {
             const obj = nfts.value.find(obj => obj.id == nftId);
 
             try {
-                const { hash } = await writeContract({
+                const hash = await writeContract(core.config, {
                     address: contractAddresses.value[0],
                     abi: ContractABI,
                     functionName: 'claimPrize',
                     chainId: 137,
                     args: [obj.id]
                 })
-                await waitForTransaction({ hash })
+                await waitForTransactionReceipt(core.config, { hash })
                 modalLoading.value = false
                 const objToUpdate = nfts.value.find(obj => obj.id == nftId);
                 objToUpdate.claimed = true
@@ -167,11 +160,11 @@ export default {
 
         async function getClaimed(id, address) {
             try {
-                const data = await readContract({
-                address: address,
-                abi: ERC721,
-                functionName: 'claimed',
-                args: [id]
+                const data = await readContract(core.config, {
+                    address: address,
+                    abi: ERC721,
+                    functionName: 'claimed',
+                    args: [id]
                 })
                 
                 if(data) {
@@ -190,11 +183,11 @@ export default {
         async function getEdition(id, address) {
             
             try {
-                const data = await readContract({
-                address: address,
-                abi: ERC721,
-                functionName: 'editions',
-                args: [id]
+                const data = await readContract(core.config, {
+                    address: address,
+                    abi: ERC721,
+                    functionName: 'editions',
+                    args: [id]
                 })
                 
                 if(data.toString().length > 0) {
@@ -211,7 +204,7 @@ export default {
 
         async function getPrizeAmount(id, address) {
             try {
-                const data = await readContract({
+                const data = await readContract(core.config, {
                     address: address,
                     abi: ERC721,
                     functionName: 'prizes',
@@ -239,11 +232,11 @@ export default {
 
         async function getRedemptionStatus(id, address) {
             try {
-                const data = await readContract({
-                address: address,
-                abi: ERC721ABI,
-                functionName: 'tokenURI',
-                args: [id]
+                const data = await readContract(core.config, {
+                    address: address,
+                    abi: ERC721ABI,
+                    functionName: 'tokenURI',
+                    args: [id]
                 })
                 if(data) {
                     const objToUpdate = nfts.value.find(obj => obj.id == id);
@@ -291,11 +284,11 @@ export default {
                     contract.push(product.contractAddress)
                     bucketUrls.push(product.bucketUrl)
                     promiseTicketArray.push(
-                        readContract({
+                        readContract(core.config, {
                             address: product.contractAddress,
                             abi: ERC721ABI,
                             functionName: 'ownedByAddress',
-                            args: [getAccount().address]
+                            args: [getAccount(core.config).address]
                         }))
                 })
                 const promiseResult = await Promise.all(promiseTicketArray)
@@ -337,7 +330,7 @@ export default {
         }   
 
         return {
-            list, nfts, account, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            list, nfts, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
