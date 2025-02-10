@@ -42,7 +42,7 @@ const products = [
     {
         id: 2,
         multibuy: true,
-        active: true,
+        active: false,
         campaign: 'lunar-new-year',
         contractAddress: '0xd9b59ffbeb8e6b1cc9bc140f5050233555803483',
         ticketPriceString: '22,000',
