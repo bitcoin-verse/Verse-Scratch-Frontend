@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const DEFAULT_PRODUCT_NAME = 'lunar-new-year';
+const DEFAULT_PRODUCT_NAME = 'valentines';
 const products = [
     {
         id: 1,
