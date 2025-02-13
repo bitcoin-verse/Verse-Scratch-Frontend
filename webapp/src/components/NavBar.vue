@@ -18,11 +18,11 @@ export default {
         let connectedProvider = ref("")
         let ensUserName = ref("")
         let options = [
-            // {
-            //     label: 'Ethereum',
-            //     chain: 1,
-            //     icon: ethIcon,
-            // },
+            {
+                label: 'Ethereum',
+                chain: 1,
+                icon: ethIcon,
+            },
             {
                 label: 'Polygon',
                 chain: 137,
@@ -49,10 +49,17 @@ export default {
             isOpen.value = false;
         }
         function handleClickOutside(event) {
-            if (isOpen.value && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+            const toggleButton = document.querySelector(".dropdown");
+            if (
+                isOpen.value &&
+                dropdownRef.value &&
+                !dropdownRef.value.contains(event.target) &&
+                (!toggleButton || !toggleButton.contains(event.target))
+            ) {
                 isOpen.value = false;
             }
         }
+
 
 
         onMounted(() => {
@@ -143,12 +150,12 @@ export default {
         <h3 class="title-nav">Verse Scratcher</h3>
         <div class="mobile-btn-wrap">
             <button 
-                    @click="toggleDropdown()"
+                    @click.stop="toggleDropdown()"
                     class="btn verse-nav-chain">
                     <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
                     <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
                 </button>
-                <div v-if="isOpen" class="dropdown">
+                <div v-if="isOpen" class="dropdown" ref="dropdownRef">
                     <div 
                         v-for="option in options" 
                         :key="option.label" 
