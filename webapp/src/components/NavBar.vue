@@ -1,7 +1,7 @@
 <script>
 import { getAccount, watchAccount, disconnect, getNetwork } from '@wagmi/core'
 import { useWeb3Modal } from '@web3modal/wagmi/vue'
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -35,6 +35,7 @@ export default {
             // },
         ];
         let isOpen = ref(false)
+        let dropdownRef = ref(null);
         let selectedOption = ref(options[0]);
 
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
@@ -47,6 +48,23 @@ export default {
             selectedOption.value = option;
             isOpen.value = false;
         }
+        function handleClickOutside(event) {
+            if (isOpen.value && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+                isOpen.value = false;
+            }
+        }
+
+
+        onMounted(() => {
+            setTimeout(() => {
+                document.addEventListener("click", handleClickOutside);
+            }, 0); // Delays event binding to ensure refs are assigned
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener("click", handleClickOutside);
+        });
+
 
         function openWalletModal(refresh) {            
             if(refresh) disconnect()
@@ -105,7 +123,8 @@ export default {
         connectedProvider.value = account.connector.name.toLowerCase()
     })
 
-        return { account, isWallet, toggleDropdown, selectedOption, selectOption, options, isOpen, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+
+        return { account, isWallet, dropdownRef, toggleDropdown, selectedOption, selectOption, options, isOpen, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
     }
     
 }
@@ -164,13 +183,13 @@ export default {
         <div class="wallet">
             <div class="chain-btn">
                 <button 
-                    @click="toggleDropdown()"
+                    @click.stop="toggleDropdown()"
                     class="btn verse-nav-chain">
                     <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
                     {{ selectedOption.label }}
                     <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
                 </button>
-                <div v-if="isOpen" class="dropdown">
+                <div v-if="isOpen" class="dropdown" ref="dropdownRef">
                     <div 
                         v-for="option in options" 
                         :key="option.label" 
