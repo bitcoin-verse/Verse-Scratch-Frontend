@@ -18,11 +18,11 @@ export default {
         let connectedProvider = ref("")
         let ensUserName = ref("")
         let options = [
-            {
-                label: 'Ethereum',
-                chain: 1,
-                icon: ethIcon,
-            },
+            // {
+            //     label: 'Ethereum',
+            //     chain: 1,
+            //     icon: ethIcon,
+            // },
             {
                 label: 'Polygon',
                 chain: 137,
