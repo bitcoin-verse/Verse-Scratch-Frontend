@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import ethIcon from '@/assets/icons/eth.png';
+import plyIcon from '@/assets/icons/ply.png';
+import smartBchIcon from '@/assets/icons/smartbch.png';
 
 export default {
     setup() {
@@ -13,9 +16,37 @@ export default {
         let isWallet = ref(false)
         let accountActive = ref(false)
         let connectedProvider = ref("")
-        let ensUserName = ref("");
+        let ensUserName = ref("")
+        let options = [
+            // {
+            //     label: 'Ethereum',
+            //     chain: 1,
+            //     icon: ethIcon,
+            // },
+            {
+                label: 'Polygon',
+                chain: 137,
+                icon: plyIcon,
+            },
+            // {
+            //     label: 'SmartBCH',
+            //     chain: 10000,
+            //     icon: smartBchIcon,
+            // },
+        ];
+        let isOpen = ref(false)
+        let selectedOption = ref(options[0]);
 
         sessionStorage.getItem('isWallet') === "true" ? isWallet.value = true : isWallet.value = false
+
+        function toggleDropdown() {
+            isOpen.value = !isOpen.value;
+        }
+
+        function selectOption(option) {
+            selectedOption.value = option;
+            isOpen.value = false;
+        }
 
         function openWalletModal(refresh) {            
             if(refresh) disconnect()
@@ -74,7 +105,7 @@ export default {
         connectedProvider.value = account.connector.name.toLowerCase()
     })
 
-        return { account, isWallet, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
+        return { account, isWallet, toggleDropdown, selectedOption, selectOption, options, isOpen, handleHome, ensUserName, openWalletModal, accountActive, truncateEthAddress, getAccount, connectedProvider} 
     }
     
 }
@@ -91,10 +122,28 @@ export default {
             <div class="nav-verse"></div>
         </a>
         <h3 class="title-nav">Verse Scratcher</h3>
-        
-        <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
-        <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>
+        <div class="mobile-btn-wrap">
+            <button 
+                    @click="toggleDropdown()"
+                    class="btn verse-nav-chain">
+                    <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
+                    <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
+                </button>
+                <div v-if="isOpen" class="dropdown">
+                    <div 
+                        v-for="option in options" 
+                        :key="option.label" 
+                        @click="selectOption(option)"
+                        class="chain-option">
+                        <img :src="option.icon" :alt="option.label" height="24px" width="24px"/>
+                        {{ option.label }}
+                    </div>
+                </div>        
+            <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
+            <button class="btn verse-nav mobile connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)"><div :class="'provider-logo ' + connectedProvider"></div></button>
+            <button class="btn verse-nav mobile connected" v-if="accountActive && isWallet" @click="openWalletModal(false)"><div :class="'provider-logo bitcoin'"></div></button>        
+
+        </div>
 
     </div>
     <div class="navbar">
@@ -113,7 +162,26 @@ export default {
         <h3 class="title-nav-desk">Verse Scratcher</h3>
 
         <div class="wallet">
-            <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect Wallet</button>
+            <div class="chain-btn">
+                <button 
+                    @click="toggleDropdown()"
+                    class="btn verse-nav-chain">
+                    <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
+                    {{ selectedOption.label }}
+                    <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
+                </button>
+                <div v-if="isOpen" class="dropdown">
+                    <div 
+                        v-for="option in options" 
+                        :key="option.label" 
+                        @click="selectOption(option)"
+                        class="chain-option">
+                        <img :src="option.icon" :alt="option.label" height="24px" width="24px"/>
+                        {{ option.label }}
+                    </div>
+                </div>
+            </div>
+            <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
             <div v-if="ensUserName">
                 <button class="btn verse-nav connected" v-if="accountActive && !isWallet" @click="openWalletModal(false)">{{ ensUserName}} <div :class="'provider-logo ' + connectedProvider"></div></button>
                  <button class="btn verse-nav connected" v-if="accountActive && isWallet" @click="openWalletModal(false)">{{ ensUserName }} <div :class="'provider-logo bitcoin'"></div></button>
@@ -271,13 +339,28 @@ export default {
         background-color: black;
         width: 100%;
         height: 56px;
-        background: linear-gradient(0deg, #0F1823, #0F1823),linear-gradient(0deg, #1A2231, #1A2231);
+        background: #0A0A2C;
 
+        .toggle-mobile {
+            background: linear-gradient(180deg, #425472 0%, #313E57 100%);
+            width: fit-content;
+            height: 36px;
+            padding: 4px 8px 4px 4px;
+            gap: 8px;
+            border-radius: 40px;
+            opacity: 0px;
+            position: absolute;
+            right: 60px;
+            top: 10px;
+        }
 
-        .verse-nav {
+        .mobile-btn-wrap {
             position: absolute;
             right: 16px;
             top: 10px;
+            width: fit-content;
+            display: flex;
+            gap: 10px;
         }
 
         .title-nav {
@@ -380,6 +463,9 @@ export default {
             @media(max-width: 930px) {
                 display: none;
             }
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
             margin: 0;
             margin-top: 10px;
             margin-right: 10px;
@@ -394,4 +480,98 @@ export default {
             }
         }
     }
+
+.chain-btn {
+    position: relative;
+}
+
+.verse-nav-chain {
+    border: none;
+    outline: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+    text-wrap: nowrap;
+    border-radius: 100px;
+    font-family: Saeada, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background: #202B58;
+    min-width: 150px;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    height: 36px;
+    padding: 0px 16px;
+    position: relative;
+    display: flex;
+    gap: 10px;
+    @media(max-width: 880px) {
+        min-width: unset;
+        height: 36px;
+        padding: 4px 8px 4px 4px;
+        gap: 8px;
+    }
+}
+.chain-option {
+    width: 100%;
+    height: 40px;
+    padding: 0px 24px;
+    gap: 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    cursor: pointer;
+}
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px 1px;
+    background: #0A0A2C;
+    box-shadow: 0px 2px 60px 0px #2FA9EE33;
+    width: 240px;
+    border-radius: 12px;
+    color: #C5CEDB;
+    font-family: Barlow;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19.2px;
+    @media(max-width: 880px) {
+        position: fixed;
+        border-radius: 0;
+        top: 56px;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+        box-shadow: none;
+        border-top: 1px solid #1A2231;
+    }
+}
+.toggle {
+    background: #202B58;
+    display: flex;
+    flex-direction: row;
+    padding: 16px 4px 4px;
+    box-shadow: 0px 1px 1px 0px #FFFFFF26 inset;
+    width: fit-content;
+    height: 36px;
+    padding: 0px 16px 0px 4px;
+    gap: 10px;
+    border-radius: 40px 0px 0px 0px;
+    opacity: 0px;
+
+}
+
 </style>
