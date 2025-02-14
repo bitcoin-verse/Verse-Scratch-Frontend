@@ -1,4 +1,5 @@
 import { reactive } from 'vue'
+import globals from './globals'
 
 const DEFAULT_PRODUCT_NAME = 'valentines';
 const products = [
@@ -276,18 +277,42 @@ const initProduct = () => {
   }
 }
 
+const initChain = () => {
+  const storedChain = localStorage.getItem('selectedChain');
+  return storedChain ?? globals.CHAINS[0].label;
+};
+
 
 
 export const store = reactive({
   productId: initProduct(), // default product
+  selectedChain: initChain(),
+  
   updateProduct(value) {
-    this.productId = value
+    this.productId = value;
     let product = products.find(product => product.id === value);
     localStorage.setItem('collection', product.campaign);
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('campaign', product.campaign);
     window.location.search = urlParams;
   },
+
+  // Get the current selected chain
+  getSelectedChain() {
+    return globals.CHAINS.find(chain => chain.label === this.selectedChain);
+  },
+
+  // Set selected chain (Ethereum, SmartBCH, etc.)
+  setSelectedChain(value) {
+    const currentChain = this.getSelectedChain();
+    if (value && value.label && typeof value.label === 'string') {
+        if (currentChain.label !== value.label) {
+            localStorage.setItem('selectedChain', value.label);
+            this.selectedChain = value.label;
+        }
+    }
+  },
+  
   getProduct() {
     return products.find(product => product.id === this.productId);
   },
@@ -303,5 +328,6 @@ export const store = reactive({
     return products
   }
 })
+
 
 

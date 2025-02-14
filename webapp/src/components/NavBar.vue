@@ -1,14 +1,13 @@
 <script>
 import { getAccount, watchAccount, disconnect } from '@wagmi/core'
 import { useAppKit } from '@reown/appkit/vue'
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import core from "../core"
-import ethIcon from '@/assets/icons/eth.png';
-import plyIcon from '@/assets/icons/ply.png';
-import smartBchIcon from '@/assets/icons/smartbch.png';
+import { store } from '../store.js'
+import globals from "../globals";
 
 export default {
     setup() {
@@ -19,38 +18,29 @@ export default {
         let accountActive = computed(() => accountRef.value.isConnected)
         let ensUserName = ref(null);
         let dropdownRef = ref(null);
-        let options = [
-            // {
-            //     label: 'Ethereum',
-            //     chain: 1,
-            //     icon: ethIcon,
-            // },
-            {
-                label: 'Polygon',
-                chain: 137,
-                icon: plyIcon,
-            },
-            // {
-            //     label: 'SmartBCH',
-            //     chain: 10000,
-            //     icon: smartBchIcon,
-            // },
-        ];
         let isOpen = ref(false)
-        let selectedOption = ref(options[0]);
+        let chains = globals.CHAINS;
+        const selectedChain = ref(store.getSelectedChain())
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
         }
-        function selectOption(option) {
-            selectedOption.value = option;
-            isOpen.value = false;
+        function selectOption(chain) {
+            selectedChain.value = chain; // Update selectedChain directly
+            isOpen.value = false; // Close dropdown after selection
+            nextTick(() => {
+                // Ensure the DOM is updated after the chain has changed
+                console.log('Selected Chain updated!');
+            });
         }
         function handleClickOutside(event) {
             if (isOpen.value && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
                 isOpen.value = false;
             }
         }
+        watch(selectedChain, (newChain) => {
+            store.setSelectedChain(newChain);
+        });
         onMounted(() => {
             setTimeout(() => {
                 document.addEventListener("click", handleClickOutside);
@@ -119,10 +109,11 @@ export default {
             }
         })
 
-        return { dropdownRef, toggleDropdown, selectedOption, selectOption, options, isOpen, isWallet: core.isWallet, walletInfo, handleHome, ensUserName, openWalletModal, accountActive, truncatedAddress } 
+        return {selectedChain, chains, dropdownRef, toggleDropdown, selectOption, isOpen, isWallet: core.isWallet, walletInfo, handleHome, ensUserName, openWalletModal, accountActive, truncatedAddress } 
     }
     
 }
+
 </script>
 
 <template>
@@ -134,21 +125,21 @@ export default {
         <h3 class="title-nav">Verse Scratcher</h3>
         <div class="mobile-btn-wrap">
             <button 
-                    @click.stop="toggleDropdown()"
-                    class="btn verse-nav-chain">
-                    <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
-                    <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
-                </button>
-                <div v-if="isOpen" class="dropdown" ref="dropdownRef">
-                    <div 
-                        v-for="option in options" 
-                        :key="option.label" 
-                        @click="selectOption(option)"
-                        class="chain-option">
-                        <img :src="option.icon" :alt="option.label" height="24px" width="24px"/>
-                        {{ option.label }}
-                    </div>
+                @click.stop="toggleDropdown()"
+                class="btn verse-nav-chain">
+                <img :src="selectedChain.icon" :alt="selectedChain.label" height="24px" width="24px"/>
+                <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
+            </button>
+            <div v-if="isOpen" class="dropdown" ref="dropdownRef">
+                <div 
+                    v-for="chain in chains" 
+                    :key="chain.label" 
+                    @click="selectOption(chain)"
+                    class="chain-option">
+                    <img :src="chain.icon" :alt="chain.label" height="24px" width="24px"/>
+                    {{ chain.label }}
                 </div>
+            </div>
             <button class="btn verse-nav" v-if="!accountActive" @click="openWalletModal(true)">Connect</button>
             <button class="btn verse-nav mobile connected" v-if="accountActive" @click="openWalletModal(false)">
                 <img v-if="!!walletInfo" :src="walletInfo.icon" :alt="walletInfo.name" class="provider-logo"/>
@@ -171,18 +162,18 @@ export default {
                 <button 
                     @click.stop="toggleDropdown()"
                     class="btn verse-nav-chain">
-                    <img :src="selectedOption.icon" :alt="selectedOption.label" height="24px" width="24px"/>
-                    {{ selectedOption.label }}
+                    <img :src="selectedChain.icon" :alt="selectedChain.label" height="24px" width="24px"/>
+                    {{ selectedChain.label }}
                     <img src="@/assets/icons/chevron.svg" alt="Chevron" height="5px" width="10px"/>
                 </button>
                 <div v-if="isOpen" class="dropdown" ref="dropdownRef">
                     <div 
-                        v-for="option in options" 
-                        :key="option.label" 
-                        @click="selectOption(option)"
+                        v-for="chain in chains" 
+                        :key="chain.label" 
+                        @click="selectOption(chain)"
                         class="chain-option">
-                        <img :src="option.icon" :alt="option.label" height="24px" width="24px"/>
-                        {{ option.label }}
+                        <img :src="chain.icon" :alt="chain.label" height="24px" width="24px"/>
+                        {{ chain.label }}
                     </div>
                 </div>
             </div>
