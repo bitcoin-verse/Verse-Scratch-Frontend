@@ -146,6 +146,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     const search = new URLSearchParams(window.location.search);
 
     if(search.get("purchase-intent") == "true") {
+        getBalance();
+        buyStep.value = 2
         toggleModal()
         search.delete("purchase-intent");
         window.history.replaceState({}, '', `${window.location.pathname}`);

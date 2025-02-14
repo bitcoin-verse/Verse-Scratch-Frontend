@@ -6,7 +6,7 @@ import Redeem from '../pages/Redeem.vue'
 import { useAppKit } from '@reown/appkit/vue'
 import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
 import { store } from '../store.js'
@@ -19,6 +19,7 @@ export default {
     },  
     setup() {        
         const route = useRoute()
+        const router = useRouter();
         const contractAddresses = computed(() => store.getProductContractAddresses())
         const products = computed(() => store.getProducts().filter(product => product.active == true));
         const allProducts = computed(() => store.getProducts());
@@ -91,8 +92,14 @@ export default {
             }
         })
 
-        function openCampaign() {
-            route.push(`/?campaign=${item.campaign}&purchase-intent=true`);
+        function openCampaign(item) {
+            router.push({ 
+                path: '/', 
+                query: { 
+                    campaign: item.campaign, 
+                    'purchase-intent': 'true' 
+                } 
+            });
         }
 
         async function redeem(nftId) {
@@ -330,7 +337,7 @@ export default {
         }   
 
         return {
-            list, nfts, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
+            openCampaign, list, nfts, handleClickItem, newTicketModal, products, allProducts, selectedFilterOption, toggleFilterClaimed, contractAddresses, filterClaimed, openClaimDetail, claimNow, winModal, closeGiftModal, step, loading, giftModal, giftAccount, claimNFT, claimActive, modalLoading, toggleModal, accountActive, getTicketIds, ticketList, openDetail, openDetailScreen, closeDetailScreen, detailNFT, setScratched, redeem, getRedemptionStatus
         }   
     }
 }
@@ -362,7 +369,7 @@ export default {
                                 <h5>{{ item.ticketPriceString }} VERSE</h5>
                             </div>
                         </div>
-                        <button class="btn-select-col" :style="`background-color: ${item.homeLinkColor}`" @click="openCampaign()">Buy From This Collection</button>
+                        <button class="btn-select-col" :style="`background-color: ${item.homeLinkColor}`" @click="openCampaign(item)">Buy From This Collection</button>
                     </div>
                 </div>
             </div>
