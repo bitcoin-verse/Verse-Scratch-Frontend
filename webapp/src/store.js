@@ -279,7 +279,7 @@ const initProduct = () => {
 
 const initChain = () => {
   const storedChain = localStorage.getItem('selectedChain');
-  return storedChain ?? globals.CHAINS[0].label;
+  return storedChain ?? globals.CHAINS[1].label;
 };
 
 
