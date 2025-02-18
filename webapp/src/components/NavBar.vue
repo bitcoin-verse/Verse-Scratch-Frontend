@@ -1,7 +1,7 @@
 <script>
-import { getAccount, watchAccount, disconnect } from '@wagmi/core'
+import { getAccount, watchAccount, disconnect, switchChain, getChainId } from '@wagmi/core'
 import { useAppKit } from '@reown/appkit/vue'
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -21,17 +21,22 @@ export default {
         let isOpen = ref(false)
         let chains = globals.CHAINS;
         const selectedChain = ref(store.getSelectedChain())
+        const chainId = getChainId(core.config)
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
         }
-        function selectOption(chain) {
+
+        const selectOption = async (chain) => {
             selectedChain.value = chain; // Update selectedChain directly
             isOpen.value = false; // Close dropdown after selection
-            nextTick(() => {
-                // Ensure the DOM is updated after the chain has changed
-                console.log('Selected Chain updated!');
-            });
+            try {
+                if (chainId !== chain.chain) {
+                    await switchChain(core.config, { chainId: chain.chain })
+                }
+            } catch (e) {
+                console.log('ERROR', e);
+            }
         }
         function handleClickOutside(event) {
             if (isOpen.value && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
