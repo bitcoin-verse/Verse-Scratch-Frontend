@@ -21,13 +21,13 @@ export default {
         let isOpen = ref(false)
         let chains = globals.CHAINS;
         const selectedChain = ref(store.getSelectedChain())
-        const chainId = getChainId(core.config)
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
         }
 
         const selectOption = async (chain) => {
+            const chainId = getChainId(core.config)
             selectedChain.value = chain; // Update selectedChain directly
             isOpen.value = false; // Close dropdown after selection
             try {
