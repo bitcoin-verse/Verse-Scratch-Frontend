@@ -1,5 +1,4 @@
 import { reactive } from 'vue'
-import globals from './globals'
 
 const DEFAULT_PRODUCT_NAME = 'valentines';
 const products = [
