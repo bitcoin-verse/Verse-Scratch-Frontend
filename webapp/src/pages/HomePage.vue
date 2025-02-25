@@ -1,5 +1,5 @@
 <script>
-import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount } from '@wagmi/core'
+import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount, getBalance } from '@wagmi/core'
 import { useAppKit, useAppKitState } from '@reown/appkit/vue'
 import { ref, computed, watch } from 'vue';
 import ERC20ABI from '../abi/ERC20.json'
@@ -58,6 +58,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     let timeoutId;
     const priceUsd = ref(0);
     const purchaseAmount = ref(1);
+    const ethBalance = ref(0);
 
 
     const products = computed(() => store.getProducts().filter(product => product.active == true));
@@ -141,7 +142,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             buyStep.value = 2;
             giftTicket.value = false;
             giftAddress.value == ""
-            getBalance()
+            getVerseBalance()
         } 
         modalActive.value = !modalActive.value;
     }
@@ -158,7 +159,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     const search = new URLSearchParams(window.location.search);
 
     if(search.get("purchase-intent") == "true") {
-        getBalance();
+        getVerseBalance();
         buyStep.value = 2
         toggleModal()
         search.delete("purchase-intent");
@@ -373,7 +374,31 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 modalLoading.value = false;
             }
     }
-    async function getBalance() {
+    const getEthBalance = async () => {
+    try {
+      // const chainId = getChainId(core.config)
+      if (!accountRef.value || !accountRef.value.address) {
+        // console.log("Account not connected");
+        return;
+      }
+      // if (selectedChain.value.chain === 1 || chainId === 1) {
+      const data = await getBalance(core.config, {
+        address: accountRef.value.address,
+        chainId: 1,
+      });
+      // console.log('running',selectedChain.value.chain, chainId, data);
+      if (data) {
+        ethBalance.value = data.formatted;
+      }
+      // } else {
+      //     ethBalance.value = 0;
+      // }
+    } catch (e) {
+      console.error("Error fetching ethBalance", e);
+    }
+    };
+
+    async function getVerseBalance() {
         try {
             modalLoading.value = true;
             const data = await readContract(core.config, {
@@ -442,7 +467,12 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     reopenAfterConnection.value = false;
                     toggleModal()
                 }
-                getBalance();
+                if (chainId === 137) {
+                    getVerseBalance();
+                } else {
+                    getEthBalance();
+                }
+
             } else {
                 console.log("HOME ACOUNT NOT ACTIVE")
                 buyStep.value = 0;
@@ -493,7 +523,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     return {
         accountRef,
         web3ModalState,
-        getBalance,
+        getVerseBalance,
         connectAndClose,
         openModal,
         buyStep,
@@ -533,7 +563,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         singleTransactionApproval,
         toggleSingleApproval,
         txHash,
-        changeLocation
+        changeLocation,
+        ethBalance
     }
   }
 }
