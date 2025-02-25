@@ -43,6 +43,13 @@ export default {
             }
         }
         onMounted(() => {
+            const account = getAccount(core.config);
+            const hasChain = sessionStorage.getItem("selectedChain");
+            if (hasChain) {
+                selectedChain.value = chains.find(chain => chain.label === hasChain);
+            } else {
+                selectedChain.value = chains.find(chain => chain.label === account.chain.name) ?? chains[1];
+            }
             setTimeout(() => {
                 document.addEventListener("click", handleClickOutside);
             }, 0); // Delays event binding to ensure refs are assigned
@@ -77,6 +84,7 @@ export default {
         watchAccount(core.config, {
             onChange: async (account) => { 
                 accountRef.value = account
+                sessionStorage.setItem("selectedChain", accountRef.value.chain.name)
 
                 if(account.connector) {
                     if(account.connector.name === "WalletConnect") {
