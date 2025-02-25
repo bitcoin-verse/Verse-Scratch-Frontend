@@ -7,6 +7,12 @@ import ContractABI from '../abi/contract.json'
 import RouterContractABI from '../abi/router-contract.json';
 import Web3 from 'web3'
 import Footer from '../components/Footer.vue'
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalProgress,
+} from "../components/Modal";
 import axios from "axios"
 import { store } from '../store.js'
 import { logAmplitudeEvent } from "../helpers/analytics"
@@ -18,35 +24,41 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
   export default {
     components: {
-        Footer
-    }, 
+        Footer,
+        Modal,
+        ModalHeader,
+        ModalBody,
+        ModalProgress,
+    },
+
   setup() {
-    let web3ModalState = useAppKitState()
-    let accountRef = ref(getAccount(core.config))
-    let currentAccountAddress = ref("")
-    let modal = useAppKit()
-    let copyDone = ref(false)
-    let reopenAfterConnection = ref(false)
-    let accountActive = computed(() => accountRef.value.isConnected)
-    let correctNetwork = computed(() => accountRef.value.chainId === 137)
-    let modalActive = ref(false) 
-    let ensLoaded = ref("")
-    let verseBalance = ref(0);
-    let verseAllowance = ref(0)
-    let singleTransactionApproval = ref(false)
-    let giftInputLoad = ref(false)
-    let giftAddress = ref("");
-    let modalLoading = ref(false) 
-    let loadingMessage = ref("Getting Wallet Data")
-    let txHash = ref("")
-    let buyStep = ref(0) 
-    let giftTicket = ref(false); 
-    let showTimer = ref(false)
-    let ticketInputAddress = ref("")
-    let ticketInputValid = ref(true)
+    const web3ModalState = useAppKitState();
+    const accountRef = ref(getAccount(core.config));
+    const currentAccountAddress = ref("");
+    const modal = useAppKit();
+    const copyDone = ref(false);
+    const reopenAfterConnection = ref(false);
+    const accountActive = computed(() => accountRef.value.isConnected);
+    const correctNetwork = computed(() => accountRef.value.chainId === 137);
+    const modalActive = ref(false);
+    const ensLoaded = ref("");
+    const verseBalance = ref(0);
+    const verseAllowance = ref(0);
+    const singleTransactionApproval = ref(false);
+    const giftInputLoad = ref(false);
+    const giftAddress = ref("");
+    const modalLoading = ref(false);
+    const loadingMessage = ref("Getting Wallet Data");
+    const txHash = ref("");
+    const buyStep = ref(0);
+    const giftTicket = ref(false);
+    const showTimer = ref(false);
+    const ticketInputAddress = ref("");
+    const ticketInputValid = ref(true);
     let timeoutId;
-    let priceUsd = ref(0)
-    let purchaseAmount = ref(1)
+    const priceUsd = ref(0);
+    const purchaseAmount = ref(1);
+
 
     const products = computed(() => store.getProducts().filter(product => product.active == true));
     const activeProduct = computed(() => store.getProduct())
@@ -160,7 +172,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 
     async function approve() {
         txHash.value = ""
-        let approvalAmount = 30000000000000000000000000000
+        let approvalAmount = 30000000000000000000000000000n
         if(singleTransactionApproval.value == true) {
             let amount = activeProduct.value.ticketPrice * validatedAmount.value
             approvalAmount = Web3.utils.toWei(amount, 'ether');
@@ -530,33 +542,38 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
 <template>
     <!-- modals -->
     <div class="backdrop" v-if="modalActive && !web3ModalState.open">
-        <!-- modal for loading -->
-        <div class="modal" v-if="modalLoading">
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider" v-if="buyStep < 3">
-                <div class="modal-progress p50"></div>
-            </div>  
-            <div class="modal-divider" v-if="buyStep >= 3">
-                <div class="modal-progress p75"></div>
-            </div>  
-            <div class="modal-body">
-                <div class="img-spinner"></div>
-                <p v-if="!showTimer" class="loadingText">{{loadingMessage}}</p>
-                <h3 v-if="showTimer" class="title">Payment Successful</h3>
-                <a target="_blank" style="color: #0085FF; font-weight: 500;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
-                <p v-if="showTimer && !giftTicket" class="subtext short">Issuing ticket to your wallet and awaiting final confirmation</p>
-                <p v-if="showTimer && giftTicket" class="subtext short">Issuing ticket to the chosen wallet and awaiting final confirmation</p>
-                <div v-if="showTimer" class="attention-footer">
-                    <p>Expected Arrival in <strong>{{loadingMessage}}</strong></p>
-                </div>
-            </div>
-        </div>
+    <!-- modal for loading -->
 
-        <!-- modal for switching network -->
-        <div class="modal" v-if="accountActive && correctNetwork == false">
+    <Modal v-if="modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="buyStep < 3 ? 50 : 75" />
+      <ModalBody>
+        <div class="img-spinner"></div>
+        <p v-if="!showTimer" class="loadingText">{{ loadingMessage }}</p>
+        <h3 v-if="showTimer" class="title">Payment Successful</h3>
+        <a
+          target="_blank"
+          style="color: #0085ff; font-weight: 500"
+          :href="`https://polygonscan.com/tx/${txHash}`"
+          v-if="txHash && !showTimer"
+          >View blockchain transaction</a
+        >
+        <p v-if="showTimer && !giftTicket" class="subtext short">
+          Issuing ticket to your wallet and awaiting final confirmation
+        </p>
+        <p v-if="showTimer && giftTicket" class="subtext short">
+          Issuing ticket to the chosen wallet and awaiting final confirmation
+        </p>
+        <div v-if="showTimer" class="attention-footer">
+          <p>
+            Expected Arrival in <strong>{{ loadingMessage }}</strong>
+          </p>
+        </div>
+      </ModalBody>
+    </Modal>
+
+    <!-- modal for switching network -->
+    <!-- <div class="modal" v-if="accountActive && correctNetwork == false">
             <div>
                 <div class="modal-head">
                     <h3 class="title">Switch Network</h3>
@@ -566,237 +583,441 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="change-network"></div>
                     <h3 class="title">Wrong Network Selected</h3>
                     <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
-                    <button @click="requestNetworkChange()" class="btn verse-wide">Switch Wallet to Polygon</button>
+                    <button @click="requestNetworkChange(137)" class="btn verse-wide">Switch Wallet to Polygon</button>
                 </div>
             </div>
+        </div> -->
+
+    <!-- modal for connecting account -->
+    <Modal v-if="!accountActive || (buyStep == 0 && !modalLoading)">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="25" />
+      <ModalBody>
+        <div class="img-wallet"></div>
+        <h3 class="title">No Wallet Connected</h3>
+        <p class="subtext short">
+          Connect your wallet below to get started. We support all major wallet
+          providers.
+        </p>
+        <button @click="connectAndClose()" class="btn verse-wide">
+          Connect Wallet
+        </button>
+        <p class="modal-footer">
+          Haven't set up a wallet yet? Get your wallet up and running with just
+          a few clicks at
+          <a target="_blank" href="https://wallet.bitcoin.com/"
+            >wallet.bitcoin.com
+          </a>
+        </p>
+      </ModalBody>
+    </Modal>
+    <!-- modal for purchasing verse -->
+    <Modal v-if="buyStep == 1 && !modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="50" />
+      <ModalBody>
+        <div class="img-verse"></div>
+        <h3 class="title">Not Enough Verse</h3>
+        <p class="subtext short">
+          You need at least
+          <span>{{ activeProduct.ticketPrice }} VERSE</span> on Polygon in order
+          to purchase a ticket
+        </p>
+
+        <div class="wallet-balance">
+          <p class="balance-title">WALLET BALANCE</p>
+          <p class="balance">
+            {{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE
+          </p>
+        </div>
+        <button
+          class="btn verse-wide half"
+          @click="
+            logCtaEvent('buy');
+            changeLocation('https://verse.bitcoin.com/', newTab);
+          "
+        >
+          Buy VERSE
+        </button>
+        <button
+          class="btn verse-wide half secondary"
+          @click="
+            logCtaEvent('bridge');
+            changeLocation(
+              'https://wallet.polygon.technology/polygon/bridge',
+              newTab
+            );
+          "
+        >
+          Bridge VERSE
+        </button>
+        <p class="modal-footer">
+          Already bought VERSE? Click <a @click="getVerseBalance()">here</a> to
+          refresh your balance
+        </p>
+      </ModalBody>
+    </Modal>
+
+    <!-- allowance modal -->
+    <Modal v-if="buyStep == 3 && !modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="50" />
+      <ModalBody>
+        <div class="img-approve"></div>
+        <h3 class="title">Allow the use of VERSE</h3>
+        <p class="subtext">
+          You need to enable the use of at least
+          <span
+            >{{
+              parseInt(activeProduct.ticketPrice) *
+              parseInt(validatedAmount)
+            }}
+            VERSE</span
+          >. This is used to pay for your ticket.
+        </p>
+        <div class="gift-toggle-holder">
+          <h3 class="title">Allow for one transaction only</h3>
+          <label class="switch">
+            <input type="checkbox" v-on:change="toggleSingleApproval" />
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <button @click="approve()" class="btn verse-wide">
+          Allow the use of VERSE
+        </button>
+        <p class="modal-footer">
+          The Polygon network requires that you manually approve the spending of
+          each token in your wallet.
+          <a
+            target="blank"
+            href="https://revoke.cash/learn/approvals/what-are-token-approvals"
+            >learn more here.</a
+          >
+        </p>
+      </ModalBody>
+    </Modal>
+    <!-- purchase modal post approval -->
+    <Modal v-if="buyStep == 2 && !modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="activeProduct.multibuy ? 25 : 75" />
+      <ModalBody>
+        <div class="img-purchase"></div>
+        <h3 class="title">
+          Buy Ticket<span v-if="activeProduct.multibuy">s</span>
+        </h3>
+        <p v-if="activeProduct.multibuy" class="balance-purchase">
+          {{
+            correctNetwork
+              ? `AVAILABLE BALANCE: ${verseBalance.toFixed(0) || 0} VERSE`
+              : `AVAILABLE BALANCE: ${ethBalance || 0} ETH`
+          }}
+        </p>
+
+        <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
+          <h3 class="title">Total Tickets</h3>
+          <div class="input-holder">
+            <div
+              class="toggler up"
+              @click="purchaseAmount < 50 ? purchaseAmount++ : purchaseAmount"
+            >
+              <i class="icn-plus"></i>
+            </div>
+            <input
+              type="number"
+              :value="validatedAmount"
+              @input="updateAmount"
+              @blur="blurUpdateAmount"
+            />
+            <div
+              class="toggler down"
+              @click="purchaseAmount > 1 ? purchaseAmount-- : purchaseAmount"
+            >
+              <i class="icn-min"></i>
+            </div>
+          </div>
         </div>
 
-        <!-- modal for connecting account -->
-        <div class="modal" v-if="!accountActive || (buyStep == 0 && !modalLoading && correctNetwork)">
-            <div>
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider">
-                <div class="modal-progress p25"></div>
-            </div>  
-            <div class="modal-body">
-                <div class="img-wallet"></div>
-                <h3 class="title">No Wallet Connected</h3>
-                <p class="subtext short">Connect your wallet below to get started. We support all major wallet providers.</p>
-                <button @click="connectAndClose()" class="btn verse-wide">Connect Wallet</button>
-                <p class="modal-footer">Haven't set up a wallet yet? Get your wallet up and running with just a few clicks at <a target="_blank" href="https://wallet.bitcoin.com/">wallet.bitcoin.com </a></p>
-            </div>
-            </div>
-        </div>
-        <!-- modal for purchasing verse -->
-        <div class="modal" v-if="buyStep == 1 && !modalLoading && correctNetwork">
-            <div>
-                <div class="modal-head">
-                    <h3 class="title">Buy Ticket</h3>
-                    <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-                </div>
-                <div class="modal-divider">
-                    <div class="modal-progress p50"></div>
-                </div>  
-                <div class="modal-body">
-                    <div class="img-verse"></div>
-                    <h3 class="title">Not Enough Verse</h3>
-                    <p class="subtext short">You need at least <span>{{activeProduct.ticketPrice}} VERSE</span> on Polygon in order to purchase a ticket</p>
-
-                    <div class="wallet-balance">
-                        <p class="balance-title">WALLET BALANCE</p>
-                        <p class="balance">{{ verseBalance ? verseBalance.toFixed(2) : 0 }} VERSE</p>
-                    </div>
-                    <button class="btn verse-wide half" @click="logCtaEvent('buy'); changeLocation('https://verse.bitcoin.com/', newTab)">Buy VERSE</button>
-                    <button class="btn verse-wide half secondary" @click="logCtaEvent('bridge'); changeLocation('https://wallet.polygon.technology/polygon/bridge', newTab)">Bridge VERSE</button>
-                    <p class="modal-footer">Already bought VERSE? Click <a @click="getBalance()">here</a> to refresh your balance</p>
-                </div>
-            </div>
+        <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
+          <h3 class="title">
+            Send ticket<span v-if="purchaseAmount > 1">s</span> as a gift?
+          </h3>
+          <label class="switch">
+            <input
+              type="checkbox"
+              :checked="giftTicket"
+              v-on:change="toggleGift"
+            />
+            <span class="slider round"></span>
+          </label>
         </div>
 
-        <!-- allowance modal -->
-        <div class="modal" v-if="buyStep == 3 && !modalLoading && correctNetwork">
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider">
-                <div class="modal-progress p50"></div>
-            </div>  
-            <div class="modal-body">
-                <div class="img-approve"></div>
-                <h3 class="title">Allow the use of VERSE</h3>
-                <p class="subtext">You need to enable the use of at least <span>{{parseInt(activeProduct.ticketPrice) * parseInt(validatedAmount) }} VERSE</span>. This is used to pay for your ticket. </p>
-                <div class="gift-toggle-holder">
-                            <h3 class="title">Allow for one transaction only</h3>
-                            <label class="switch">
-                            <input type="checkbox" v-on:change="toggleSingleApproval">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                <button @click="approve()" class="btn verse-wide">Allow the use of VERSE</button>
-                <p class="modal-footer">The Polygon network requires that you manually approve the spending  of each token in your wallet. <a target="blank" href="https://revoke.cash/learn/approvals/what-are-token-approvals">learn more here.</a></p>
-            </div>
-        </div>
-        <!-- purchase modal post approval -->
-        <div class="modal" v-if="buyStep == 2 && !modalLoading && correctNetwork">
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider">
-                <div v-if="!activeProduct.multibuy" class="modal-progress p75"></div>
-                <div v-if="activeProduct.multibuy" class="modal-progress p25"></div>
-            </div>  
-            <div class="modal-body">
-                <div class="img-purchase"></div>
-                <h3 class="title">Buy Ticket<span v-if="activeProduct.multibuy">s</span></h3>
-                <p v-if="activeProduct.multibuy" class="balance-purchase">AVAILABLE BALANCE: {{ verseBalance.toFixed(0) || 0 }} VERSE</p>
-
-                <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
-                    <h3 class="title">Total Tickets</h3>
-                    <div class="input-holder">
-                        <div class="toggler up" @click="purchaseAmount < 50 ? purchaseAmount++ : purchaseAmount">
-                            <i class="icn-plus"></i>
-                        </div>
-                        <input type="number" :value="validatedAmount" @input="updateAmount" @blur="blurUpdateAmount">
-                        <div class="toggler down" @click="purchaseAmount > 1 ? purchaseAmount-- : purchaseAmount">
-                            <i class="icn-min"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gift-toggle-holder second" :class="{ opened: giftTicket }">
-                    <h3 class="title">Send ticket<span v-if="purchaseAmount > 1">s</span> as a gift?</h3>
-                    <label class="switch">
-                    <input type="checkbox" :checked="giftTicket" v-on:change="toggleGift">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-
-                <div class="gift-toggle-holder-bottom" v-if="giftTicket">
-                        <p>Please provide us with the Polygon wallet address of the person you want to gift the ticket to.</p>
-                        <input placeholder="Polygon Address" class="giftInput" @input="onTicketInputChange" style="color: white;" v-model="ticketInputAddress" type="text" v-if="giftTicket == true">
-                        <p v-if="ensLoaded.length > 0" style="color: white; text-align: center;  margin-top: 5px;  font-weight: 500"><small>{{ ensLoaded }}</small></p>
-                        <p  v-if="!ticketInputValid && ticketInputAddress.length > 0" style="margin-top: 11px; color: #c6bfff; text-align: center; font-weight: 500"><small>address is not valid</small></p>
-                    </div>  
-
-                <!-- enough balance -->
-                <div v-if="verseBalance >= validatedAmount * activeProduct.ticketPrice">
-                    <div v-if="!giftTicket">
-                        <a class="" target="_blank" @click="purchaseTicket()" >
-                            <button v-if="validatedAmount == 1" class="btn verse-wide">Buy a Ticket</button>
-                            <button v-if="validatedAmount > 1" class="btn verse-wide">Buy {{validatedAmount }} Tickets</button>
-                        </a>
-                    </div>
-
-                    <div v-if="giftInputLoad && giftTicket">
-                        <button class="btn verse-wide disabled">Checking Address</button>
-                    </div>
-
-                    <div v-if="giftInputLoad == false && giftTicket">
-                        <button class="btn verse-wide" @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0">Buy a Ticket</button>
-                        <button class="btn verse-wide disabled" v-if="ticketInputAddress.length == 0 && giftTicket">Submit an Address</button>
-                        <button class="btn verse-wide disabled" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0">Input Valid Address</button>
-                    </div>
-                </div>
-                
-                 <!-- not enough balance -->
-                <div v-if="verseBalance < validatedAmount * activeProduct.ticketPrice">
-                    <p class="warning-balance">You do not have the amount required ({{ validatedAmount * activeProduct.ticketPrice }} VERSE) to complete this order. </p>
-
-                    <br>
-                    
-                    <button v-if="validatedAmount == 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy a Ticket</button>
-                    <button v-if="validatedAmount > 1" class="btn verse-wide disabled" style="margin-top: 5px">Buy {{validatedAmount }} Tickets</button>
-                </div>
-
-            </div>
+        <div class="gift-toggle-holder-bottom" v-if="giftTicket">
+          <p>
+            Please provide us with the Polygon wallet address of the person you
+            want to gift the ticket to.
+          </p>
+          <input
+            placeholder="Polygon Address"
+            class="giftInput"
+            @input="onTicketInputChange"
+            style="color: white"
+            v-model="ticketInputAddress"
+            type="text"
+            v-if="giftTicket == true"
+          />
+          <p
+            v-if="ensLoaded.length > 0"
+            style="
+              color: white;
+              text-align: center;
+              margin-top: 5px;
+              font-weight: 500;
+            "
+          >
+            <small>{{ ensLoaded }}</small>
+          </p>
+          <p
+            v-if="!ticketInputValid && ticketInputAddress.length > 0"
+            style="
+              margin-top: 11px;
+              color: #c6bfff;
+              text-align: center;
+              font-weight: 500;
+            "
+          >
+            <small>address is not valid</small>
+          </p>
         </div>
 
-                <!-- purchase modal post approval -->
-        <div class="modal" v-if="buyStep == 4 && !modalLoading && correctNetwork">
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider">
-                <div class="modal-progress p75"></div>
-            </div>  
-            <div class="modal-body">
-                <div class="img-purchase"></div>
-                <h3 class="title">Final Step</h3>
-                <p class="subtext">You have at least <span>{{activeProduct.ticketPrice * validatedAmount}} VERSE</span> in your wallet, and you've approved spending it. All that's left to do is buy your ticket.</p>
+        <!-- enough balance -->
+        <div
+          v-if="
+            verseBalance >= validatedAmount * activeProduct.ticketPrice
+          "
+        >
+          <div v-if="!giftTicket">
+            <a class="" target="_blank" @click="purchaseTicket()">
+              <button v-if="validatedAmount == 1" class="btn verse-wide">
+                Buy a Ticket
+              </button>
+              <button v-if="validatedAmount > 1" class="btn verse-wide">
+                Buy {{ validatedAmount }} Tickets
+              </button>
+            </a>
+          </div>
 
-                <table>
-                    <tr>
-                        <td class="key">Ticket Collection</td>
-                        <td class="value">{{ activeProduct.title }}</td>
-                    </tr>
-                    <tr v-if="activeProduct.multibuy">
-                        <td class="key">Ticket Amount</td>
-                        <td class="value">{{ validatedAmount }}</td>
-                    </tr>
-                    <tr>
-                        <td class="key">Destination Address</td>
-                        <td class="value" v-if="ticketInputAddress">{{ ticketInputAddress.slice(0, 7) }}..</td>
-                        <td class="value" v-if="!ticketInputAddress">{{ accountRef.address.slice(0, 7)}}..</td>
-                    </tr>
-                </table>
+          <div v-if="giftInputLoad && giftTicket">
+            <button class="btn verse-wide disabled">Checking Address</button>
+          </div>
 
-
-                <div v-if="!giftTicket">
-                    <a class="" target="_blank" @click="purchaseTicket()" >
-                        <button v-if="validatedAmount == 1" class="btn verse-wide">Complete Purchase</button>
-                        <button v-if="validatedAmount > 1" class="btn verse-wide">Complete Purchase</button>
-                    </a>
-                </div>
-
-                <div v-if="giftInputLoad == false && giftTicket">
-                    <button class="btn verse-wide"  @click="purchaseTicket(ticketInputAddress)" v-if="giftTicket && ticketInputValid && ticketInputAddress.length > 0">Buy a Ticket</button>
-                    <button class="btn verse-wide disabled" v-if="ticketInputAddress.length == 0 && giftTicket">Submit an Address</button>
-                    <button class="btn verse-wide disabled" v-if="giftTicket && !ticketInputValid && ticketInputAddress.length > 0">Input Valid Address</button>
-                </div>
-            </div>
+          <div v-if="giftInputLoad == false && giftTicket">
+            <button
+              class="btn verse-wide"
+              @click="purchaseTicket(ticketInputAddress)"
+              v-if="
+                giftTicket && ticketInputValid && ticketInputAddress.length > 0
+              "
+            >
+              Buy a Ticket
+            </button>
+            <button
+              class="btn verse-wide disabled"
+              v-if="ticketInputAddress.length == 0 && giftTicket"
+            >
+              Submit an Address
+            </button>
+            <button
+              class="btn verse-wide disabled"
+              v-if="
+                giftTicket && !ticketInputValid && ticketInputAddress.length > 0
+              "
+            >
+              Input Valid Address
+            </button>
+          </div>
         </div>
 
-        <!-- normal finish -->
-        <div class="modal" v-if="buyStep == 5 && !modalLoading && correctNetwork">
-            <div class="modal-head">
-                <h3 class="title">Buy Ticket</h3>
-                <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-            </div>
-            <div class="modal-divider">
-                <div class="modal-progress p100"></div>
-            </div>  
-            <div class="modal-body">
-                <div>
-                    <div class="img-success"></div>
-                    <!-- gifted ticket delivery -->
-                    <div v-if="giftTicket">
-                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased & Gifted!</h3>
-                        <p class="subtext">The ticket has been sent to the your specified wallet! Share the following link to let them know:</p>
+        <!-- not enough balance -->
+        <div
+          v-if="verseBalance < validatedAmount * activeProduct.ticketPrice"
+        >
+          <p class="warning-balance">
+            You do not have the amount required ({{
+              validatedAmount * activeProduct.ticketPrice
+            }}
+            VERSE) to complete this order.
+          </p>
 
-                        <div class="ticketfield">
-                            <input class="ticketlink" type="text" :value="`https://scratcher.verse.bitcoin.com/tickets?gift=1&address=${giftAddress}`">
-                            <button style="cursor:pointer" v-if="!copyDone" class="btn-copy" @click="() => copyText()">copy</button>
-                            <button style="cursor:pointer" v-if="copyDone" class="btn-copy" @click="() => copyText()">copied</button>
-                        </div>
-                        <button class="btn verse-wide half extraTop extraTopMobile" style="margin-left: 0" @click="changeLocation('/')">Buy More Tickets</button>
-                        <button class="btn verse-wide half secondary extraTop" @click="changeLocation('/tickets')"  style="margin-right: 0">View your tickets</button>
-                    </div>
-                    <!-- normal ticket delivery -->
-                    <div v-if="!giftTicket">
-                        <h3 class="title">Ticket<span v-if="validatedAmount > 1">s</span> Purchased!</h3>
-                        <p class="subtext short" style="margin-bottom: 0;">Time to scratch your ticket<span style="color: #899BB5" v-if="validatedAmount > 1">s</span> and test your luck!</p>
-                        <button class="btn verse-wide" @click="changeLocation('/tickets')" >View Your Ticket<span v-if="validatedAmount > 1">s</span></button>
-                    </div>
-                </div>
-            </div>
+          <br />
+
+          <button
+            v-if="validatedAmount == 1"
+            class="btn verse-wide disabled"
+            style="margin-top: 5px"
+          >
+            Buy a Ticket
+          </button>
+          <button
+            v-if="validatedAmount > 1"
+            class="btn verse-wide disabled"
+            style="margin-top: 5px"
+          >
+            Buy {{ validatedAmount }} Tickets
+          </button>
         </div>
-    </div>
+      </ModalBody>
+    </Modal>
+
+    <!-- purchase modal post approval -->
+    <Modal v-if="buyStep == 4 && !modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="75" />
+      <ModalBody>
+        <div class="img-purchase"></div>
+        <h3 class="title">Final Step</h3>
+        <p class="subtext">
+          You have at least
+          <span
+            >{{ activeProduct.ticketPrice * validatedAmount }} VERSE</span
+          >
+          in your wallet, and you've approved spending it. All that's left to do
+          is buy your ticket.
+        </p>
+
+        <table>
+          <tr>
+            <td class="key">Ticket Collection</td>
+            <td class="value">{{ activeProduct.title }}</td>
+          </tr>
+          <tr v-if="activeProduct.multibuy">
+            <td class="key">Ticket Amount</td>
+            <td class="value">{{ validatedAmount }}</td>
+          </tr>
+          <tr>
+            <td class="key">Destination Address</td>
+            <td class="value" v-if="ticketInputAddress">
+              {{ ticketInputAddress.slice(0, 7) }}..
+            </td>
+            <td class="value" v-if="!ticketInputAddress">
+              {{ accountRef.address.slice(0, 7) }}..
+            </td>
+          </tr>
+        </table>
+
+        <div v-if="!giftTicket">
+          <a class="" target="_blank" @click="purchaseTicket()">
+            <button v-if="validatedAmount == 1" class="btn verse-wide">
+              Complete Purchase
+            </button>
+            <button v-if="validatedAmount > 1" class="btn verse-wide">
+              Complete Purchase
+            </button>
+          </a>
+        </div>
+
+        <div v-if="giftInputLoad == false && giftTicket">
+          <button
+            class="btn verse-wide"
+            @click="purchaseTicket(ticketInputAddress)"
+            v-if="
+              giftTicket && ticketInputValid && ticketInputAddress.length > 0
+            "
+          >
+            Buy a Ticket
+          </button>
+          <button
+            class="btn verse-wide disabled"
+            v-if="ticketInputAddress.length == 0 && giftTicket"
+          >
+            Submit an Address
+          </button>
+          <button
+            class="btn verse-wide disabled"
+            v-if="
+              giftTicket && !ticketInputValid && ticketInputAddress.length > 0
+            "
+          >
+            Input Valid Address
+          </button>
+        </div>
+      </ModalBody>
+    </Modal>
+
+    <!-- normal finish -->
+    <Modal v-if="buyStep == 5 && !modalLoading">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="100" />
+      <ModalBody>
+        <div class="img-success"></div>
+        <!-- gifted ticket delivery -->
+        <div v-if="giftTicket">
+          <h3 class="title">
+            Ticket<span v-if="validatedAmount > 1">s</span> Purchased &
+            Gifted!
+          </h3>
+          <p class="subtext">
+            The ticket has been sent to the your specified wallet! Share the
+            following link to let them know:
+          </p>
+
+          <div class="ticketfield">
+            <input
+              class="ticketlink"
+              type="text"
+              :value="`https://scratcher.verse.bitcoin.com/tickets?gift=1&address=${giftAddress}`"
+            />
+            <button
+              style="cursor: pointer"
+              v-if="!copyDone"
+              class="btn-copy"
+              @click="() => copyText()"
+            >
+              copy
+            </button>
+            <button
+              style="cursor: pointer"
+              v-if="copyDone"
+              class="btn-copy"
+              @click="() => copyText()"
+            >
+              copied
+            </button>
+          </div>
+          <button
+            class="btn verse-wide half extraTop extraTopMobile"
+            style="margin-left: 0"
+            @click="changeLocation('/')"
+          >
+            Buy More Tickets
+          </button>
+          <button
+            class="btn verse-wide half secondary extraTop"
+            @click="changeLocation('/tickets')"
+            style="margin-right: 0"
+          >
+            View your tickets
+          </button>
+        </div>
+        <!-- normal ticket delivery -->
+        <div v-if="!giftTicket">
+          <h3 class="title">
+            Ticket<span v-if="validatedAmount > 1">s</span> Purchased!
+          </h3>
+          <p class="subtext short" style="margin-bottom: 0">
+            Time to scratch your ticket<span
+              style="color: #899bb5"
+              v-if="validatedAmount > 1"
+              >s</span
+            >
+            and test your luck!
+          </p>
+          <button class="btn verse-wide" @click="changeLocation('/tickets')">
+            View Your Ticket<span v-if="validatedAmount > 1">s</span>
+          </button>
+        </div>
+      </ModalBody>
+    </Modal>
+  </div>
     <!-- <div class="wrongNetworkWarning" v-if="correctNetwork == false">
         <p><i class="fa fa-warning" style="margin-right: 10px; margin-left: 5px;"></i>Wallet connected to the wrong network, please switch your wallet to Polygon</p>
     </div> -->
