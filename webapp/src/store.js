@@ -112,118 +112,118 @@ const products = [
         description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
         socialImage: "https://scratcher.verse.bitcoin.com/meta_pizza.png"
       }
-  },
-  {
-    id: 4,
-    multibuy: true,
-    active: false,
-    campaign: 'christmas',
-    contractAddress: '0x748ec42a0664c026f7b392347f0cf99c8883333a',
-    ticketPriceString: '22,000',
-    bannerLarge: 'url(/christmas/banner-lg.png)',
-    cardPreviewLarge: 'url(/christmas/card-preview-lg.png)',
-    cardPreviewMedium: 'url(/christmas/card-preview-md.png)',
-    bucketUrl: 'verse-scratcher-images',
-    ticketPrice: 22000, 
-    title: 'Christmas',
-    cover: '/christmas/cover.png',
-    jackpotString: '8,888,888',
-    templateFolder: 'christmas',
-    homeLinkColor: '#a98529',
-    jackpot: 8888888,
-    lowestPrice: 888,
-    lowestPriceString: '888',
-    highestPrice: 800000,
-    highestPriceString: '800k',
-    backgroundImage: window.location.pathname === '/' ? `url('/christmas/background.png')` : `url('/darker.png')`,
-    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
-    homeSwitchColor: '#E02D2D',
-    jackpotBoxColorOne: '#232323',
-    jackpotBoxColorOneTitle: '#E02D2D',
-    jackpotBoxColorTwo: '#232323',
-    jackpotBoxColorTwoTitle: '#E02D2D',
-    jackpotBoxColorThree: '#232323',
-    jackpotBoxColorThreeTitle: '#E02D2D',
-    meta: {
-      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
-      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
-      socialImage: "https://scratcher.verse.bitcoin.com/meta_christmas.png"
     },
-  },
-  {
-    id: 6,
-    active: true,
-    multibuy: true,
-    campaign: 'default',
-    contractAddress: '0x1570cb8c20511e670174a8a25dae851f80bd9e11',
-    ticketPriceString: '3,000',
-    bannerLarge: 'url(/spaceexpeditions/banner-lg.png)',
-    cardPreviewLarge: 'url(/spaceexpeditions/card-preview-lg.png)',
-    cardPreviewMedium: 'url(/spaceexpeditions/card-preview-md.png)',
-    bucketUrl: 'verse-scratcher-images',
-    ticketPrice: 3000, 
-    title: 'Space Expeditions',
-    jackpotString: '1,000,000',
-    templateFolder: 'default',
-    homeLinkColor: '#0085FF',
-    jackpot: 1000000,
-    lowestPrice: 100,
-    lowestPriceString: '100',
-    highestPrice: 100000,
-    highestPriceString: '100k',
-    cover: '/spaceexpeditions/cover.png',
-    backgroundImage: window.location.pathname === '/' ? `url('/bg.png')` : `url('/darker.png')`,
-    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
-    homeSwitchColor: '#028DFD',
-    jackpotBoxColorOne: '#1F2D52',
-    jackpotBoxColorOneTitle: '#028DFD',
-    jackpotBoxColorTwo: '#1F2D52',
-    jackpotBoxColorTwoTitle: '#028DFD',
-    jackpotBoxColorThree: '#1F2D52',
-    jackpotBoxColorThreeTitle: '#028DFD',
-    meta: {
-      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
-      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
-      socialImage: "https://scratcher.verse.bitcoin.com/meta.png"
-    }
-  },
-  {
-    id: 5,
-    multibuy: true,
-    active: true,
-    campaign: 'valentines',
-    contractAddress: '0x0e2F51Ce5D9cD0cdfD091AB6a235D2ee5EF087d2',
-    ticketPriceString: '22,000',
-    bannerLarge: 'url(/valentines/banner-lg.png)',
-    cardPreviewLarge: 'url(/valentines/card-preview-lg.png)',
-    cardPreviewMedium: 'url(/valentines/card-preview-md.png)',
-    bucketUrl: 'verse-scratcher-images',
-    ticketPrice: 22000, 
-    title: "Valentine's Day",
-    cover: '/valentines/cover.png',
-    jackpotString: '8,888,888',
-    templateFolder: 'valentines',
-    homeLinkColor: '#a98529',
-    jackpot: 8888888,
-    lowestPrice: 888,
-    lowestPriceString: '888',
-    highestPrice: 800000,
-    highestPriceString: '800k',
-    backgroundImage: window.location.pathname === '/' ? `url('/valentines/background.png')` : `url('/darker.png')`,
-    bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
-    homeSwitchColor: '#A90101',
-    jackpotBoxColorOne: '#232323',
-    jackpotBoxColorOneTitle: '#A90101',
-    jackpotBoxColorTwo: '#232323',
-    jackpotBoxColorTwoTitle: '#A90101',
-    jackpotBoxColorThree: '#232323',
-    jackpotBoxColorThreeTitle: '#A90101',
-    meta: {
-      title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
-      description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
-      socialImage: "https://scratcher.verse.bitcoin.com/meta_valentines.png"
-    }
-  },
+    {
+      id: 4,
+      multibuy: true,
+      active: false,
+      campaign: 'christmas',
+      contractAddress: '0x748ec42a0664c026f7b392347f0cf99c8883333a',
+      ticketPriceString: '22,000',
+      bannerLarge: 'url(/christmas/banner-lg.png)',
+      cardPreviewLarge: 'url(/christmas/card-preview-lg.png)',
+      cardPreviewMedium: 'url(/christmas/card-preview-md.png)',
+      bucketUrl: 'verse-scratcher-images',
+      ticketPrice: 22000, 
+      title: 'Christmas',
+      cover: '/christmas/cover.png',
+      jackpotString: '8,888,888',
+      templateFolder: 'christmas',
+      homeLinkColor: '#a98529',
+      jackpot: 8888888,
+      lowestPrice: 888,
+      lowestPriceString: '888',
+      highestPrice: 800000,
+      highestPriceString: '800k',
+      backgroundImage: window.location.pathname === '/' ? `url('/christmas/background.png')` : `url('/darker.png')`,
+      bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+      homeSwitchColor: '#E02D2D',
+      jackpotBoxColorOne: '#232323',
+      jackpotBoxColorOneTitle: '#E02D2D',
+      jackpotBoxColorTwo: '#232323',
+      jackpotBoxColorTwoTitle: '#E02D2D',
+      jackpotBoxColorThree: '#232323',
+      jackpotBoxColorThreeTitle: '#E02D2D',
+      meta: {
+        title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+        description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+        socialImage: "https://scratcher.verse.bitcoin.com/meta_christmas.png"
+      },
+    },
+    {
+      id: 5,
+      multibuy: true,
+      active: true,
+      campaign: 'valentines',
+      contractAddress: '0x0e2F51Ce5D9cD0cdfD091AB6a235D2ee5EF087d2',
+      ticketPriceString: '22,000',
+      bannerLarge: 'url(/valentines/banner-lg.png)',
+      cardPreviewLarge: 'url(/valentines/card-preview-lg.png)',
+      cardPreviewMedium: 'url(/valentines/card-preview-md.png)',
+      bucketUrl: 'verse-scratcher-images',
+      ticketPrice: 22000, 
+      title: "Valentine's Day",
+      cover: '/valentines/cover.png',
+      jackpotString: '8,888,888',
+      templateFolder: 'valentines',
+      homeLinkColor: '#a98529',
+      jackpot: 8888888,
+      lowestPrice: 888,
+      lowestPriceString: '888',
+      highestPrice: 800000,
+      highestPriceString: '800k',
+      backgroundImage: window.location.pathname === '/' ? `url('/valentines/background.png')` : `url('/darker.png')`,
+      bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+      homeSwitchColor: '#A90101',
+      jackpotBoxColorOne: '#232323',
+      jackpotBoxColorOneTitle: '#A90101',
+      jackpotBoxColorTwo: '#232323',
+      jackpotBoxColorTwoTitle: '#A90101',
+      jackpotBoxColorThree: '#232323',
+      jackpotBoxColorThreeTitle: '#A90101',
+      meta: {
+        title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+        description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+        socialImage: "https://scratcher.verse.bitcoin.com/meta_valentines.png"
+      }
+    },
+    {
+      id: 6,
+      active: true,
+      multibuy: true,
+      campaign: 'default',
+      contractAddress: '0x1570cb8c20511e670174a8a25dae851f80bd9e11',
+      ticketPriceString: '3,000',
+      bannerLarge: 'url(/spaceexpeditions/banner-lg.png)',
+      cardPreviewLarge: 'url(/spaceexpeditions/card-preview-lg.png)',
+      cardPreviewMedium: 'url(/spaceexpeditions/card-preview-md.png)',
+      bucketUrl: 'verse-scratcher-images',
+      ticketPrice: 3000, 
+      title: 'Space Expeditions',
+      jackpotString: '1,000,000',
+      templateFolder: 'default',
+      homeLinkColor: '#0085FF',
+      jackpot: 1000000,
+      lowestPrice: 100,
+      lowestPriceString: '100',
+      highestPrice: 100000,
+      highestPriceString: '100k',
+      cover: '/spaceexpeditions/cover.png',
+      backgroundImage: window.location.pathname === '/' ? `url('/bg.png')` : `url('/darker.png')`,
+      bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+      homeSwitchColor: '#028DFD',
+      jackpotBoxColorOne: '#1F2D52',
+      jackpotBoxColorOneTitle: '#028DFD',
+      jackpotBoxColorTwo: '#1F2D52',
+      jackpotBoxColorTwoTitle: '#028DFD',
+      jackpotBoxColorThree: '#1F2D52',
+      jackpotBoxColorThreeTitle: '#028DFD',
+      meta: {
+        title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+        description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+        socialImage: "https://scratcher.verse.bitcoin.com/meta.png"
+      }
+    },
 ]
 
 const updateMetaData = (product) => {
@@ -276,18 +276,18 @@ const initProduct = () => {
   }
 }
 
-
-
 export const store = reactive({
   productId: initProduct(), // default product
+  
   updateProduct(value) {
-    this.productId = value
+    this.productId = value;
     let product = products.find(product => product.id === value);
     localStorage.setItem('collection', product.campaign);
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('campaign', product.campaign);
     window.location.search = urlParams;
   },
+  
   getProduct() {
     return products.find(product => product.id === this.productId);
   },
@@ -303,5 +303,6 @@ export const store = reactive({
     return products
   }
 })
+
 
 

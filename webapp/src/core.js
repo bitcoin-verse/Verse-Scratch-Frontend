@@ -1,5 +1,5 @@
 import { http } from "@wagmi/core"
-import { polygon } from "@reown/appkit/networks"
+import { polygon, mainnet } from "@reown/appkit/networks"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { walletConnect, injected, coinbaseWallet } from "@wagmi/connectors"
 
@@ -15,7 +15,7 @@ if (!sessionStorage.getItem("isWallet")) {
 }
 
 const projectId = "5d9e3863443e82e9222f3e3f5e075798"
-const networks = [polygon];
+const networks = [polygon, mainnet];
 const metadata = {
     name: "VERSE Scratcher",
     description: "Unveiling our first space expedition themed Scratch Tickets powered by VERSE - your instant path to fun and fortune",
@@ -23,22 +23,23 @@ const metadata = {
     icons: ["https://scratcher.verse.bitcoin.com/icon.png"],
 };
 
+const connectors = [];
+connectors.push(
+  walletConnect({ projectId, showQrModal: false, metadata }),
+);
+if (isWallet) {
+  connectors.push(injected({ shimDisconnect: true }))
+  connectors.push(coinbaseWallet({ appName: metadata.name }))
+}
+
 const wagmiAdapter = new WagmiAdapter({
+  wagmiChains: networks,
   projectId,
   networks,
-  connectors: [
-    walletConnect({ projectId, showQrModal: false, metadata }),
-    ...(
-      isWallet === true 
-        ? [] 
-        : [
-          injected({ shimDisconnect: true }),
-          coinbaseWallet({ appName: metadata.name })
-        ]
-    )
-  ],
+  connectors,
   transports: {
-    [polygon.id]: http("https://polygon.meowrpc.com"), //https://floral-empty-gas.matic.quiknode.pro/
+    [polygon.id]: http(),
+    [mainnet.id]: http(),
   },
 });
 
@@ -48,6 +49,5 @@ export default {
     metadata,
     wagmiAdapter,
     config: wagmiAdapter.wagmiConfig,
-    isWallet,
-    projectId
+    isWallet
 }
