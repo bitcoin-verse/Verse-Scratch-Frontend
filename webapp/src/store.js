@@ -277,16 +277,8 @@ const initProduct = () => {
   }
 }
 
-const initChain = () => {
-  const storedChain = localStorage.getItem('selectedChain');
-  return storedChain ?? globals.CHAINS[1].label;
-};
-
-
-
 export const store = reactive({
   productId: initProduct(), // default product
-  selectedChain: initChain(),
   
   updateProduct(value) {
     this.productId = value;
@@ -295,22 +287,6 @@ export const store = reactive({
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('campaign', product.campaign);
     window.location.search = urlParams;
-  },
-
-  // Get the current selected chain
-  getSelectedChain() {
-    return globals.CHAINS.find(chain => chain.label === this.selectedChain);
-  },
-
-  // Set selected chain (Ethereum, SmartBCH, etc.)
-  setSelectedChain(value) {
-    const currentChain = this.getSelectedChain();
-    if (value && value.label && typeof value.label === 'string') {
-        if (currentChain.label !== value.label) {
-            localStorage.setItem('selectedChain', value.label);
-            this.selectedChain = value.label;
-        }
-    }
   },
   
   getProduct() {

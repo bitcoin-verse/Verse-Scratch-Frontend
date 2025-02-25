@@ -1,12 +1,11 @@
 <script>
 import { getAccount, watchAccount, disconnect, switchChain, getChainId } from '@wagmi/core'
 import { useAppKit } from '@reown/appkit/vue'
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { logAmplitudeEvent } from "../helpers/analytics";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import core from "../core"
-import { store } from '../store.js'
 import globals from "../globals";
 
 export default {
@@ -20,7 +19,7 @@ export default {
         let dropdownRef = ref(null);
         let isOpen = ref(false)
         let chains = globals.CHAINS;
-        const selectedChain = ref(store.getSelectedChain())
+        const selectedChain = ref(globals.CHAINS[1]);
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
@@ -43,9 +42,6 @@ export default {
                 isOpen.value = false;
             }
         }
-        watch(selectedChain, (newChain) => {
-            store.setSelectedChain(newChain);
-        });
         onMounted(() => {
             setTimeout(() => {
                 document.addEventListener("click", handleClickOutside);
