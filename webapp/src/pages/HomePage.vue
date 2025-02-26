@@ -961,7 +961,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
               Buy {{ validatedAmount === 1 ? 'a Ticket with VERSE' : validatedAmount + ' Tickets with VERSE' }}
             </button>
           </span>
-          <span v-if="ethBalance > formattedEthPrice">
+          <span v-if="ethBalance > formattedEthPrice && !giftTicket">
             <button
               class="btn verse-wide"
               style="margin-top: 5px"
