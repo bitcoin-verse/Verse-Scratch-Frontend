@@ -1,4 +1,4 @@
-import ethIcon from '@/assets/icons/eth.png';
+// import ethIcon from '@/assets/icons/eth.png';
 import plyIcon from '@/assets/icons/ply.png';
 // import smartBchIcon from '@/assets/icons/smartbch.png';
 
@@ -9,11 +9,11 @@ export default {
     AMPLITUDE_API: '498ce6d5e47c1f87c8c0d2bd1078c4d1',
     VERSION: '2.0.2_CACHE_CLEAR_VALENTINES_RELEASE',
     CHAINS: [
-        {
-            label: 'Ethereum',
-            chain: 1,
-            icon: ethIcon,
-        },
+        // {
+        //     label: 'Ethereum',
+        //     chain: 1,
+        //     icon: ethIcon,
+        // },
         {
             label: 'Polygon',
             chain: 137,
