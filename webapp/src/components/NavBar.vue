@@ -19,7 +19,7 @@ export default {
         let dropdownRef = ref(null);
         let isOpen = ref(false)
         let chains = globals.CHAINS;
-        const selectedChain = ref(globals.CHAINS[1]);
+        const selectedChain = ref(globals.CHAINS[0]);
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
@@ -84,7 +84,13 @@ export default {
         watchAccount(core.config, {
             onChange: async (account) => { 
                 accountRef.value = account
-                sessionStorage.setItem("selectedChain", accountRef.value.chain.name)
+                if (account.chain?.name) {
+                    const newChain = chains.find(chain => chain.chain === account.chain.id);
+                    if (newChain) {
+                        selectedChain.value = newChain;
+                        sessionStorage.setItem("selectedChain", newChain.label);
+                    }
+                }
 
                 if(account.connector) {
                     if(account.connector.name === "WalletConnect") {
