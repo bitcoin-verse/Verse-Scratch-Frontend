@@ -15,7 +15,7 @@ import {
         abi: RouterContractABI,
         functionName: 'buyTicketsWithETH',
         value: price,
-        gas: 75000n,
+        gas: 350000n,
         args: [
           contractAddress,
           ticketCount,
