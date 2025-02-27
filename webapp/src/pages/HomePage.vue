@@ -455,6 +455,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     watch(activeProduct, newValue => {
         getAllowance()
         purchaseAmount.value = 1
+        fetchEthPrice();
 
         if(newValue.multibuy == false && verseBalance.value < 3000) {
             buyStep.value = 1;
