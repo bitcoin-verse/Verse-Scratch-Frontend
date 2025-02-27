@@ -15,10 +15,7 @@ import {
   ModalProgress,
 } from "../components/Modal";
 import { store } from '../store.js'
-import { logAmplitudeEvent } from "../helpers/analytics"
-import { getEthPrice, getNativeBalance, buyTicketsWithEth } from "../helpers/wagmiContract";
-import { getVersePrice } from "../helpers/api";
-import { changeLocation } from "../helpers/changeLocation";
+import { logAmplitudeEvent, getEthPrice, getNativeBalance, buyTicketsWithEth, getVersePrice, changeLocation } from "../helpers"
 import core from "../core.js"
 import globals from "../globals";
 

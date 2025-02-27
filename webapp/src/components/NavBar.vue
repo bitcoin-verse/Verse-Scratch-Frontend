@@ -2,8 +2,7 @@
 import { getAccount, watchAccount, disconnect, switchChain, getChainId } from '@wagmi/core'
 import { useAppKit } from '@reown/appkit/vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { logAmplitudeEvent } from "../helpers/analytics";
-import { changeLocation } from "../helpers/changeLocation";
+import { changeLocation, logAmplitudeEvent } from "../helpers";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import core from "../core"
