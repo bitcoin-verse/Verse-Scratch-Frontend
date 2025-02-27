@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { logAmplitudeEvent } from "../helpers/analytics";
+import { logAmplitudeEvent } from "../helpers";
 import { getAccount } from '@wagmi/core'
 import core from "../core"
 export default {

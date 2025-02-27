@@ -285,7 +285,8 @@ export const store = reactive({
     localStorage.setItem('collection', product.campaign);
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('campaign', product.campaign);
-    window.location.search = urlParams;
+    const newUrl = window.location.pathname + '?' + urlParams.toString();
+    window.history.replaceState(null, '', newUrl);
   },
   
   getProduct() {

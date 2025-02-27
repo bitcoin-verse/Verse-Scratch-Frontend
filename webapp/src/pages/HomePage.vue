@@ -2,6 +2,7 @@
 import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount, getBalance } from '@wagmi/core'
 import { useAppKit, useAppKitState } from '@reown/appkit/vue'
 import { ref, computed, watch } from 'vue';
+import { formatEther } from "viem";
 import ERC20ABI from '../abi/ERC20.json'
 import ContractABI from '../abi/contract.json'
 import RouterContractABI from '../abi/router-contract.json';
@@ -13,9 +14,8 @@ import {
   ModalBody,
   ModalProgress,
 } from "../components/Modal";
-import axios from "axios"
 import { store } from '../store.js'
-import { logAmplitudeEvent } from "../helpers/analytics"
+import { logAmplitudeEvent, getEthPrice, getNativeBalance, buyTicketsWithEth, getVersePrice, changeLocation } from "../helpers"
 import core from "../core.js"
 import globals from "../globals";
 
@@ -59,6 +59,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     const priceUsd = ref(0);
     const purchaseAmount = ref(1);
     const ethBalance = ref(0);
+    const ethPrice = ref(0);
+    const formattedEthPrice = ref(0);
 
 
     const products = computed(() => store.getProducts().filter(product => product.active == true));
@@ -71,18 +73,16 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       }
     })
     
-    async function getVersePrice() {
-        try {
-            let res = await axios.get("https://markets.api.bitcoin.com/coin/data?c=VERSE")
-            if(res.data.priceUsd) {
-                priceUsd.value = res.data.priceUsd
-            }
-        } catch (e) {
-            console.log(e)
-        }
+    async function fetchPrice() {
+      const price = await getVersePrice();
+      priceUsd.value = price;
     }
-    getVersePrice()
+    fetchPrice()
     async function requestNetworkChange() {
+        const currentChain = sessionStorage.getItem('selectedChain');
+        if (currentChain !== 'Polygon') {
+          sessionStorage.setItem('selectedChain', 'Polygon');
+        }
         await switchChain(core.config, { chainId: 137 })
     }
 
@@ -93,14 +93,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         })
     }
 
-    const validatedAmount = computed(() => {
-        if (purchaseAmount.value > 50) {
-            return 50;
-        } else if (purchaseAmount.value < 1) {
-            return 1;
-        }
-        return purchaseAmount.value;
-    })
+    const validatedAmount = computed(() => Math.min(Math.max(purchaseAmount.value, 1), 50));
 
     async function onTicketInputChange() {
         ticketInputValid.value = true
@@ -135,36 +128,51 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         }, 500); 
 
     }
+    const fetchNativeBalance = async () => {
+      const data = await getNativeBalance(accountRef.value.address, 137);
+      ethBalance.value = Number(data);
+    };
 
     function toggleModal() {
         if(modalActive.value == true) {
-            loadingMessage.value = ""
+            loadingMessage.value = "";
             buyStep.value = 2;
             giftTicket.value = false;
-            giftAddress.value == ""
-            getVerseBalance()
+            giftAddress.value = "";
+            fetchNativeBalance();
+            getVerseBalance();
+            fetchEthPrice();
         } 
         modalActive.value = !modalActive.value;
     }
 
-    function changeLocation(href, newTab) {
-        if (newTab) {
-            window.open(href);
-        } else {
-            window.location.href = href;
-        }
+    function goTo(href) {
+      changeLocation(href);
     }
 
-    // handle intent to toggle modal
     const search = new URLSearchParams(window.location.search);
 
-    if(search.get("purchase-intent") == "true") {
-        getVerseBalance();
-        buyStep.value = 2
-        toggleModal()
-        search.delete("purchase-intent");
-        window.history.replaceState({}, '', `${window.location.pathname}`);
+    if (search.get("purchase-intent") === "true") {
+      (async () => {
+        try {
+          await Promise.all([
+            getVerseBalance(),
+            fetchNativeBalance(),
+            fetchEthPrice(),
+          ]);
+
+          buyStep.value = 2;
+          modalActive.value = true;
+
+          search.delete("purchase-intent");
+          const newUrl = `${window.location.pathname}?${search.toString()}`;
+          window.history.replaceState({}, '', newUrl);
+        } catch (error) {
+          console.error("Error handling purchase intent:", error);
+        }
+      })();
     }
+
 
 
     function toggleSingleApproval() {
@@ -249,13 +257,30 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             txHash.value = hash
             loadingMessage.value = "Waiting for blockchain confirmation"
             await waitForTransactionReceipt(core.config, { hash })
-            startTimer()
+
         } catch (e) {
             console.log(e)
             modalLoading.value = false
             return 
-        }   
+        }
+        startTimer() 
 
+    }
+
+    const purchaseTicketsWithEth = async () => {
+      txHash.value = "";
+      loadingMessage.value = "Please confirm the purchase in your wallet"
+      modalLoading.value = true
+      try {
+        const hash = await buyTicketsWithEth(activeProduct.value.contractAddress, purchaseAmount.value, ethPrice.value)
+        txHash.value = hash
+        loadingMessage.value = "Waiting for blockchain confirmation"
+        await waitForTransactionReceipt(core.config, { hash })
+        startTimer()
+      } catch (e) {
+        console.log(e);
+        modalLoading.value = false
+      }
     }
 
     async function purchaseTicket(_giftAddress) {
@@ -374,32 +399,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                 modalLoading.value = false;
             }
     }
-    const getEthBalance = async () => {
-    try {
-      // const chainId = getChainId(core.config)
-      if (!accountRef.value || !accountRef.value.address) {
-        // console.log("Account not connected");
-        return;
-      }
-      // if (selectedChain.value.chain === 1 || chainId === 1) {
-      const data = await getBalance(core.config, {
-        address: accountRef.value.address,
-        chainId: 1,
-      });
-      // console.log('running',selectedChain.value.chain, chainId, data);
-      if (data) {
-        ethBalance.value = data.formatted;
-      }
-      // } else {
-      //     ethBalance.value = 0;
-      // }
-    } catch (e) {
-      console.error("Error fetching ethBalance", e);
-    }
-    };
+
 
     async function getVerseBalance() {
         try {
+          if (accountRef.value.chainId !== 137) return;
             modalLoading.value = true;
             const data = await readContract(core.config, {
                 address: globals.VERSE_TOKEN_CONTRACT_ADDRESS,
@@ -432,9 +436,23 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             }
     }
 
+    async function fetchEthPrice() {
+      const data = await getEthPrice(activeProduct.value.contractAddress, purchaseAmount.value);
+      ethPrice.value = data;
+      formattedEthPrice.value = formatEther(data);
+    }
+
+    watch(purchaseAmount, newValue => {
+      if (newValue) {
+        fetchNativeBalance();
+        fetchEthPrice();
+      }
+    })
+
     watch(activeProduct, newValue => {
         getAllowance()
         purchaseAmount.value = 1
+        fetchEthPrice();
 
         if(newValue.multibuy == false && verseBalance.value < 3000) {
             buyStep.value = 1;
@@ -467,11 +485,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     reopenAfterConnection.value = false;
                     toggleModal()
                 }
-                if (chainId === 137) {
-                    getVerseBalance();
-                } else {
-                    getEthBalance();
-                }
+                getVerseBalance();
+                fetchNativeBalance();
+                fetchEthPrice();
 
             } else {
                 console.log("HOME ACOUNT NOT ACTIVE")
@@ -517,7 +533,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     }
 
     const updateAmount = (event) => {
-        purchaseAmount.value = event.target.value;
+      purchaseAmount.value = event.target.value;
     }
 
     return {
@@ -563,8 +579,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         singleTransactionApproval,
         toggleSingleApproval,
         txHash,
-        changeLocation,
-        ethBalance
+        goTo,
+        ethBalance,
+        ethPrice,
+        purchaseTicketsWithEth,
+        formattedEthPrice,
     }
   }
 }
@@ -604,23 +623,18 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </Modal>
 
     <!-- modal for switching network -->
-    <!-- <div class="modal" v-if="accountActive && correctNetwork == false">
-            <div>
-                <div class="modal-head">
-                    <h3 class="title">Switch Network</h3>
-                    <p class="iholder"><i @click="toggleModal()" class="close-btn" ></i></p>
-                </div>
-                <div class="modal-body">
-                    <div class="change-network"></div>
-                    <h3 class="title">Wrong Network Selected</h3>
-                    <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
-                    <button @click="requestNetworkChange(137)" class="btn verse-wide">Switch Wallet to Polygon</button>
-                </div>
-            </div>
-        </div> -->
+    <Modal v-if="accountActive && !correctNetwork">
+      <ModalHeader :title="'Switch Network'" @toggleModal="toggleModal()" />
+      <ModalBody>
+          <div class="change-network"></div>
+          <h3 class="title">Wrong Network Selected</h3>
+          <p class="subtext">Verse Scratch uses the Polygon network. Please change the network in your connected wallet or click the button below to switch automatically.</p>
+          <button @click="requestNetworkChange(137)" class="btn verse-wide">Switch Wallet to Polygon</button>
+      </ModalBody>
+    </Modal>
 
     <!-- modal for connecting account -->
-    <Modal v-if="!accountActive || (buyStep == 0 && !modalLoading)">
+    <Modal v-if="!accountActive || (buyStep === 0 && !modalLoading)">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="25" />
       <ModalBody>
@@ -643,7 +657,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       </ModalBody>
     </Modal>
     <!-- modal for purchasing verse -->
-    <Modal v-if="buyStep == 1 && !modalLoading">
+    <!-- <Modal v-if="buyStep == 1 && !modalLoading && accountRef.chainId === 137">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="50" />
       <ModalBody>
@@ -665,7 +679,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           class="btn verse-wide half"
           @click="
             logCtaEvent('buy');
-            changeLocation('https://verse.bitcoin.com/', newTab);
+            goTo('https://verse.bitcoin.com/');
           "
         >
           Buy VERSE
@@ -674,10 +688,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           class="btn verse-wide half secondary"
           @click="
             logCtaEvent('bridge');
-            changeLocation(
-              'https://wallet.polygon.technology/polygon/bridge',
-              newTab
-            );
+            goTo(
+              'https://wallet.polygon.technology/polygon/bridge');
           "
         >
           Bridge VERSE
@@ -688,9 +700,52 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         </p>
       </ModalBody>
     </Modal>
+    <Modal v-if="buyStep == 1 && !modalLoading && accountRef.chainId ===1">
+      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
+      <ModalProgress :progress="50" />
+      <ModalBody>
+        <div class="img-verse"></div>
+        <h3 class="title">Not Enough ETH</h3>
+        <p class="subtext short">
+          You need at least
+          <span>{{ ethPrice.valueOf }} ETH</span> in order
+          to purchase a ticket
+        </p>
+
+        <div class="wallet-balance">
+          <p class="balance-title">WALLET BALANCE</p>
+          <p class="balance">
+            {{ ethBalance ? ethBalance : 0 }} ETH
+          </p>
+        </div>
+        <button
+          class="btn verse-wide half"
+          @click="
+            logCtaEvent('buy');
+            goTo('https://verse.bitcoin.com/');
+          "
+        >
+          Buy VERSE
+        </button>
+        <button
+          class="btn verse-wide half secondary"
+          @click="
+            logCtaEvent('bridge');
+            goTo(
+              'https://wallet.polygon.technology/polygon/bridge');
+          "
+        >
+          Bridge VERSE
+        </button>
+        <p class="modal-footer">
+          Already bought VERSE? Click <a @click="getVerseBalance()">here</a> to
+          refresh your balance
+        </p>
+      </ModalBody>
+    </Modal> -->
 
     <!-- allowance modal -->
-    <Modal v-if="buyStep == 3 && !modalLoading">
+    <Modal v-if="buyStep == 3 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="50" />
       <ModalBody>
@@ -728,7 +783,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       </ModalBody>
     </Modal>
     <!-- purchase modal post approval -->
-    <Modal v-if="buyStep == 2 && !modalLoading">
+    <Modal v-if="buyStep == 2 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="activeProduct.multibuy ? 25 : 75" />
       <ModalBody>
@@ -737,11 +792,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           Buy Ticket<span v-if="activeProduct.multibuy">s</span>
         </h3>
         <p v-if="activeProduct.multibuy" class="balance-purchase">
-          {{
-            correctNetwork
-              ? `AVAILABLE BALANCE: ${verseBalance.toFixed(0) || 0} VERSE`
-              : `AVAILABLE BALANCE: ${ethBalance || 0} ETH`
-          }}
+          AVAILABLE BALANCE:
+          <div>
+            {{ `${verseBalance.toFixed(0) || 0} VERSE`}}
+          </div>
+          <div v-if="ethBalance">          
+            {{`${ethBalance || 0} POL`}}
+          </div>
         </p>
 
         <div class="gift-toggle-holder" v-if="activeProduct.multibuy">
@@ -827,21 +884,36 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           "
         >
           <div v-if="!giftTicket">
-            <a class="" target="_blank" @click="purchaseTicket()">
-              <button v-if="validatedAmount == 1" class="btn verse-wide">
-                Buy a Ticket
+              <button
+                class="btn verse-wide"
+                style="margin-top: 5px"
+                @click="purchaseTicket"
+              >
+                Buy {{ validatedAmount === 1 ? 'a Ticket with VERSE' : validatedAmount + ' Tickets with VERSE' }}
               </button>
-              <button v-if="validatedAmount > 1" class="btn verse-wide">
-                Buy {{ validatedAmount }} Tickets
+              <button
+                v-if="formattedEthPrice && ethBalance <= formattedEthPrice"
+                class="btn verse-wide disabled"
+                style="margin-top: 5px"
+                disabled
+              >
+                Buy {{ validatedAmount === 1 ? 'a Ticket for '  : validatedAmount + ' Tickets for '}} {{formattedEthPrice}} POL
               </button>
-            </a>
+              <button
+                v-else-if="formattedEthPrice && ethBalance >= formattedEthPrice"
+                class="btn verse-wide"
+                style="margin-top: 5px"
+                @click="purchaseTicketsWithEth"
+              >
+                Buy {{ validatedAmount === 1 ? 'a Ticket for '  : validatedAmount + ' Tickets for '}} {{formattedEthPrice}} POL
+              </button>
           </div>
 
-          <div v-if="giftInputLoad && giftTicket">
+          <div v-else-if="giftInputLoad && giftTicket">
             <button class="btn verse-wide disabled">Checking Address</button>
           </div>
 
-          <div v-if="giftInputLoad == false && giftTicket">
+          <div v-else-if="!giftInputLoad && giftTicket">
             <button
               class="btn verse-wide"
               @click="purchaseTicket(ticketInputAddress)"
@@ -853,7 +925,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             </button>
             <button
               class="btn verse-wide disabled"
-              v-if="ticketInputAddress.length == 0 && giftTicket"
+              v-if="ticketInputAddress.length === 0 && giftTicket"
             >
               Submit an Address
             </button>
@@ -872,35 +944,36 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <div
           v-if="verseBalance < validatedAmount * activeProduct.ticketPrice"
         >
-          <p class="warning-balance">
-            You do not have the amount required ({{
-              validatedAmount * activeProduct.ticketPrice
-            }}
-            VERSE) to complete this order.
-          </p>
+        <p class="warning-balance">
+          You do not have the amount required (
+            {{ validatedAmount * activeProduct.ticketPrice + ' VERSE )' }}
+          to complete this order.
+        </p>
 
           <br />
-
-          <button
-            v-if="validatedAmount == 1"
-            class="btn verse-wide disabled"
-            style="margin-top: 5px"
-          >
-            Buy a Ticket
-          </button>
-          <button
-            v-if="validatedAmount > 1"
-            class="btn verse-wide disabled"
-            style="margin-top: 5px"
-          >
-            Buy {{ validatedAmount }} Tickets
-          </button>
+          <span v-if="verseBalance < validatedAmount * activeProduct.ticketPrice">
+            <button
+              class="btn verse-wide disabled"
+              style="margin-top: 5px"
+            >
+              Buy {{ validatedAmount === 1 ? 'a Ticket with VERSE' : validatedAmount + ' Tickets with VERSE' }}
+            </button>
+          </span>
+          <span v-if="ethBalance > formattedEthPrice && !giftTicket">
+            <button
+              class="btn verse-wide"
+              style="margin-top: 5px"
+              @click="purchaseTicketsWithEth"
+            >
+              Buy {{ validatedAmount === 1 ? 'a Ticket for '  : validatedAmount + ' Tickets for '}} {{formattedEthPrice}} POL
+            </button>
+          </span>
         </div>
       </ModalBody>
     </Modal>
 
     <!-- purchase modal post approval -->
-    <Modal v-if="buyStep == 4 && !modalLoading">
+    <Modal v-if="buyStep == 4 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="75" />
       <ModalBody>
@@ -975,7 +1048,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </Modal>
 
     <!-- normal finish -->
-    <Modal v-if="buyStep == 5 && !modalLoading">
+    <Modal v-if="buyStep == 5 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="100" />
       <ModalBody>
@@ -1017,13 +1090,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           <button
             class="btn verse-wide half extraTop extraTopMobile"
             style="margin-left: 0"
-            @click="changeLocation('/')"
+            @click="goTo('/')"
           >
             Buy More Tickets
           </button>
           <button
             class="btn verse-wide half secondary extraTop"
-            @click="changeLocation('/tickets')"
+            @click="goTo('/tickets')"
             style="margin-right: 0"
           >
             View your tickets
@@ -1042,7 +1115,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
             >
             and test your luck!
           </p>
-          <button class="btn verse-wide" @click="changeLocation('/tickets')">
+          <button class="btn verse-wide" @click="goTo('/tickets')">
             View Your Ticket<span v-if="validatedAmount > 1">s</span>
           </button>
         </div>
@@ -1065,13 +1138,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                         <i v-if="products.length > 1" class="chev-down"></i>
                         <!-- {{ activeProduct.title }} -->
                         <select v-model="selectedProductId" >
-                        <option v-for="product in products" :key="product.id" :value="product.id">
-                            {{ product.title.toUpperCase() }}
-                        </option>
-                        <!-- <option value="1">Selected Collection: Space Expedition</option>
-                        <option value="2">Legacy Collection: Christmas 1999</option>
-                        <option value="3">2024 Chinese New Year</option> -->
-                    </select>
+                          <option v-for="product in products" :key="product.id" :value="product.id">
+                              {{ product.title.toUpperCase() }}
+                          </option>
+                          <!-- <option value="1">Selected Collection: Space Expedition</option>
+                          <option value="2">Legacy Collection: Christmas 1999</option>
+                          <option value="3">2024 Chinese New Year</option> -->
+                      </select>
                     </div>
                     <div class="topblock">
                         <p>JACKPOT</p>
@@ -1092,7 +1165,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     </div>
                     <button class="btn verse-wide home" @click="toggleModal(); logCtaEvent('buy ticket')">Buy Ticket</button>
                     <button class="btn verse-wide secondary" @click="openModal()" v-if="!accountActive" style="margin-top: 10px!important;">Connect Wallet</button>
-                    <button class="btn verse-wide secondary" v-if="accountActive" @click="changeLocation('/tickets')" style="margin-top: 10px!important;">View My Tickets</button>
+                    <button class="btn verse-wide secondary" v-if="accountActive" @click="goTo('/tickets')" style="margin-top: 10px!important;">View My Tickets</button>
 
                     <p class="terms-link">*Self custodial and verifiably random, powered by smart contracts and Chainlink VRF. <a target="_blank" href="https://support.bitcoin.com/en/articles/8607322-verse-scratcher-faq">Learn More</a></p>
                 </div>

@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 import { reconnect } from '@wagmi/core'
 import NavBar from './components/NavBar.vue'
 import { createAppKit } from '@reown/appkit/vue'
-import { initAmplitude, logAmplitudeEvent } from "./helpers/analytics"
+import { initAmplitude, logAmplitudeEvent } from "./helpers"
 import { computed } from 'vue';
 
 import { store } from './store.js'

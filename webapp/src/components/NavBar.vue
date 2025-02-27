@@ -2,7 +2,7 @@
 import { getAccount, watchAccount, disconnect, switchChain, getChainId } from '@wagmi/core'
 import { useAppKit } from '@reown/appkit/vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { logAmplitudeEvent } from "../helpers/analytics";
+import { changeLocation, logAmplitudeEvent } from "../helpers";
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import core from "../core"
@@ -10,16 +10,16 @@ import globals from "../globals";
 
 export default {
     setup() {
-        let walletInfo = ref(null)
-        let accountRef = ref(getAccount(core.config))
-        let truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
-        let modal = useAppKit()
-        let accountActive = computed(() => accountRef.value.isConnected)
-        let ensUserName = ref(null);
-        let dropdownRef = ref(null);
-        let isOpen = ref(false)
-        let chains = globals.CHAINS;
-        const selectedChain = ref(globals.CHAINS[1]);
+        const walletInfo = ref(null)
+        const accountRef = ref(getAccount(core.config))
+        const truncatedAddress = computed(() => truncateEthAddress(accountRef.value.address ?? ""))
+        const modal = useAppKit()
+        const accountActive = computed(() => accountRef.value.isConnected)
+        const ensUserName = ref(null);
+        const dropdownRef = ref(null);
+        const isOpen = ref(false)
+        const chains = globals.CHAINS;
+        const selectedChain = ref(globals.CHAINS[0]);
 
         function toggleDropdown() {
             isOpen.value = !isOpen.value;
@@ -43,6 +43,13 @@ export default {
             }
         }
         onMounted(() => {
+            const account = getAccount(core.config);
+            const hasChain = sessionStorage.getItem("selectedChain");
+            if (hasChain) {
+                selectedChain.value = chains.find(chain => chain.label === hasChain);
+            } else {
+                selectedChain.value = chains.find(chain => chain.label === account.chain.name) ?? chains[0];
+            }
             setTimeout(() => {
                 document.addEventListener("click", handleClickOutside);
             }, 0); // Delays event binding to ensure refs are assigned
@@ -58,11 +65,11 @@ export default {
             })
         }
 
-        function handleHome(newTab) {
-            if(window.location.pathname == '/') {
-                window.open("https://verse.bitcoin.com", newTab ? "_blank" : "_self")
+        function handleHome() {
+            if (window.location.pathname === '/') {
+                changeLocation("https://verse.bitcoin.com", true);
             } else {
-                window.open("/", "_self")
+                changeLocation("/");
             }
         }
 
@@ -77,6 +84,13 @@ export default {
         watchAccount(core.config, {
             onChange: async (account) => { 
                 accountRef.value = account
+                if (account.chain?.name) {
+                    const newChain = chains.find(chain => chain.chain === account.chain.id);
+                    if (newChain) {
+                        selectedChain.value = newChain;
+                        sessionStorage.setItem("selectedChain", newChain.label);
+                    }
+                }
 
                 if(account.connector) {
                     if(account.connector.name === "WalletConnect") {
@@ -119,7 +133,7 @@ export default {
 
 <template>
     <div class="navbar-mobile">
-        <a @click="handleHome(!isWallet)">
+        <a @click="handleHome()">
             <div class="nav-chev"></div>
             <div class="nav-verse"></div>
         </a>
@@ -148,12 +162,10 @@ export default {
         </div>
     </div>
     <div class="navbar">
-        <a style="cursor: pointer;" href="/">
+        <a style="cursor: pointer;" @click="handleHome()">
             <div class="logo">
-                <a @click="handleHome(!isWallet)">
-                    <div class="nav-chev"></div>
-                    <div class="nav-verse"></div>
-                </a>
+                <div class="nav-chev"></div>
+                <div class="nav-verse"></div>
             </div>
         </a>
         <h3 class="title-nav-desk">Verse Scratcher</h3>
