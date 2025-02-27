@@ -67,7 +67,6 @@ export default {
         }
 
         function handleHome() {
-            console.log(window.location.pathname);
             if (window.location.pathname === '/') {
                 changeLocation("https://verse.bitcoin.com", true);
             } else {
