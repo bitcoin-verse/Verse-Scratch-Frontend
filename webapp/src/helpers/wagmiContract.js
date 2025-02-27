@@ -7,7 +7,7 @@ import {
   import globals from "../globals";
   import RouterContractABI from "../abi/router-contract.json";
 
-  export const buyTicketsWithEth = async (contractAddress, ticketCount, price, account) => {
+  export const buyTicketsWithEth = async (contractAddress, ticketCount, price) => {
 
     try {
       const hash = await writeContract(core.config, {
