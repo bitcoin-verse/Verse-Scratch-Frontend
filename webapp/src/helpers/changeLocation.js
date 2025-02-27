@@ -1,5 +1,5 @@
-export const changeLocation = (href) => {
-    if (href.includes('http')) {
+export const changeLocation = (href, back) => {
+    if (href.includes('http') && !back) {
       window.open(href);
     } else {
       window.location.href = href;
