@@ -780,9 +780,9 @@ body {
   width: 100%;
 }
 
-svg {
-  display: none!important;
-}
+/* svg {
+  display: none !important;
+} */
 
 .lds-ring {
   display: inline-block;

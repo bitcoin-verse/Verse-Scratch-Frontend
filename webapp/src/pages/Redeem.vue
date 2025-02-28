@@ -5,18 +5,20 @@ import ContractABI from '../abi/contract.json'
 import { changeLocation } from '../helpers'
 import core from '../core.js';
 import { polygon } from '@reown/appkit/networks';
+import Sparkles from '../components/Sparkles.vue';
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 
-let count = ref(0);
-let imageLoaded = ref(false)
-let modalTutorial = ref(true)
-let showTutorial = ref(true)
-let winModal = ref(false)
-let modalLoading = ref(false)
-let modalLoadingText = ref("")
-let txHash = ref("")
-let modalFinish = ref(false)
+const count = ref(0);
+const imageLoaded = ref(false)
+const modalTutorial = ref(true)
+const showTutorial = ref(true)
+const winModal = ref(false)
+const modalLoading = ref(false)
+const modalLoadingText = ref("")
+const txHash = ref("")
+const modalFinish = ref(false)
+const autoScratch = ref(undefined)
 
 if(props.claim == true) {
     winModal.value = true
@@ -62,50 +64,67 @@ const redeem = async (address) => {
     }
 }
 
+const finalizeTicket = () => {
+    winModal.value = true
 
+    const duration = 3 * 1000,
+    animationEnd = Date.now() + duration,
+    defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        if(sessionStorage.getItem('isWallet') === "false") {
+            confetti(
+                    Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    })
+                );
+            confetti(
+                Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                })
+            )
+        } 
+    }, 200)
+}
+
+const startScratch = () => {
+    autoScratch.value = true;
+    finalizeTicket();
+}
 
 watch(count, async (newValue)=> {
-    if (newValue == 8) { 
+    if (newValue > 0) {
+       autoScratch.value = false     
+    }
+    if (newValue === 8) { 
         
         localStorage.setItem(props.detailNFT.id.toString() + '/' + props.detailNFT.address.toString(), true)
 
-        const finalizeTicket = () => {
-            winModal.value = true
+        setTimeout(() => {
+            finalizeTicket()
+        }, 2000)
+    }
 
-            const duration = 3 * 1000,
-            animationEnd = Date.now() + duration,
-            defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+})
 
-            function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-            }
-
-            const interval = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
-
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
-
-            const particleCount = 50 * (timeLeft / duration);
-
-            if(sessionStorage.getItem('isWallet') === "false") {
-                confetti(
-                        Object.assign({}, defaults, {
-                        particleCount,
-                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                        })
-                    );
-                confetti(
-                    Object.assign({}, defaults, {
-                    particleCount,
-                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                    })
-                )
-            }
-                
-            }, 200)
-        }
+watch(autoScratch, async (newValue)=> {
+    if (newValue === true) { 
+        
+        localStorage.setItem(props.detailNFT.id.toString() + '/' + props.detailNFT.address.toString(), true)
 
         setTimeout(() => {
             finalizeTicket()
@@ -234,8 +253,12 @@ onMounted(() => {
     <div class="background"></div>
     <div class="page">
         <div class="cont" id="conthandler">
-            <div class="progress">
-                <h3>FIELDS SCRATCHED {{ count }} / 8</h3>
+            <div class="progress" v-if="autoScratch === false || claim">
+                <span>{{ claim ? '8' : count }} / 8 SCRATCHED </span>
+            </div>
+            <div class="auto" v-else-if="autoScratch === undefined || autoScratch === true" @click="startScratch()">
+                <Sparkles />
+                <span> Auto Scratch </span>
             </div>
             <a @click="closeDetailScreen()"><div class="close-scratch"></div></a>
             <div v-if="!imageLoaded" style="padding: 100px;">
@@ -244,14 +267,16 @@ onMounted(() => {
                 </div>
             </div>
             <div class="ticketholder animate__animated animate__backInDown " v-show="imageLoaded" :style="{'background-image': `url(https://${detailNFT.bucketUrl}.s3.amazonaws.com/${detailNFT.id}/${detailNFT.address}.jpg)` } ">
-                <canvas id="scratchcanvas1" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas2" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas3" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas4" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas5" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas6" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas7" width="69" height="69"></canvas>
-                <canvas id="scratchcanvas8" width="69" height="69"></canvas>
+                <span v-if="!autoScratch">
+                    <canvas id="scratchcanvas1" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas2" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas3" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas4" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas5" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas6" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas7" width="69" height="69"></canvas>
+                    <canvas id="scratchcanvas8" width="69" height="69"></canvas>
+                </span>
             </div>
         </div>
     </div>
@@ -363,11 +388,33 @@ onMounted(() => {
     margin-left: calc(50% - 110px);
     margin-bottom: 60px;
     user-select: none; 
-    h3 {
+    span {
         color: #C5CEDB;
         font-size: 14px;
-        font-weight: 800;
+        font-weight: 600;
         margin: 0;
+    }
+}
+.auto {
+    @media(max-width: 880px) {
+        margin-top: 20px;
+        margin-bottom: 21px;
+    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0F518F;
+    border-radius: 24px;
+    text-align: center;
+    padding: 9px;
+    width: 138px;
+    margin: 0 auto 60px;
+    user-select: none; 
+    span {
+        color: #C5CEDB;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 0 8px;
     }
 }
 .background {
@@ -408,8 +455,8 @@ onMounted(() => {
     }
 }
 .cont {
-    width: 350px;
-    margin-left: calc(50% - 175px);
+    width: 100%;
+    margin: auto;
     @media(max-width: 880px) {
         padding-top: 0;
         padding-left: 0;
@@ -425,7 +472,6 @@ onMounted(() => {
     }
 }
 .ticketholder {
-    position: absolute;
     margin: 0 auto;
     background-size: contain;
     background-repeat: no-repeat;
