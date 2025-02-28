@@ -5,7 +5,7 @@ import ContractABI from '../abi/contract.json'
 import { changeLocation } from '../helpers'
 import core from '../core.js';
 import { polygon } from '@reown/appkit/networks';
-import Sparkles from '../components/Sparkles.vue';
+import Sparkles from './Sparkles.vue';
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 

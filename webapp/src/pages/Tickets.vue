@@ -2,7 +2,7 @@
 import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
-import Redeem from '../pages/Redeem.vue'
+import Redeem from '../components/Redeem.vue'
 import { useAppKit } from '@reown/appkit/vue'
 import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
