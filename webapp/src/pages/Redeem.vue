@@ -456,7 +456,6 @@ onMounted(() => {
 }
 .cont {
     width: 100%;
-    /* margin-left: calc(50% - 175px); */
     margin: auto;
     @media(max-width: 880px) {
         padding-top: 0;
