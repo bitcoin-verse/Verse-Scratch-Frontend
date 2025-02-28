@@ -2,7 +2,9 @@
 import { waitForTransactionReceipt, writeContract} from '@wagmi/core'
 import { ref, onMounted, watch } from 'vue';
 import ContractABI from '../abi/contract.json'
-import core from "../core.js"
+import { changeLocation } from '../helpers'
+import core from '../core.js';
+import { polygon } from '@reown/appkit/networks';
 
 const props = defineProps(['closeDetailScreen', 'claim', 'detailNFT', 'setScratched', 'toggleModal'])
 
@@ -29,8 +31,8 @@ const toggleShow = () => {
     localStorage.setItem('showTutorial', showTutorial.value)
 }
 
-const viewTickets = () => {
-    window.location.reload();
+const goTo = (href) => {
+    changeLocation(href ?? '/tickets');
 }
 
 const redeem = async (address) => {
@@ -192,7 +194,7 @@ onMounted(() => {
                         <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
                         <button class="btn verse-wide" @click="redeem(detailNFT.address)">Claim Now</button>
-                        <button class="btn verse-wide secondary" @click="viewTickets()">View My Tickets</button>
+                        <button class="btn verse-wide secondary" @click="goTo()">View My Tickets</button>
                     </div>
                 </div>
             </div>
@@ -204,7 +206,8 @@ onMounted(() => {
                     <div>
                         <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and congrats on your win!</p>
-                        <button class="btn verse-wide" @click="viewTickets()">View My Tickets</button>           
+                        <button class="btn verse-wide" @click="goTo()">View My Tickets</button>
+                        <button class="btn verse-wide secondary" @click="goTo(`${polygon.blockExplorers.default.url}/tx/${txHash}`)">View Transaction</button>              
                     </div>
                 </div>
             </div>
@@ -215,7 +218,13 @@ onMounted(() => {
                     <div>
                         <div class="img-spinner" style="margin-top: 25px"></div>
                         <h3 class="title-loading">{{ modalLoadingText }}</h3>
-                        <a target="_blank" style="color: #0085FF; font-weight: 800;" :href="`https://polygonscan.com/tx/${txHash}`" v-if="txHash && !showTimer">View blockchain transaction</a>
+                        <button
+                            class="btn verse-wide secondary"
+                            @click="goTo(`${polygon.blockExplorers.default.url}/tx/${txHash}`)"
+                            v-if="txHash && polygon"
+                        >
+                            View blockchain transaction
+                        </button>
                     </div>
                 </div>
             </div>
