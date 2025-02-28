@@ -210,7 +210,7 @@ onMounted(() => {
                 <div>
                     <div class="img-purchase"></div>
                     <div>
-                        <h3 class="title">You have won<br/>{{ detailNFT.prize}} VERSE</h3>
+                        <h3 class="title">You have won<br/>{{ Number(detailNFT.prize).toLocaleString()}} VERSE</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Congratulations! Claim your prize instantly, or save it for later.</p>
                         <button class="btn verse-wide" @click="redeem(detailNFT.address)">Claim Now</button>
                         <button class="btn verse-wide secondary" @click="goTo()">View My Tickets</button>
@@ -223,7 +223,7 @@ onMounted(() => {
                 <div>
                     <div class="img-purchase"></div>
                     <div>
-                        <h3 class="title">{{ detailNFT.prize}} VERSE<br/>secured!</h3>
+                        <h3 class="title">{{ Number(detailNFT.prize).toLocaleString()}} VERSE<br/>secured!</h3>
                         <p class="subtext short" style="margin-bottom: 0;">Thank you for playing, and congrats on your win!</p>
                         <button class="btn verse-wide" @click="goTo()">View My Tickets</button>
                         <button class="btn verse-wide secondary" @click="goTo(`${polygon.blockExplorers.default.url}/tx/${txHash}`)">View Transaction</button>              
