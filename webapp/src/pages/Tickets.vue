@@ -2,7 +2,7 @@
 import { getAccount, waitForTransactionReceipt, readContract, disconnect, writeContract, watchAccount } from '@wagmi/core'
 import { ref, computed } from 'vue';
 import ERC721ABI from '../abi/ERC721.json'
-import Redeem from '../pages/Redeem.vue'
+import Redeem from '../components/Redeem.vue'
 import { useAppKit } from '@reown/appkit/vue'
 import ContractABI from '../abi/contract.json'
 import ERC721 from '../abi/ERC721.json'
@@ -452,8 +452,8 @@ export default {
                 </div>
 
                 <button v-if="item.scratched == false && item.claimed == false" class="btn verse-wide secondary" @click="openDetailScreen(item.id, item.address)">Scratch Ticket</button>
-                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id, item.address)" class="btn verse-wide" >Claim {{item.prize}} VERSE</button>
-                <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >{{item.prize}} VERSE Claimed</button>
+                <button v-if="item.scratched == true && item.claimed == false" @click="openClaimDetail(item.id, item.address)" class="btn verse-wide" >Claim {{Number(item.prize).toLocaleString()}} VERSE</button>
+                <button v-if="item.claimed == true" class="btn verse-wide secondary disabled claimed" >{{Number(item.prize).toLocaleString()}} VERSE Claimed</button>
             </div>
         </div>
 
