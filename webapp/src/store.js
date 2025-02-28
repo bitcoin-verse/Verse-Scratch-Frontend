@@ -224,6 +224,43 @@ const products = [
         socialImage: "https://scratcher.verse.bitcoin.com/meta.png"
       }
     },
+    {
+      id: 7,
+      active: true,
+      multibuy: true,
+      campaign: 'womensday',
+      contractAddress: '0x3d3b4c51ebd470c444499e08015e2f07303b0c46',
+      ticketPriceString: '22,000',
+      bannerLarge: 'url(/womensday/banner-lg.png)',
+      cardPreviewLarge: 'url(/womensday/card-preview-lg.png)',
+      cardPreviewMedium: 'url(/womensday/card-preview-md.png)',
+      bucketUrl: 'verse-scratcher-images',
+      ticketPrice: 22000, 
+      title: "International Women's Day",
+      jackpotString: '8,888,888',
+      templateFolder: 'womensday',
+      homeLinkColor: '#a741f1',
+      jackpot: 8888888,
+      lowestPrice: 888,
+      lowestPriceString: '888',
+      highestPrice: 800000,
+      highestPriceString: '800k',
+      cover: '/womensday/cover.png',
+      backgroundImage: window.location.pathname === '/' ? `url('/womensday/background.png')` : `url('/darker.png')`,
+      bodyStick: window.location.pathname === '/' ? `unset` : `fixed`,
+      homeSwitchColor: '#6a0dad',
+      jackpotBoxColorOne: '#232323',
+      jackpotBoxColorOneTitle: '#6a0dad',
+      jackpotBoxColorTwo: '#232323',
+      jackpotBoxColorTwoTitle: '#6a0dad',
+      jackpotBoxColorThree: '#232323',
+      jackpotBoxColorThreeTitle: '#6a0dad',
+      meta: {
+        title: "Scratch & Win: On-Chain Scratch Tickets Powered by Verse",
+        description: "Purchase and play on-chain scratch tickets with instant results and immediate prize claims.",
+        socialImage: "https://scratcher.verse.bitcoin.com/meta_womensday.png"
+      }
+    },
 ]
 
 const updateMetaData = (product) => {
