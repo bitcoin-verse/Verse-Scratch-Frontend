@@ -1,6 +1,7 @@
 <script>
 import { getAccount, waitForTransactionReceipt, switchChain, readContract, writeContract, watchAccount, getBalance } from '@wagmi/core'
 import { useAppKit, useAppKitState } from '@reown/appkit/vue'
+import { polygon } from '@reown/appkit/networks';
 import { ref, computed, watch } from 'vue';
 import { formatEther } from "viem";
 import ERC20ABI from '../abi/ERC20.json'
@@ -601,13 +602,13 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
         <div class="img-spinner"></div>
         <p v-if="!showTimer" class="loadingText">{{ loadingMessage }}</p>
         <h3 v-if="showTimer" class="title">Payment Successful</h3>
-        <a
-          target="_blank"
-          style="color: #0085ff; font-weight: 500"
-          :href="`https://polygonscan.com/tx/${txHash}`"
-          v-if="txHash && !showTimer"
-          >View blockchain transaction</a
+        <button
+          class="btn verse-wide secondary"
+          @click="goTo(`${polygon.blockExplorers.default.url}/tx/${txHash}`)"
+          v-if="txHash && polygon && !showTimer"
         >
+          View blockchain transaction
+        </button>
         <p v-if="showTimer && !giftTicket" class="subtext short">
           Issuing ticket to your wallet and awaiting final confirmation
         </p>
@@ -657,7 +658,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       </ModalBody>
     </Modal>
     <!-- modal for purchasing verse -->
-    <!-- <Modal v-if="buyStep == 1 && !modalLoading && accountRef.chainId === 137">
+    <!-- <Modal v-if="buyStep === 1 && !modalLoading && accountRef.chainId === 137">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="50" />
       <ModalBody>
@@ -699,53 +700,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
           refresh your balance
         </p>
       </ModalBody>
-    </Modal>
-    <Modal v-if="buyStep == 1 && !modalLoading && accountRef.chainId ===1">
-      <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
-      <ModalProgress :progress="50" />
-      <ModalBody>
-        <div class="img-verse"></div>
-        <h3 class="title">Not Enough ETH</h3>
-        <p class="subtext short">
-          You need at least
-          <span>{{ ethPrice.valueOf }} ETH</span> in order
-          to purchase a ticket
-        </p>
-
-        <div class="wallet-balance">
-          <p class="balance-title">WALLET BALANCE</p>
-          <p class="balance">
-            {{ ethBalance ? ethBalance : 0 }} ETH
-          </p>
-        </div>
-        <button
-          class="btn verse-wide half"
-          @click="
-            logCtaEvent('buy');
-            goTo('https://verse.bitcoin.com/');
-          "
-        >
-          Buy VERSE
-        </button>
-        <button
-          class="btn verse-wide half secondary"
-          @click="
-            logCtaEvent('bridge');
-            goTo(
-              'https://wallet.polygon.technology/polygon/bridge');
-          "
-        >
-          Bridge VERSE
-        </button>
-        <p class="modal-footer">
-          Already bought VERSE? Click <a @click="getVerseBalance()">here</a> to
-          refresh your balance
-        </p>
-      </ModalBody>
     </Modal> -->
 
     <!-- allowance modal -->
-    <Modal v-if="buyStep == 3 && !modalLoading && correctNetwork">
+    <Modal v-if="buyStep === 3 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="50" />
       <ModalBody>
@@ -783,7 +741,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
       </ModalBody>
     </Modal>
     <!-- purchase modal post approval -->
-    <Modal v-if="buyStep == 2 && !modalLoading && correctNetwork">
+    <Modal v-if="buyStep === 2 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="activeProduct.multibuy ? 25 : 75" />
       <ModalBody>
@@ -973,7 +931,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </Modal>
 
     <!-- purchase modal post approval -->
-    <Modal v-if="buyStep == 4 && !modalLoading && correctNetwork">
+    <Modal v-if="buyStep === 4 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="75" />
       <ModalBody>
@@ -1048,7 +1006,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
     </Modal>
 
     <!-- normal finish -->
-    <Modal v-if="buyStep == 5 && !modalLoading && correctNetwork">
+    <Modal v-if="buyStep === 5 && !modalLoading && correctNetwork">
       <ModalHeader :title="'Buy Ticket'" @toggleModal="toggleModal()" />
       <ModalProgress :progress="100" />
       <ModalBody>
