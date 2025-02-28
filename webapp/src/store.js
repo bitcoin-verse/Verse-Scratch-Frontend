@@ -166,7 +166,7 @@ const products = [
       cover: '/valentines/cover.png',
       jackpotString: '8,888,888',
       templateFolder: 'valentines',
-      homeLinkColor: '#a98529',
+      homeLinkColor: '#e71717',
       jackpot: 8888888,
       lowestPrice: 888,
       lowestPriceString: '888',
