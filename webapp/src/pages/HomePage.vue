@@ -1095,7 +1095,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://eth-mainnet.g.alc
                     <div class="campaign-title">
                         <i v-if="products.length > 1" class="chev-down"></i>
                         <!-- {{ activeProduct.title }} -->
-                        <select v-model="selectedProductId" >
+                        <select v-model="selectedProductId" :style="{paddingRight: activeProduct.title.length < 23 ? null : `40px`}">
                           <option v-for="product in products" :key="product.id" :value="product.id">
                               {{ product.title.toUpperCase() }}
                           </option>
@@ -1324,6 +1324,9 @@ h1, h2, h3 {
             top: 30px;
             font-weight: 800;
             left: 30px;
+            @media(min-width: 1301px) {
+              max-width: 200px;
+            }
             @media(max-width: 1300px) {
                 left: 50px;
                 top: 10px;
