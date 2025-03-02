@@ -1442,29 +1442,19 @@ p.usd {
 .splitblock {
     width: 100%;
     min-height: 60px;
+    display: flex;
+    gap: 3px;
+
     .block {
         width: 50%;
-        float: left;
         padding: 12px 0;
         margin-top: 3px;
         text-align: center;
-        @media(max-width: 880px) {
-            /* width: calc(50% - 26px)!important; */
-            margin: 0;
-            margin-top: 3px;
-            min-height: unset!important;
-        }
-        @media(max-width: 1185px) {
-            min-height: 80px;
-        }
+        min-height: 60px;
+
         &.leftblock {
             border-bottom-left-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorTwo');
-            margin-right: 1%!important;
-            min-height: 60px;
-            @media(max-width: 880px) {
-                margin-right: 3px!important;
-            }
             h2 {
                 font-size: 17px;
                 text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
@@ -1483,11 +1473,9 @@ p.usd {
             }
         }
         &.rightblock {
-            width: calc(50% - 12.5px);
-            padding: 12px 4.5px;
+            padding: 12px 0px;
             border-bottom-right-radius: 12px;
             background: v-bind('activeProduct.jackpotBoxColorThree');
-            min-height: 60px;
             h2 {
                 font-size: 17px;
                 text-shadow: 3px 3px 0px #030420, 2px 2px 0px #030420, 1px 1px 0px #030420;
@@ -1513,7 +1501,7 @@ p.usd {
     padding: 12px;
     background: v-bind('activeProduct.jackpotBoxColorOne');
     border-radius: 0;
-    height: 90px;
+    min-height: 90px;
     p {
         margin: 0.5rem 0 0;
         text-align: center;
