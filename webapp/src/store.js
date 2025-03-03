@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-const isFlagDisabled = process.env.VUE_APP_FLAG === 'false' || import.meta.env.VITE_FLAG === 'false';
+const isFlagDisabled = import.meta.env.VITE_FLAG === 'false';
 const devProducts = ['womensday'];
 
 const DEFAULT_PRODUCT_NAME = 'valentines';
