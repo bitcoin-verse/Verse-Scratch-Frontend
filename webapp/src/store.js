@@ -236,7 +236,7 @@ const products = [
       cardPreviewMedium: 'url(/womensday/card-preview-md.png)',
       bucketUrl: 'verse-scratcher-images',
       ticketPrice: 22000, 
-      title: "International Women's Day",
+      title: "Women's Day",
       jackpotString: '8,888,888',
       templateFolder: 'womensday',
       homeLinkColor: '#a741f1',
