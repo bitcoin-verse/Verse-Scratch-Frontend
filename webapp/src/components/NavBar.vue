@@ -48,7 +48,7 @@ export default {
             if (hasChain) {
                 selectedChain.value = chains.find(chain => chain.label === hasChain);
             } else {
-                selectedChain.value = chains.find(chain => chain.label === account.chain.name) ?? chains[0];
+                selectedChain.value = chains.find(chain => chain.label === account.chain?.name) ?? chains[0];
             }
             setTimeout(() => {
                 document.addEventListener("click", handleClickOutside);
