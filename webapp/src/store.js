@@ -1,5 +1,8 @@
 import { reactive } from 'vue'
 
+const isFlagDisabled = import.meta.env.VITE_FLAG === 'false';
+const devProducts = ['womensday'];
+
 const DEFAULT_PRODUCT_NAME = 'valentines';
 const products = [
     {
@@ -293,16 +296,25 @@ export const store = reactive({
     return products.find(product => product.id === this.productId);
   },
   getRandomOtherProduct() {
-    const filtered = products.filter((p)=> p.id != this.productId && p.active == true);
-    const randomIdx = Math.floor(Math.random() * filtered.length);
-    return filtered[randomIdx];
+    const filtered = products.filter(p => 
+      p.id !== this.productId && 
+      p.active && 
+      (isFlagDisabled || !devProducts.includes(p.campaign))
+    );
+  
+    return filtered.length ? filtered[Math.floor(Math.random() * filtered.length)] : null;
   },
+  
   getProductContractAddresses() {
     return products.map(product => product.contractAddress)
   },
   getProducts() {
-    return products
-  }
+    if (isFlagDisabled) {
+      return products;
+    } else {
+      return products.filter((p) => !devProducts.includes((p.campaign)));
+    }
+  },
 })
 
 
